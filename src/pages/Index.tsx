@@ -19,7 +19,28 @@ const Index = () => {
   const products = getProducts().slice(0, 4); // Show first 4 products on homepage
 
   // Get the Star of David choker product
-  const starOfDavidProduct = featuredProducts.find((p) => p.id === 11);
+  const starOfDavidProduct = {
+    id: 11,
+    name: {
+      ru: "Чокер 'Звезда Давида' из стали",
+      en: "Steel 'Star of David' Choker",
+      ge: "ფოლადის 'დავითის ვარსკვლავი' ჩოკერი",
+    },
+    description: {
+      ru: 'Элегантный стальной чокер с подвеской в виде Звезды Давида. Символ иудаизма и еврейской идентичности. Идеально подходит для повседневного ношения и особых случаев. Выполнен из высококачественной хирургической стали, не вызывает аллергии и не темнеет со временем.',
+      en: 'Elegant steel choker featuring a Star of David pendant. A symbol of Judaism and Jewish identity. Perfect for both everyday wear and special occasions. Made from high-quality surgical steel, hypoallergenic and tarnish-resistant.',
+      ge: 'ელეგანტური ფოლადის ჩოკერი დავითის ვარსკვლავის ქინძისთავით. იუდაიზმისა და ებრაული იდენტობის სიმბოლო. იდეალურია როგორც ყოველდღიური, ასევე სპეციალური დღეებისთვის. დამზადებულია მაღალი ხარისხის ქირურგიული ფოლადისგან, ჰიპოალერგენული და გაუფერულებადი.',
+    },
+    price: 45,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/choker-dvd-1.jpg',
+      '/lovable-uploads/choker-dvd-2.jpg',
+    ],
+    category: 'chokers',
+    stock: 1,
+    featured: true,
+  };
 
   const toggleFeatured = () => {
     setShowFeatured(!showFeatured);
