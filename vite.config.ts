@@ -4,7 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/shoppy/' : '/',
+  base: mode === 'production' ? '/nekos-shop/' : '/',
   server: {
     host: "::",
     port: 8080,
