@@ -2,7 +2,7 @@
   "name": "shoppy",
   "private": true,
   "version": "1.0.0",
-  "homepage": "https://giuna17.github.io/nekos-shop",
+  "homepage": "https://giuna17.github.io/shoppy-master",
   "type": "module",
   "scripts": {
     "dev": "vite",
