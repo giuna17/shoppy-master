@@ -5,7 +5,7 @@ import { resolve } from 'path';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
-  const base = isProduction ? '/shoppy-master/' : '/';
+  const base = isProduction ? '/shoppy-master' : '/';
 
   return {
     base,
@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'process.env.NODE_ENV': `"${mode}"`,
+      'process.env.BASE_URL': `"${base}"`,
     },
   };
 });

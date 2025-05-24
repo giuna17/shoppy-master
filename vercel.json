@@ -5,30 +5,30 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "outputDirectory": "dist"
+        "distDir": "dist"
       }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "status": 200
+      "src": "^/assets/(.*)",
+      "dest": "/assets/$1"
     },
     {
-      "src": "/assets/(.*)",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
+      "src": "^/shoppy-master/assets/(.*)",
+      "dest": "/assets/$1"
     },
     {
-      "src": "/(.*)",
-      "headers": {
-        "cache-control": "public, max-age=0, must-revalidate"
-      }
+      "src": "^/lovable-uploads/(.*)",
+      "dest": "/lovable-uploads/$1"
+    },
+    {
+      "src": "^/shoppy-master/lovable-uploads/(.*)",
+      "dest": "/lovable-uploads/$1"
+    },
+    {
+      "src": "^/.*",
+      "dest": "/index.html"
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
