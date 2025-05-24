@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Reviews</title>
+    <script>
+        // Clear all reviews from localStorage
+        localStorage.removeItem('reviews');
+        alert('All reviews have been cleared from localStorage');
+        
+        // Also clear any session data
+        sessionStorage.removeItem('reviews');
+        
+        // Redirect back after a short delay
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+    </script>
+</head>
+<body>
+    <p>Clearing reviews and redirecting...</p>
+</body>
+</html>
