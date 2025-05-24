@@ -11,15 +11,15 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useCartContext } from '@/contexts/CartContext';
 
 const Index = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { addToCart } = useCartContext();
   const [showFeatured, setShowFeatured] = useState(true);
   const [showDiscounted, setShowDiscounted] = useState(false);
   const featuredProducts = getFeaturedProducts();
   const products = getProducts().slice(0, 4); // Show first 4 products on homepage
 
-  // Get the Star of David choker product
-  const starOfDavidProduct = {
+  // Get the Star of David choker product from the service
+  const starOfDavidProduct = getProducts().find(p => p.id === 11) || {
     id: 11,
     name: {
       ru: "Чокер 'Звезда Давида' из стали",
@@ -178,11 +178,11 @@ const Index = () => {
                         href={`/product/${starOfDavidProduct.id}`}
                       >
                         <h2 className="text-4xl font-bold text-crimson tracking-tight">
-                          {starOfDavidProduct.name.ru}
+                          {starOfDavidProduct.name[language]}
                         </h2>
                       </a>
                       <p className="text-lg text-foreground/90 leading-relaxed">
-                        {starOfDavidProduct.description.ru}
+                        {starOfDavidProduct.description[language]}
                       </p>
                       <div className="flex justify-between items-center pt-4">
                         <p className="text-3xl font-bold">

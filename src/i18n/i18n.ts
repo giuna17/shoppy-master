@@ -50,8 +50,8 @@ i18n.use(initReactI18next).init({
       translation: transformedTranslations.ge
     }
   },
-  lng: 'ru',
-  fallbackLng: 'ru',
+  lng: 'ge',
+  fallbackLng: 'ge',
   interpolation: {
     escapeValue: false,
   },

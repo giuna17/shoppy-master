@@ -171,9 +171,24 @@ export const translations: Translations = {
     ge: 'მიწოდება',
   },
   'footer.handmade': {
-    ru: 'Все изделия ручной работы, созданные с любовью и вниманием к деталям.',
-    en: 'All creations are handmade, crafted with love and attention to detail.',
-    ge: 'ყველა ნაკეთობა ხელნაკეთია, შექმნილია სიყვარულით და დეტალების ყურაღებით.',
+    ru: 'Руками, а не шаблоном. С душой, а не инструкцией.\nЕсли хочешь блестяшку — не сюда. Тут делают вещи с характером🪓',
+    en: 'Handmade, not templated. With soul, not instructions.\nIf you want something flashy — look elsewhere. Here we make things with character🪓',
+    ge: 'ხელით, არა შაბლონით. სულით, არა ინსტრუქციით.\nთუ ბრჭვიალს ეძებ — ეს ადგილი არ არის შენთვის. აქ ხასიათიან ნივთებს ვქმნით🪓',
+  },
+  'common.close': {
+    ru: 'Закрыть',
+    en: 'Close',
+    ge: 'დახურვა',
+  },
+  'delivery.title': {
+    ru: 'Информация о доставке',
+    en: 'Delivery Information',
+    ge: 'მიტანის ინფორმაცია',
+  },
+  'delivery.description': {
+    ru: 'Доставка по всему Тбилиси: цена 5 лари!\n\nСроки доставки: от 1 до 5 дней\n\nКурьер свяжется с вами заранее по указанному номеру телефона.\n\nПри заказе от 100 лари - доставка бесплатная!',
+    en: 'Delivery throughout Tbilisi: price 5 GEL!\n\nDelivery time: 1 to 5 days\n\nThe courier will contact you in advance using the provided phone number.\n\nFree delivery for orders over 100 GEL!',
+    ge: 'მიტანა მთელ თბილისში: ფასი 5 ლარი!\n\nმიტანის ვადები: 1 დღიდან 5 დღემდე\n\nკურიერი წინასწარ დაგიკავშირდებათ თქვენს მიერ მითითებულ ტელეფონის ნომერზე.\n\n100 ლარიდან ზემოთ შეკვეთებზე - მიტანა უფასოა!',
   },
   'footer.delivery': {
     ru: 'Доставка от 5 лари (доставка на дом).',
@@ -321,9 +336,9 @@ export const translations: Translations = {
     ge: '• უნიკალური ალტერნატიული სტილი',
   },
   'product.detail_3': {
-    ru: '• Фирменный дизайн Anarchy',
-    en: '• Signature Anarchy design',
-    ge: '• Anarchy-ის ხელმოწერილი დიზაინი',
+    ru: '• Фирменный дизайн Nekoshop - СДЕЛАНО ЛАПКАМИ',
+    en: '• Signature Nekoshop - PAWCRAFTS design',
+    ge: '• Nekoshop - დამზადებულია თათებით',
   },
   'product.detail_4': {
     ru: '• Сделано на века',
@@ -408,6 +423,11 @@ export const translations: Translations = {
     ru: 'В наличии',
     en: 'In stock',
     ge: 'Საწყობშია',
+  },
+  'filters.on_sale': {
+    ru: 'Со скидкой',
+    en: 'On sale',
+    ge: 'ფასდაკლებით',
   },
   'filters.apply': {
     ru: 'Применить',
@@ -531,7 +551,7 @@ export const translations: Translations = {
   'material.leather': {
     ru: 'Кожа',
     en: 'Leather',
-    ge: 'წიწაკა',
+    ge: 'ტყავი',
   },
   'material.fabric': {
     ru: 'Ткань',
@@ -686,6 +706,11 @@ export const translations: Translations = {
     ru: 'Отзывы могут оставлять только покупатели, которые приобрели этот товар.',
     en: 'Reviews can only be left by customers who have purchased this item.',
     ge: 'მიმოხილვების დატოვება შეუძლიათ მხოლოდ მომხმარებლებს, რომლებმაც შეიძინეს ეს ნივთი.',
+  },
+  'reviews.verified_only': {
+    ru: '(только проверенные покупки)',
+    en: '(verified purchases only)',
+    ge: '(მხოლოდ დადასტურებული შენაძენები)',
   },
   'reviews.leave_good_review_discount': {
     ru: 'Оставь хороший отзыв и получи 5% скидку на следующий заказ!',
@@ -972,7 +997,7 @@ export const translations: Translations = {
   'about.closing': {
     ru: 'NEKO SHOP это про свободу самодельщиков!',
     en: 'NEKO SHOP is about the freedom of makers!',
-    ge: 'NEKO SHOP თავისუფლების შესახება!',
+    ge: 'NEKO SHOP თავისუფლება თვითგამოხატვას!',
   },
 
   // FAQ translations
@@ -1034,7 +1059,7 @@ export const translations: Translations = {
   'faq.q5.answer': {
     ru: 'Потому что мы создаём всё, используя воображение и немного магии (хе-хе) и импровизацию!',
     en: 'Because we create everything using imagination and a bit of magic (hehe) and improvisation!',
-    ge: 'იმიტომ, რომ ჩვენ ყველაფერს ვქმნით ფანტაზიის, ცოტაოდენი მაგიის (ხხ) და იმპროვიზაციის გამოყენებით!'
+    ge: 'იმიტომ, რომ ჩვენ ყველაფერს ვქმნით ფანტაზიის, ცოტაოდენი მაგიის ( ჰე-ჰე ) და იმპროვიზაციის გამოყენებით!'
   },
   'faq.needHelp': {
     ru: 'Остались вопросы? Мы с радостью поможем!',
@@ -1361,6 +1386,16 @@ export const translations: Translations = {
     ru: 'Поиск по товарам...',
     en: 'Search products...',
     ge: 'პროდუქტების ძიება...',
+  },
+  'footer.shop': {
+    ru: 'Магазин',
+    en: 'Shop',
+    ge: 'მაღაზია',
+  },
+  'footer.alternative_jewelry': {
+    ru: 'Альтернативные украшения для тех, кто бросает вызов нормам и принимает анархию.',
+    en: 'Alternative jewelry for those who defy norms and embrace anarchy.',
+    ge: 'ალტერნატიული ბიჭაობა იმათთვის, ვინც უარყოფს ნორმებს და იღებს ანარქიას.',
   },
   'reviews.testimonials': {
     ru: 'Отзывы',

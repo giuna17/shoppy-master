@@ -1,20 +1,24 @@
 import { createContext, useContext } from 'react';
 
 export interface User {
-  id: number;
-  username: string;
-  email: string;
-  photoURL?: string;
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
   purchasedProducts: number[];
+  providerData?: any[];
+  emailVerified?: boolean;
+  phoneNumber?: string | null;
 }
 
 export interface AuthContextType {
   isLoggedIn: boolean;
   user: User | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
-  loginWithProvider: (provider: string) => Promise<void>;
+  logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   hasUserPurchasedProduct: (productId: number) => boolean;
 }
 

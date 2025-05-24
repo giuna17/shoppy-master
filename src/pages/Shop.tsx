@@ -25,9 +25,8 @@ const Shop = () => {
   const [filters, setFilters] = useState<FilterValues>({
     priceRange: [0, 1000],
     categories: urlCategory ? [urlCategory] : [],
-    materials: [],
-    colors: [],
     inStock: false,
+    onSale: false,
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [isCustomOrderModalOpen, setIsCustomOrderModalOpen] = useState(false);
@@ -56,9 +55,8 @@ const Shop = () => {
   let products = applyFilters(allProducts, {
     priceRange: filters.priceRange,
     categories: filters.categories.length > 0 ? filters.categories : undefined,
-    materials: filters.materials.length > 0 ? filters.materials : undefined,
-    colors: filters.colors.length > 0 ? filters.colors : undefined,
     inStock: filters.inStock,
+    onSale: filters.onSale,
   });
 
   // Применяем поиск по названию и описанию
@@ -99,9 +97,8 @@ const Shop = () => {
       setFilters((prev) => ({
         priceRange: prev?.priceRange || [0, 1000],
         categories: [urlCategory],
-        materials: prev?.materials || [],
-        colors: prev?.colors || [],
         inStock: prev?.inStock || false,
+        onSale: prev?.onSale || false,
       }));
     }
   }, [urlCategory]);
@@ -169,9 +166,8 @@ const Shop = () => {
                 initialFilters={{
                   priceRange: [0, 1000],
                   categories: [],
-                  materials: [],
-                  colors: [],
                   inStock: false,
+                  onSale: false,
                 }}
               />
             </div>
@@ -210,6 +206,8 @@ const Shop = () => {
                         images={images}
                         stock={stock}
                         onAddToCart={(product) => addToCart(product)}
+                        materials={[]}
+                        colors={[]}
                       />
                     );
                   })}

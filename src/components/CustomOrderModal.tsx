@@ -27,13 +27,13 @@ const CustomOrderModal = ({ isOpen, onClose }: CustomOrderModalProps) => {
     {
       name: 'Instagram',
       icon: <Instagram className="w-5 h-5" />,
-      link: 'https://instagram.com',
+      link: 'https://www.instagram.com/nekosshop/',
       color: 'bg-[#E4405F] hover:bg-[#E4405F]/90',
     },
     {
       name: 'Facebook',
       icon: <Facebook className="w-5 h-5" />,
-      link: 'https://facebook.com',
+      link: 'https://www.facebook.com/NekosShopy',
       color: 'bg-[#1877F2] hover:bg-[#1877F2]/90',
     },
   ];

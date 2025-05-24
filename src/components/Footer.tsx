@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import DeliveryModal from './DeliveryModal';
 
 const Footer = () => {
   const { t } = useLanguage();
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
 
   return (
     <footer className="bg-card border-t border-border mt-16">
@@ -23,7 +25,7 @@ const Footer = () => {
               </h3>
             </div>
             <p className="text-sm text-foreground/80">
-              Alternative jewelry for those who defy norms and embrace anarchy.
+              {t('footer.alternative_jewelry')}
             </p>
           </div>
 
@@ -101,12 +103,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/shipping"
-                  className="text-foreground/80 hover:text-crimson transition"
+<button 
+                  type="button" 
+                  onClick={() => setIsDeliveryModalOpen(true)}
+                  className="text-foreground/80 hover:text-crimson transition w-full text-left"
                 >
                   {t('footer.shipping')}
-                </Link>
+                </button>
               </li>
             </ul>
           </div>
@@ -124,6 +127,10 @@ const Footer = () => {
           <p>© {new Date().getFullYear()} NEKO.shop. All rights reserved.</p>
         </div>
       </div>
+      <DeliveryModal 
+        isOpen={isDeliveryModalOpen} 
+        onClose={() => setIsDeliveryModalOpen(false)} 
+      />
     </footer>
   );
 };

@@ -1,27 +1,87 @@
-import React, { useState, ReactNode, useEffect } from 'react';
+import React, { useState, ReactNode, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
-import {
-  User,
-  AuthContextType,
-  AuthContext,
-  useAuth,
+import { 
+  User, 
+  AuthContextType, 
+  AuthContext, 
+  useAuth 
 } from './AuthContext.utils';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut as firebaseSignOut,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  User as FirebaseUser,
+  updateProfile
+} from 'firebase/auth';
+import { auth, googleProvider } from '@/services/firebase';
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  // Load user data from localStorage on initial render
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setIsLoggedIn(true);
+  // Map Firebase user to our User type
+  const mapFirebaseUser = useCallback((firebaseUser: FirebaseUser | null): User | null => {
+    if (!firebaseUser) return null;
+    
+    // Get photo URL from provider data if available
+    let photoURL = firebaseUser.photoURL;
+    if (firebaseUser.providerData && firebaseUser.providerData.length > 0) {
+      // Try to get photo URL from the first provider
+      const providerPhotoURL = firebaseUser.providerData[0]?.photoURL;
+      if (providerPhotoURL) {
+        // Use higher resolution photo if available
+        photoURL = providerPhotoURL.includes('=s96-c')
+          ? providerPhotoURL.replace('=s96-c', '=s400-c')
+          : providerPhotoURL;
+      }
     }
+    
+    console.log('Mapped user with photoURL:', {
+      uid: firebaseUser.uid,
+      photoURL,
+      providerData: firebaseUser.providerData?.map(p => ({
+        providerId: p.providerId,
+        photoURL: p.photoURL
+      }))
+    });
+    
+    return {
+      uid: firebaseUser.uid,
+      displayName: firebaseUser.displayName,
+      email: firebaseUser.email,
+      photoURL: photoURL,
+      emailVerified: firebaseUser.emailVerified,
+      phoneNumber: firebaseUser.phoneNumber,
+      providerData: Array.from(firebaseUser.providerData || []),
+      purchasedProducts: []
+    };
   }, []);
+
+  // Handle auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const userData = mapFirebaseUser(firebaseUser);
+        setUser(userData);
+        setIsLoggedIn(true);
+        localStorage.setItem('user', JSON.stringify(userData));
+      } else {
+        setUser(null);
+        setIsLoggedIn(false);
+        localStorage.removeItem('user');
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [mapFirebaseUser]);
 
   // Save user data to localStorage whenever it changes
   useEffect(() => {
@@ -32,120 +92,106 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  // Mock login function - in a real app, this would call an API
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     try {
-      // Mock authentication - in a real app this would call a backend API
-      if (password.length < 3) {
-        throw new Error('Invalid password');
-      }
-
-      // Mock successful login
-      const mockUser: User = {
-        id: 1,
-        username: email.split('@')[0],
-        email: email,
-        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=random`,
-        // Mock purchased products (would be fetched from a server in reality)
-        purchasedProducts: [1, 2, 3],
-      };
-
-      setUser(mockUser);
-      setIsLoggedIn(true);
-
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // User is set via onAuthStateChanged, no need to set it here
       toast({
-        title: t('auth.welcome'),
-        description: t('auth.login_success'),
+        title: t('auth.login_success'),
+        description: t('auth.welcome', { name: userCredential.user.displayName || userCredential.user.email || '' }),
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: t('auth.error'),
-        description: t('auth.login_failed'),
+        description: error.message || t('auth.login_failed'),
         variant: 'destructive',
       });
       throw error;
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string): Promise<void> => {
     try {
-      // Mock registration - in a real app this would call a backend API
-      if (password.length < 3) {
-        throw new Error('Password too short');
-      }
-
-      // Mock successful registration
-      const mockUser: User = {
-        id: Math.floor(Math.random() * 1000) + 2,
-        username: name,
-        email: email,
-        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`,
-        purchasedProducts: [],
-      };
-
-      setUser(mockUser);
-      setIsLoggedIn(true);
-
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: name });
+      // User is set via onAuthStateChanged, no need to set it here
       toast({
-        title: t('auth.welcome'),
-        description: t('auth.signup_success'),
+        title: t('auth.signup_success'),
+        description: t('auth.welcome', { name }),
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         title: t('auth.error'),
-        description: t('auth.signup_failed'),
+        description: error.message || t('auth.signup_failed'),
         variant: 'destructive',
       });
       throw error;
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsLoggedIn(false);
-    localStorage.removeItem('user');
-
-    toast({
-      title: t('auth.goodbye'),
-      description: t('auth.logout_success'),
-    });
-  };
-
-  const loginWithProvider = async (provider: string) => {
+  const logout = async () => {
     try {
-      // Mock social login - in a real app this would use the provider's SDK
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const username = `User_${provider}${Math.floor(Math.random() * 100)}`;
-      const email = `user_${provider.toLowerCase()}@example.com`;
-
-      // Mock user data from provider
-      const mockUser: User = {
-        id: Math.floor(Math.random() * 1000) + 1000, // Different ID range for social logins
-        username: username,
-        email: email,
-        photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`,
-        purchasedProducts: [],
-      };
-
-      // Special handling for different providers
-      if (provider === 'google') {
-        mockUser.photoURL = `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
-      } else if (provider === 'facebook') {
-        mockUser.photoURL = `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&style=circle`;
-      }
-
-      setUser(mockUser);
-      setIsLoggedIn(true);
-
+      await firebaseSignOut(auth);
+      setUser(null);
+      setIsLoggedIn(false);
       toast({
-        title: t('auth.welcome'),
-        description: t('auth.login_success'),
+        title: t('auth.goodbye'),
+        description: t('auth.logout_success'),
       });
     } catch (error) {
+      console.error('Logout error:', error);
       toast({
         title: t('auth.error'),
-        description: t('auth.social_login_failed'),
+        description: 'Failed to sign out',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  const signInWithGoogle = async (): Promise<void> => {
+    try {
+      // Set custom parameters for Google Auth provider
+      googleProvider.setCustomParameters({
+        prompt: 'select_account',
+      });
+      
+      const result = await signInWithPopup(auth, googleProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      
+      if (credential) {
+        // Get the Google Access Token
+        const token = credential.accessToken;
+        
+        // Get the signed-in user info
+        const user = result.user;
+        
+        // Ensure we have the photo URL
+        if (user.providerData && user.providerData[0]?.photoURL) {
+          // If the photo URL ends with '=s96-c', remove it to get a higher resolution image
+          let photoURL = user.providerData[0].photoURL;
+          if (photoURL.endsWith('=s96-c')) {
+            photoURL = photoURL.replace('=s96-c', '=s400-c');
+          }
+          
+          // Update the user's profile with the photo URL if it's not already set
+          if (user.photoURL !== photoURL) {
+            await updateProfile(user, { photoURL });
+          }
+        }
+        
+        toast({
+          title: t('auth.login_success'),
+          description: t('auth.welcome', { name: user.displayName || user.email || '' }),
+        });
+      }
+    } catch (error: any) {
+      console.error('Google signin error:', error);
+      toast({
+        title: t('auth.error'),
+        description: error.message || t('auth.google_signin_failed'),
         variant: 'destructive',
       });
       throw error;
@@ -153,25 +199,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const hasUserPurchasedProduct = (productId: number): boolean => {
-    if (!isLoggedIn || !user) return false;
+    if (!user) return false;
     return user.purchasedProducts.includes(productId);
   };
 
+  const value: AuthContextType = {
+    isLoggedIn,
+    user,
+    loading,
+    login,
+    signUp,
+    logout,
+    signInWithGoogle,
+    hasUserPurchasedProduct,
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        isLoggedIn,
-        user,
-        login,
-        signUp,
-        logout,
-        loginWithProvider,
-        hasUserPurchasedProduct,
-      }}
-    >
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-export { useAuth } from './AuthContext.utils';
+export { useAuth };
+
+function toast(arg0: { title: any; description: any; }) {
+  throw new Error('Function not implemented.');
+}
+
+function t(arg0: string, p0?: { name: any; }) {
+  throw new Error('Function not implemented.');
+}
+
+function mapFirebaseUser(user: FirebaseUser) {
+  throw new Error('Function not implemented.');
+}
+

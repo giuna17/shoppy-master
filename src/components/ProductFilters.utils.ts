@@ -1,18 +1,17 @@
 export interface FilterValues {
   priceRange: [number, number];
   categories: string[];
-  materials: string[];
-  colors: string[];
   inStock: boolean;
+  onSale: boolean;
 }
 
 export const materialOptions = [
-  'Metal',
-  'Silver',
-  'Gold',
-  'Fabric',
-  'Glass',
-  'Plastic',
+  'Металл',
+  'Ткань',
+  'Стекло',
+  'Дерево',
+  'Кожа',
+  'Воск',
 ];
 export const colorOptions = [
   'Silver',

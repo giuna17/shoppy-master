@@ -16,6 +16,9 @@ export interface Product {
   category: string;
   featured?: boolean;
   stock: number;
+  materials: string[];
+  colors: string[];
+  onSale?: boolean;
 }
 
 const products: Product[] = [
@@ -40,6 +43,8 @@ const products: Product[] = [
     category: 'chokers',
     stock: 1,
     featured: true,
+    materials: ['Металл', 'Стекло'],
+    colors: ['Серебро'],
   },
   {
     id: 9,
@@ -62,6 +67,8 @@ const products: Product[] = [
     category: 'chokers',
     stock: 1,
     featured: true,
+    materials: ['Кожа', 'Металл'],
+    colors: ['Черный'],
   },
   // Removed products with IDs: 8 (Серьги Солнце и Луна) and 10 (Черный кожаный чокер с шипами) as per user request
 ];

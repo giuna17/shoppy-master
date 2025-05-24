@@ -6,15 +6,21 @@ import { Review } from '@/services/reviewService';
 interface ReviewListProps {
   reviews: Review[];
   showTitle?: boolean;
+  showOnlyVerified?: boolean;
 }
 
 const ReviewList: React.FC<ReviewListProps> = ({
   reviews,
   showTitle = true,
+  showOnlyVerified = true,
 }) => {
+  // Filter out unverified reviews if needed
+  const filteredReviews = showOnlyVerified 
+    ? reviews.filter(review => review.isVerifiedPurchase)
+    : reviews;
   const { t } = useLanguage();
 
-  if (reviews.length === 0) {
+  if (filteredReviews.length === 0) {
     return (
       <div className="text-center py-6 text-foreground/70">
         <p>{t('reviews.no_reviews')}</p>
@@ -69,12 +75,13 @@ const ReviewList: React.FC<ReviewListProps> = ({
         <>
           <h3 className="text-xl font-semibold">
             {t('reviews.title_part1')} {t('reviews.title_part2')} (
-            {reviews.length})
+            {filteredReviews.length})
+            {showOnlyVerified && ' ' + t('reviews.verified_only')}
           </h3>
         </>
       )}
 
-      {reviews.map((review) => (
+      {filteredReviews.map((review) => (
         <div
           key={review.id}
           className="border border-border rounded-lg p-4 bg-card"

@@ -56,7 +56,7 @@ const About = () => {
 
             <div className="flex justify-center space-x-6 mt-10">
               <a
-                href="https://www.facebook.com/people/Onlain-Shopp-Nekko/100064733033418/"
+                href="https://www.facebook.com/NekosShopy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-full bg-muted flex items-center justify-center hover:bg-crimson/20 transition-colors"

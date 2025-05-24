@@ -6,11 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Filter } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getProducts } from '@/services/productService';
-import {
-  FilterValues,
-  materialOptions,
-  colorOptions,
-} from './ProductFilters.utils';
+import { FilterValues } from './ProductFilters.utils';
 
 interface Category {
   id: string;
@@ -40,9 +36,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     initialFilters || {
       priceRange: [minProductPrice, maxProductPrice],
       categories: [],
-      materials: [],
-      colors: [],
       inStock: false,
+      onSale: false,
     },
   );
 
@@ -71,36 +66,17 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     });
   };
 
-  const handleMaterialToggle = (material: string) => {
-    setFilters((prev) => {
-      const newMaterials = prev.materials.includes(material)
-        ? prev.materials.filter((m) => m !== material)
-        : [...prev.materials, material];
-
-      return {
-        ...prev,
-        materials: newMaterials,
-      };
-    });
-  };
-
-  const handleColorToggle = (color: string) => {
-    setFilters((prev) => {
-      const newColors = prev.colors.includes(color)
-        ? prev.colors.filter((c) => c !== color)
-        : [...prev.colors, color];
-
-      return {
-        ...prev,
-        colors: newColors,
-      };
-    });
-  };
-
   const handleStockToggle = () => {
     setFilters((prev) => ({
       ...prev,
       inStock: !prev.inStock,
+    }));
+  };
+
+  const handleOnSaleToggle = () => {
+    setFilters((prev) => ({
+      ...prev,
+      onSale: !prev.onSale,
     }));
   };
 
@@ -112,9 +88,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     const resetFilters = {
       priceRange: [minProductPrice, maxProductPrice] as [number, number],
       categories: [],
-      materials: [],
-      colors: [],
       inStock: false,
+      onSale: false,
     };
 
     setFilters(resetFilters);
@@ -205,34 +180,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             </div>
           </div>
 
-          {/* Materials */}
-          <div>
-            <h4 className="text-sm font-medium mb-3">
-              {t('filters.materials')}
-            </h4>
-            <div className="space-y-2">
-              {['metal', 'fabric', 'glass', 'wood', 'leather', 'wax'].map(
-                (material) => (
-                  <div key={material} className="flex items-center">
-                    <Checkbox
-                      id={`material-${material}`}
-                      checked={filters.materials.includes(material)}
-                      onCheckedChange={() => handleMaterialToggle(material)}
-                    />
-                    <label
-                      htmlFor={`material-${material}`}
-                      className="text-sm ml-2 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      {t(`material.${material}`)}
-                    </label>
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
-
           {/* In Stock */}
-          <div>
+          <div className="space-y-2">
             <div className="flex items-center">
               <Checkbox
                 id="in-stock"
@@ -245,6 +194,22 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 className="ml-2 text-sm font-normal cursor-pointer"
               >
                 {t('filters.in_stock')}
+              </Label>
+            </div>
+            
+            {/* On Sale */}
+            <div className="flex items-center">
+              <Checkbox
+                id="on-sale"
+                checked={filters.onSale}
+                onCheckedChange={handleOnSaleToggle}
+                className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
+              />
+              <Label
+                htmlFor="on-sale"
+                className="ml-2 text-sm font-normal cursor-pointer"
+              >
+                {t('filters.on_sale')}
               </Label>
             </div>
           </div>

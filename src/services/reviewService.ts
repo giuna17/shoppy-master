@@ -104,6 +104,57 @@ export const canUserReviewProduct = (
 export const addReview = (
   reviewData: Omit<Review, 'id' | 'isVerifiedPurchase'>,
 ): Review | null => {
+  // Prevent test or fake reviews
+  if (!reviewData.userId || !reviewData.userName || !reviewData.comment) {
+    console.error('Invalid review data: Missing required fields');
+    return null;
+  }
+
+  // Validate comment length and content
+  const trimmedComment = reviewData.comment.trim();
+  if (trimmedComment.length < 10 || trimmedComment.length > 1000) {
+    console.error('Invalid review: Comment must be between 10 and 1000 characters');
+    return null;
+  }
+  
+  // Validate rating
+  if (!Number.isInteger(reviewData.rating) || reviewData.rating < 1 || reviewData.rating > 5) {
+    console.error('Invalid review: Rating must be an integer between 1 and 5');
+    return null;
+  }
+  
+  // Check for suspicious patterns in username and comment
+  const suspiciousPatterns = [
+    'test', 'admin', 'user', 'reviewer', 'tester', 'fake', 'example', 'sample'
+  ];
+  
+  const nameLower = reviewData.userName.toLowerCase();
+  const commentLower = trimmedComment.toLowerCase();
+  
+  // Check for suspicious content
+  const hasSuspiciousContent = [nameLower, commentLower].some(text => 
+    suspiciousPatterns.some(pattern => text.includes(pattern))
+  );
+  
+  if (hasSuspiciousContent) {
+    console.error('Suspicious content detected in review');
+    return null;
+  }
+  
+  // Check for generic or spammy content
+  const genericComments = [
+    'great', 'good', 'nice', 'excellent', 'perfect', 'awesome', 'amazing',
+    'love it', 'super', 'wow', 'cool', 'best', 'recommend', '5 stars'
+  ];
+  
+  const isGeneric = genericComments.some(term => 
+    commentLower === term || commentLower.split(/\s+/).length < 3
+  );
+  
+  if (isGeneric) {
+    console.error('Review is too generic or lacks detail');
+    return null;
+  }
   // Проверяем возможность оставить отзыв
   const { canReview, reason } = canUserReviewProduct(
     reviewData.userId,
@@ -181,9 +232,8 @@ export const applyFilters = (
   filters: {
     priceRange?: [number, number];
     categories?: string[];
-    materials?: string[];
-    colors?: string[];
     inStock?: boolean;
+    onSale?: boolean;
   },
 ): Product[] => {
   return products.filter((product) => {
@@ -200,13 +250,20 @@ export const applyFilters = (
     if (
       filters.categories &&
       filters.categories.length > 0 &&
-      !filters.categories.includes(product.category)
+      !filters.categories.some(cat => 
+        product.category.toLowerCase().includes(cat.toLowerCase())
+      )
     ) {
       return false;
     }
 
     // Stock filter
     if (filters.inStock && product.stock <= 0) {
+      return false;
+    }
+
+    // On Sale filter
+    if (filters.onSale && !product.onSale) {
       return false;
     }
 

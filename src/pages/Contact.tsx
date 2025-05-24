@@ -238,7 +238,7 @@ const Contact = () => {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <a
-                  href="https://facebook.com/nekoshop"
+                  href="https://www.facebook.com/NekosShopy"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-4 rounded-lg border border-crimson/20 bg-gradient-to-r from-crimson/10 to-transparent hover:bg-crimson/20 transition-colors"
@@ -247,7 +247,7 @@ const Contact = () => {
                   <span className="text-white">Facebook</span>
                 </a>
                 <a
-                  href="https://instagram.com/neko.shop"
+                  href="https://www.instagram.com/nekosshop/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-4 rounded-lg border border-crimson/20 bg-gradient-to-r from-crimson/10 to-transparent hover:bg-crimson/20 transition-colors"

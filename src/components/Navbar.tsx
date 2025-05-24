@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, User, Facebook, LogOut, Heart, Mail } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
@@ -17,11 +17,8 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogDescription,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,50 +40,48 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
   const auth = useAuth();
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full bg-white hover:bg-gray-100 text-gray-800 hover:text-gray-900"
-          onClick={async () => {
-            try {
-              await auth.loginWithProvider('google');
-              onClose();
-            } catch (error) {
-              console.error('Google sign in failed:', error);
-            }
-          }}
+    <div className="p-4">
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full bg-white hover:bg-gray-100 text-gray-800 hover:text-gray-900"
+        onClick={async () => {
+          try {
+            await auth.signInWithGoogle();
+            onClose();
+          } catch (error) {
+            console.error('Google sign in failed:', error);
+          }
+        }}
+      >
+        <svg
+          className="w-4 h-4 mr-2"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-            <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-              <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.28426 53.749 C -8.52426 55.229 -9.24426 56.479 -10.4643 57.329 L -10.4643 60.609 L -6.39927 60.609 C -4.15927 58.619 -3.264 55.409 -3.264 51.509 Z"/>
-              <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.86 60.609 L -10.465 57.329 C -11.425 58.049 -12.745 58.489 -14.254 58.489 C -17.204 58.489 -19.654 56.379 -20.424 53.529 L -24.464 53.529 L -24.464 56.958 C -22.514 60.819 -18.924 63.239 -14.754 63.239 Z"/>
-              <path fill="#FBBC05" d="M -20.424 53.529 C -20.814 52.249 -21.024 50.879 -21.024 49.499 C -21.024 48.119 -20.814 46.749 -20.324 45.469 L -20.324 42.04 L -24.464 42.04 C -25.934 44.98 -26.664 48.199 -26.664 51.499 C -26.664 54.799 -25.934 58.019 -24.464 60.958 L -20.424 57.499 C -20.814 56.249 -21.024 54.879 -21.024 53.499"/>
-              <path fill="#EA4335" d="M -14.754 44.509 C -12.984 44.509 -11.404 45.069 -10.084 46.099 L -6.768 42.819 C -8.898 40.889 -11.664 39.759 -14.754 39.759 C -18.924 39.759 -22.514 42.179 -24.464 46.04 L -20.324 49.469 C -19.554 46.619 -17.104 44.509 -14.754 44.509 Z"/>
-            </g>
-          </svg>
-          {t('auth.google')}
-        </Button>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={async () => {
-            try {
-              await auth.loginWithProvider('facebook');
-              onClose();
-            } catch (error) {
-              console.error('Facebook sign in failed:', error);
-            }
-          }}
-        >
-          <Facebook className="mr-2 h-4 w-4" />
-          {t('auth.facebook')}
-        </Button>
-      </div>
-
+          <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+            <path
+              fill="#4285F4"
+              d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.28426 53.749 C -8.52426 55.229 -9.24426 56.479 -10.4643 57.329 L -10.4643 60.609 L -6.39927 60.609 C -4.15927 58.619 -3.264 55.409 -3.264 51.509 Z"
+            />
+            <path
+              fill="#34A853"
+              d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.86 60.609 L -10.465 57.329 C -11.425 58.049 -12.745 58.489 -14.254 58.489 C -17.204 58.489 -19.654 56.379 -20.424 53.529 L -24.464 53.529 L -24.464 56.958 C -22.514 60.819 -18.924 63.239 -14.754 63.239 Z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M -20.424 53.529 C -20.814 52.249 -21.024 50.879 -21.024 49.499 C -21.024 48.119 -20.814 46.749 -20.324 45.469 L -20.324 42.04 L -24.464 42.04 C -25.934 44.98 -26.664 48.199 -26.664 51.499 C -26.664 54.799 -25.934 58.019 -24.464 60.958 L -20.424 57.499 C -20.814 56.249 -21.024 54.879 -21.024 53.499"
+            />
+            <path
+              fill="#EA4335"
+              d="M -14.754 44.509 C -12.984 44.509 -11.404 45.069 -10.084 46.099 L -6.768 42.819 C -8.898 40.889 -11.664 39.759 -14.754 39.759 C -18.924 39.759 -22.514 42.179 -24.464 46.04 L -20.324 49.469 C -19.554 46.619 -17.104 44.509 -14.754 44.509 Z"
+            />
+          </g>
+        </svg>
+        {t('auth.google') || 'Sign in with Google'}
+      </Button>
     </div>
   );
 };
@@ -108,6 +103,7 @@ const Navbar = () => {
   const auth = useAuth();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const user = auth.user;
 
   // Calculate total items in cart
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -206,7 +202,10 @@ const Navbar = () => {
                       'necklaces',
                       'accessories',
                     ].map((category) => (
-                      <DropdownMenuItem key={category} className="text-white hover:bg-crimson/20 cursor-pointer p-0">
+                      <DropdownMenuItem
+                        key={category}
+                        className="text-white hover:bg-crimson/20 cursor-pointer p-0"
+                      >
                         <Link
                           to={`/shop?category=${category}`}
                           className="w-full px-3 py-2 flex items-center"
@@ -296,7 +295,8 @@ const Navbar = () => {
                               : '5 ₾'}
                           </span>
                           {cart.reduce(
-                            (total, item) => total + item.product.price * item.quantity,
+                            (total, item) =>
+                              total + item.product.price * item.quantity,
                             0,
                           ) >= 500 && (
                             <span className="text-green-500 text-xs mt-1">
@@ -441,28 +441,61 @@ const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="rounded-full w-14 h-14 p-0 overflow-hidden border-2 border-gray-600 hover:border-crimson/50 focus:outline-none focus:ring-2 focus:ring-crimson focus:ring-offset-2 focus:ring-offset-gray-900"
+                  size="icon"
+                  className="relative h-10 w-10 p-0 rounded-full border-2 border-gray-600 hover:border-crimson/50 focus:outline-none focus:ring-2 focus:ring-crimson focus:ring-offset-2 focus:ring-offset-gray-900 overflow-hidden"
                   aria-label={`${t('nav.profile')} - ${auth.user.email}`}
                   aria-haspopup="menu"
                   aria-expanded={false}
                 >
-                  {auth.user?.photoURL ? (
-                    <img
-                      src={auth.user.photoURL}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder-user.jpg';
-                      }}
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <User
-                      className="w-5 h-5 text-gray-300"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <div className="relative group">
+                    <div className="w-10 h-10 rounded-full bg-gray-800 border-2 border-gray-600 overflow-hidden flex items-center justify-center">
+                      {auth.user?.photoURL ? (
+                        <>
+                          <img
+                            src={auth.user.photoURL}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              console.error('Error loading user photo:', {
+                                photoURL: auth.user?.photoURL,
+                                user: auth.user,
+                                error: e
+                              });
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                            onLoad={(e) => {
+                              console.log('Successfully loaded user photo:', {
+                                photoURL: auth.user?.photoURL,
+                                naturalWidth: (e.target as HTMLImageElement).naturalWidth,
+                                naturalHeight: (e.target as HTMLImageElement).naturalHeight
+                              });
+                            }}
+                            crossOrigin="anonymous"
+                            aria-hidden="true"
+                          />
+                          <div className="absolute inset-0 hidden items-center justify-center bg-gray-800">
+                            <User className="w-5 h-5 text-gray-300" />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+                    {/* Debug info - shown on hover in development */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-black/90 text-white text-xs p-2 rounded z-50 whitespace-pre-wrap max-w-xs pointer-events-none transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+                        <div className="font-bold">User Photo Debug</div>
+                        <div>URL: {auth.user?.photoURL || 'Not available'}</div>
+                        <div>Provider: {auth.user?.providerData?.[0]?.providerId || 'None'}</div>
+                        <div>UID: {auth.user?.uid || 'None'}</div>
+                      </div>
+                    )}
+                  </div>
                   <span className="sr-only">{t('nav.profile')}</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -513,14 +546,20 @@ const Navbar = () => {
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="rounded-sm text-gray-300 hover:text-white hover:bg-gray-700"
+                  size="icon"
+                  className="relative h-10 w-10 p-0 rounded-full border-2 border-gray-600 hover:border-crimson/50 focus:outline-none focus:ring-2 focus:ring-crimson focus:ring-offset-2 focus:ring-offset-gray-900 overflow-hidden"
+                  aria-label={t('auth.sign_in')}
                 >
-                  <User className="w-5 h-5" />
+                  <div className="w-full h-full flex items-center justify-center bg-gray-800 rounded-full">
+                    <User className="w-5 h-5 text-gray-300" />
+                  </div>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px] bg-black/95 border-crimson/20">
                 <DialogHeader>
-                  <DialogTitle className="text-white">{t('auth.sign_in')}</DialogTitle>
+                  <DialogTitle className="text-white">
+                    {t('auth.sign_in')}
+                  </DialogTitle>
                 </DialogHeader>
                 <LoginForm onClose={() => setShowLoginDialog(false)} />
                 <DialogFooter />
