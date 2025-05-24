@@ -13,7 +13,7 @@
     "preview": "vite preview --port 3000",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "vercel-build": "npm run build",
+    "vercel-build": "npm install && npm run build",
     "start": "vite preview --port 3000 --host"
   },
   "dependencies": {

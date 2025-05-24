@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "builds": [
     {
       "src": "package.json",
@@ -27,7 +30,7 @@
       "dest": "/lovable-uploads/$1"
     },
     {
-      "src": "^/.*",
+      "src": "^/(.*)$",
       "dest": "/index.html"
     }
   ]
