@@ -59,16 +59,6 @@ export const translations: Translations = {
     en: 'Profile',
     ge: 'პროფილი',
   },
-  'cart.item': {
-    ru: 'товар',
-    en: 'item',
-    ge: 'ნივთი',
-  },
-  'cart.items': {
-    ru: 'товара',
-    en: 'items',
-    ge: 'ნივთი',
-  },
   'nav.profile_menu': {
     ru: 'Меню профиля',
     en: 'Profile menu',
