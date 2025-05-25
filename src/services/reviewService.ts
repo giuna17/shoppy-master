@@ -234,6 +234,7 @@ export const applyFilters = (
     priceRange?: [number, number];
     categories?: string[];
     inStock?: boolean;
+    outOfStock?: boolean;
     onSale?: boolean;
   },
 ): Product[] => {
@@ -247,19 +248,24 @@ export const applyFilters = (
       return false;
     }
 
-    // Category filter
-    if (
-      filters.categories &&
-      filters.categories.length > 0 &&
-      !filters.categories.some(cat => 
-        product.category.toLowerCase().includes(cat.toLowerCase())
-      )
-    ) {
-      return false;
+    // Category filter - exact match
+    if (filters.categories && filters.categories.length > 0) {
+      const productCategory = product.category.toLowerCase().trim();
+      const hasMatchingCategory = filters.categories.some(filterCategory => 
+        productCategory === filterCategory.toLowerCase().trim()
+      );
+      if (!hasMatchingCategory) {
+        return false;
+      }
     }
 
     // Stock filter
     if (filters.inStock && product.stock <= 0) {
+      return false;
+    }
+
+    // Out of Stock filter
+    if (filters.outOfStock && product.stock > 0) {
       return false;
     }
 

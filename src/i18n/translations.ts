@@ -379,6 +379,12 @@ export const translations: Translations = {
     en: 'Remaining: {count} pcs',
     ge: 'დარჩენილია: {count} ც.',
   },
+  'filters.availability': {
+    ru: 'Наличие',
+    en: 'Availability',
+    ge: 'ხელმისაწვდომობა',
+  },
+
   'product.no_stock': {
     ru: 'Нет в наличии',
     en: 'Out of stock',
@@ -453,6 +459,11 @@ export const translations: Translations = {
     en: 'In stock',
     ge: 'Საწყობშია',
   },
+  'filters.out_of_stock': {
+    ru: 'Нет в наличии',
+    en: 'Out of stock',
+    ge: 'Არ არის საწყობში',
+  },
   'filters.on_sale': {
     ru: 'Со скидкой',
     en: 'On sale',
@@ -467,6 +478,16 @@ export const translations: Translations = {
     ru: 'Сбросить',
     en: 'Reset',
     ge: 'გაუქმება',
+  },
+  'filters.special_offers': {
+    ru: 'Специальные предложения',
+    en: 'Special Offers',
+    ge: 'სპეციალური შეთავაზებები',
+  },
+  'filters.reset_all': {
+    ru: 'Сбросить все фильтры',
+    en: 'Reset all filters',
+    ge: 'ყველა ფილტრის გასუფთავება',
   },
   'filters.show': {
     ru: 'Показать фильтры',
@@ -1570,6 +1591,21 @@ export const translations: Translations = {
     ru: 'Поиск по товарам...',
     en: 'Search products...',
     ge: 'პროდუქტების ძიება...',
+  },
+  'shop.search_title': {
+    ru: 'Ищешь что-то конкретное?',
+    en: 'Looking for something specific?',
+    ge: 'შენ რამე კონკრეტული ვინაიდან ძებნა ხართ?',
+  },
+  'shop.custom_design_title': {
+    ru: 'Хочешь заказать свой дизайн?',
+    en: 'Want to order your own design?',
+    ge: 'გინდათ თქვენი დიზაინის შეკვეთა?',
+  },
+  'shop.custom_design_button': {
+    ru: 'ТОГДА ЖМИ СЮДА!',
+    en: 'THEN CLICK HERE!',
+    ge: 'მაშინ დააჭირეთ აქ!',
   },
   'footer.shop': {
     ru: 'Магазин',

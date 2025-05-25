@@ -37,6 +37,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
       priceRange: [minProductPrice, maxProductPrice],
       categories: [],
       inStock: false,
+      outOfStock: false,
       onSale: false,
     },
   );
@@ -46,10 +47,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const handlePriceChange = (value: number[]) => {
     // Ensure we have exactly two values for the price range
     if (value.length >= 2) {
-      setFilters((prev) => ({
-        ...prev,
-        priceRange: [value[0], value[1]] as [number, number],
-      }));
+      setFilters((prev) => {
+        const updated = {
+          ...prev,
+          priceRange: [value[0], value[1]] as [number, number],
+        };
+        onFilterChange(updated);
+        return updated;
+      });
     }
   };
 
@@ -58,30 +63,51 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
       const newCategories = prev.categories.includes(category)
         ? prev.categories.filter((c) => c !== category)
         : [...prev.categories, category];
-
-      return {
+      
+      const updated = {
         ...prev,
         categories: newCategories,
       };
+      onFilterChange(updated);
+      return updated;
     });
   };
 
   const handleStockToggle = () => {
-    setFilters((prev) => ({
-      ...prev,
-      inStock: !prev.inStock,
-    }));
+    setFilters((prev) => {
+      const updated = {
+        ...prev,
+        inStock: !prev.inStock,
+        // If enabling inStock, make sure outOfStock is disabled
+        ...(prev.outOfStock && { outOfStock: false }),
+      };
+      onFilterChange(updated);
+      return updated;
+    });
+  };
+
+  const handleOutOfStockToggle = () => {
+    setFilters((prev) => {
+      const updated = {
+        ...prev,
+        outOfStock: !prev.outOfStock,
+        // If enabling outOfStock, make sure inStock is disabled
+        ...(prev.inStock && { inStock: false }),
+      };
+      onFilterChange(updated);
+      return updated;
+    });
   };
 
   const handleOnSaleToggle = () => {
-    setFilters((prev) => ({
-      ...prev,
-      onSale: !prev.onSale,
-    }));
-  };
-
-  const handleApplyFilters = () => {
-    onFilterChange(filters);
+    setFilters((prev) => {
+      const updated = {
+        ...prev,
+        onSale: !prev.onSale,
+      };
+      onFilterChange(updated);
+      return updated;
+    });
   };
 
   const handleResetFilters = () => {
@@ -89,6 +115,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
       priceRange: [minProductPrice, maxProductPrice] as [number, number],
       categories: [],
       inStock: false,
+      outOfStock: false,
       onSale: false,
     };
 
@@ -180,51 +207,70 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             </div>
           </div>
 
-          {/* In Stock */}
+          {/* Availability */}
           <div className="space-y-2">
-            <div className="flex items-center">
-              <Checkbox
-                id="in-stock"
-                checked={filters.inStock}
-                onCheckedChange={handleStockToggle}
-                className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
-              />
-              <Label
-                htmlFor="in-stock"
-                className="ml-2 text-sm font-normal cursor-pointer"
-              >
-                {t('filters.in_stock')}
-              </Label>
-            </div>
-            
-            {/* On Sale */}
-            <div className="flex items-center">
-              <Checkbox
-                id="on-sale"
-                checked={filters.onSale}
-                onCheckedChange={handleOnSaleToggle}
-                className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
-              />
-              <Label
-                htmlFor="on-sale"
-                className="ml-2 text-sm font-normal cursor-pointer"
-              >
-                {t('filters.on_sale')}
-              </Label>
+            <h4 className="text-sm font-medium">{t('filters.availability')}</h4>
+            <div className="space-y-2 pl-2">
+              <div className="flex items-center">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="in-stock"
+                    checked={filters.inStock}
+                    onCheckedChange={handleStockToggle}
+                    className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
+                  />
+                  <Label htmlFor="in-stock" className="text-sm font-normal cursor-pointer">
+                    {t('filters.in_stock')}
+                  </Label>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="out-of-stock"
+                    checked={filters.outOfStock}
+                    onCheckedChange={handleOutOfStockToggle}
+                    className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
+                  />
+                  <Label htmlFor="out-of-stock" className="text-sm font-normal cursor-pointer">
+                    {t('filters.out_of_stock')}
+                  </Label>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              onClick={handleApplyFilters}
-              className="bg-crimson hover:bg-crimson/90 text-black font-medium"
+          {/* On Sale Section */}
+          <div className="space-y-2 pt-4 mt-4 border-t border-border">
+            <h4 className="text-sm font-medium">{t('filters.special_offers')}</h4>
+            <div className="space-y-2 pl-2">
+              <div className="flex items-center">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="on-sale"
+                    checked={filters.onSale}
+                    onCheckedChange={handleOnSaleToggle}
+                    className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
+                  />
+                  <Label
+                    htmlFor="on-sale"
+                    className="ml-2 text-sm font-normal cursor-pointer"
+                  >
+                    {t('filters.on_sale')}
+                  </Label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reset Button - Less prominent */}
+          <div className="pt-2">
+            <button 
+              onClick={handleResetFilters}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              {t('filters.apply')}
-            </Button>
-            <Button variant="outline" onClick={handleResetFilters}>
-              {t('filters.reset')}
-            </Button>
+              {t('filters.reset_all')}
+            </button>
           </div>
         </div>
       </div>

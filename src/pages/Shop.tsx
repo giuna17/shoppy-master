@@ -12,7 +12,7 @@ import CustomOrderModal from '@/components/CustomOrderModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCartContext } from '@/contexts/CartContext';
 import { applyFilters } from '@/services/reviewService';
-import { Search } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 
 const Shop = () => {
   const { t } = useLanguage();
@@ -26,6 +26,7 @@ const Shop = () => {
     priceRange: [0, 1000],
     categories: urlCategory ? [urlCategory] : [],
     inStock: false,
+    outOfStock: false,
     onSale: false,
   });
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +58,15 @@ const Shop = () => {
     priceRange: filters.priceRange,
     categories: filters.categories.length > 0 ? filters.categories : undefined,
     inStock: filters.inStock,
+    outOfStock: filters.outOfStock,
     onSale: filters.onSale,
+  });
+
+  // Sort products to show out of stock items at the bottom
+  products = [...products].sort((a, b) => {
+    if (a.stock <= 0 && b.stock > 0) return 1;
+    if (a.stock > 0 && b.stock <= 0) return -1;
+    return 0;
   });
 
   // Применяем поиск по названию и описанию
@@ -99,6 +108,7 @@ const Shop = () => {
         priceRange: prev?.priceRange || [0, 1000],
         categories: [urlCategory],
         inStock: prev?.inStock || false,
+        outOfStock: prev?.outOfStock || false,
         onSale: prev?.onSale || false,
       }));
     }
@@ -132,26 +142,7 @@ const Shop = () => {
 
       <section className="py-12 px-4 bg-background">
         <div className="container mx-auto">
-          <div className="flex justify-between items-start mb-8">
-            <div className="w-[23%]">
-              <Button
-                variant="default"
-                className="bg-crimson hover:bg-crimson/90 w-full mb-4 text-sm py-1.5"
-                onClick={() => setIsCustomOrderModalOpen(true)}
-              >
-                {t('custom_order.button')}
-              </Button>
-            </div>
-            <div className="w-1/3">
-              <Input
-                type="search"
-                placeholder={t('home.search_placeholder')}
-                className="w-full bg-card"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
+
 
           <CustomOrderModal
             isOpen={isCustomOrderModalOpen}
@@ -160,7 +151,36 @@ const Shop = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Product Filters - Sidebar */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-4">
+              {/* Search Section */}
+              <div className="bg-card border border-border rounded-lg p-4 space-y-4">
+                <h3 className="text-lg font-medium flex items-center">
+                  <Search className="mr-2 h-5 w-5" /> {t('shop.search_title')}
+                </h3>
+                <Input
+                  type="search"
+                  placeholder={t('home.search_placeholder')}
+                  className="w-full bg-background"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              {/* Custom Order Section */}
+              <div className="bg-card border border-border rounded-lg p-4 space-y-4">
+                <h3 className="text-lg font-medium flex items-center">
+                  <span className="text-crimson">{t('shop.custom_design_title')}</span>
+                </h3>
+                <Button
+                  variant="default"
+                  className="bg-red-900/80 hover:bg-red-900/70 w-full text-sm py-1.5 font-bold text-white transition-colors"
+                  onClick={() => setIsCustomOrderModalOpen(true)}
+                >
+                  {t('shop.custom_design_button')}
+                </Button>
+              </div>
+
+              {/* Product Filters */}
               <ProductFilters
                 onFilterChange={handleFilterChange}
                 categories={translatedCategories}
@@ -168,6 +188,7 @@ const Shop = () => {
                   priceRange: [0, 1000],
                   categories: [],
                   inStock: false,
+                  outOfStock: false,
                   onSale: false,
                 }}
               />

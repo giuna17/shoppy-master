@@ -22,7 +22,6 @@ export interface Product {
 }
 
 const products: Product[] = [
-
   {
     id: 25,
     name: {
@@ -42,7 +41,7 @@ const products: Product[] = [
       '/lovable-uploads/494572321_1695262911380497_3159085465488947786_n_2.jpg'
     ],
     category: 'bracelets',
-    stock: 1,
+    stock: 3,
     featured: true,
     materials: ['Кожа', 'Металл'],
     colors: ['Черный', 'Бронза'],
@@ -67,7 +66,7 @@ const products: Product[] = [
       '/lovable-uploads/494573304_1210713720698628_5887406144073799270_n_2.jpg'
     ],
     category: 'bracelets',
-    stock: 1,
+    stock: 4,
     featured: true,
     materials: ['Кожа', 'Металл'],
     colors: ['Коричневый', 'Бронза'],
@@ -117,7 +116,7 @@ const products: Product[] = [
       '/lovable-uploads/494358890_1385872359349954_8620536579018894230_n_2.jpg'
     ],
     category: 'bracelets',
-    stock: 1,
+    stock: 5,
     featured: true,
     materials: ['Натуральная кожа', 'Металл'],
     colors: ['Черный', 'Серебро'],
@@ -138,8 +137,8 @@ const products: Product[] = [
     price: 15,
     currency: '₾',
     images: [
-      '/lovable-uploads/494356262_714391001147663_7135250089724160584_n.jpg',
-      '/lovable-uploads/494356262_714391001147663_7135250089724160584_n_2.jpg'
+      '/lovable-uploads/494358890_1385872359349954_8620536579018894230_n.jpg',
+      '/lovable-uploads/494358890_1385872359349954_8620536579018894230_n_2.jpg'
     ],
     category: 'earrings',
     stock: 1,
@@ -162,8 +161,8 @@ const products: Product[] = [
     price: 15,
     currency: '₾',
     images: [
-      '/lovable-uploads/494356774_1769263413996811_5281240654920214474_n.jpg',
-      '/lovable-uploads/494356774_1769263413996811_5281240654920214474_n_2.jpg'
+      '/lovable-uploads/494356912_2907248866121505_2657667423894533600_n.jpg',
+      '/lovable-uploads/494356912_2907248866121505_2657667423894533600_n_2.jpg'
     ],
     category: 'earrings',
     stock: 1,
@@ -186,8 +185,8 @@ const products: Product[] = [
     price: 15,
     currency: '₾',
     images: [
-      '/lovable-uploads/494358021_1236477491488223_1113084814910147747_n.jpg',
-      '/lovable-uploads/494358021_1236477491488223_1113084814910147747_n_2.jpg'
+      '/lovable-uploads/494572321_1695262911380497_3159085465488947786_n.jpg',
+      '/lovable-uploads/494572321_1695262911380497_3159085465488947786_n_2.jpg'
     ],
     category: 'earrings',
     stock: 1,

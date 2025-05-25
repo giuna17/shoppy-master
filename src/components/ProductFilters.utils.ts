@@ -2,6 +2,7 @@ export interface FilterValues {
   priceRange: [number, number];
   categories: string[];
   inStock: boolean;
+  outOfStock: boolean;
   onSale: boolean;
 }
 

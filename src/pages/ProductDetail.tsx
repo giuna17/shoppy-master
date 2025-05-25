@@ -10,7 +10,11 @@ import {
   ChevronRight,
   Heart,
   Eye,
+  ChevronDown,
+  Minus,
+  Plus,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { getProductById } from '@/services/productService';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -46,6 +50,12 @@ const ProductDetail = () => {
   const { isInFavorites, addToFavorites, removeFromFavorites } = useFavorites();
   const auth = useAuth();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
+  const [imageError, setImageError] = useState<number | null>(null);
+  const [isSomeoneViewing, setIsSomeoneViewing] = useState(false);
+  const userHasPurchased = auth.hasUserPurchasedProduct(productId);
   
   // Track product view
   useEffect(() => {
@@ -53,11 +63,6 @@ const ProductDetail = () => {
       recentlyViewedService.addProduct(product.id, isInFavorites(product.id));
     }
   }, [product?.id, isInFavorites]);
-  const [reviewsLoaded, setReviewsLoaded] = useState(false);
-  const [imageError, setImageError] = useState<number | null>(null);
-  const [isSomeoneViewing, setIsSomeoneViewing] = useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const userHasPurchased = auth.hasUserPurchasedProduct(productId);
 
 
   // Handle scroll and redirect if product not found
@@ -226,8 +231,8 @@ const ProductDetail = () => {
                 </span>
               </button>
             </div>
-            <div className="relative aspect-square bg-transparent p-2">
-              <div className="relative w-full h-full border-2 border-crimson/30 rounded-lg overflow-hidden bg-transparent">
+            <div className="relative bg-transparent">
+              <div className="relative inline-block max-w-full border-2 border-crimson/30 rounded-lg overflow-hidden bg-transparent">
                 {/* Someone is viewing this product */}
                 {isSomeoneViewing && (
                   <div className="absolute top-2 right-2 z-20 bg-amber-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
@@ -237,15 +242,15 @@ const ProductDetail = () => {
                 )}
                 {/* Main image with red border */}
                 <div 
-                  className="absolute inset-0 flex items-center justify-center p-1 bg-transparent cursor-zoom-in"
+                  className="relative w-full h-full flex items-center justify-center bg-transparent cursor-zoom-in p-0 m-0"
                   onClick={() => setIsGalleryOpen(true)}
                 >
                   {!imageError || imageError !== selectedImageIndex ? (
                     <img
                       src={product.images[selectedImageIndex]}
                       alt={product.name[language]}
-                      className="w-[115%] h-[115%] object-contain transition-transform duration-300 group-hover:scale-105"
-                      style={{ transform: 'scale(1.15)' }}
+                      className="block w-auto h-auto max-h-[550px]"
+                      style={{ imageRendering: '-webkit-optimize-contrast' }}
                       onError={() => handleImageError(selectedImageIndex)}
                     />
                   ) : (
@@ -311,9 +316,9 @@ const ProductDetail = () => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-4 -ml-[15%] text-[0.92em]">
             <div>
-              <h1 className="text-3xl font-bold text-crimson mb-2">
+              <h1 className="text-[2.3em] font-bold text-crimson mb-1">
                 {product.name[language]}
               </h1>
               <div className="flex items-center gap-4 mt-8">
@@ -349,40 +354,54 @@ const ProductDetail = () => {
                   </div>
                 )}
               </div>
-              <p className="text-lg text-foreground/80">
-                {product.description[
-                  language as keyof typeof product.description
-                ] || product.description['en']}
-              </p>
+              <div>
+                <p className="text-[0.92em] text-foreground/80">
+                  {product.description[
+                    language as keyof typeof product.description
+                  ] || product.description['en']}
+                </p>
+                <button 
+                  onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                  className="mt-2 text-sm text-crimson hover:underline flex items-center gap-1"
+                >
+                  {isDetailsExpanded ? 'დამალვა' : 'დეტალები'}
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isDetailsExpanded ? 'rotate-180' : ''}`} />
+                </button>
+                {isDetailsExpanded && (
+                  <div className="border-t border-border pt-4 mt-3">
+                    <h3 className="text-lg font-bold mb-3">დეტალები</h3>
+                    <ul className="space-y-2 text-foreground/80">
+                      <li>• ხელნაკეთი პრემიუმ მასალებისგან</li>
+                      <li>• უნიკალური ალტერნატიული სტილი</li>
+                      <li>• Nekoshop - დამზადებულია თათებით</li>
+                      <li>• შექმნილია საუკუნოდ</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="border-t border-border pt-6">
               <div className="flex items-center justify-between mb-6">
-                <p className="text-3xl font-bold">{`${product.price} ₾`}</p>
+                <p className="text-[2.3em] font-bold">{`${product.price} ₾`}</p>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`inline-block ${remainingStock > 2 ? 'bg-muted text-crimson' : 'bg-amber-100 text-amber-800'} px-3 py-1 rounded-full text-sm font-medium`}
+                    className={`inline-flex items-center px-4 py-1.5 rounded-md text-sm font-medium ${remainingStock > 2 ? 'bg-[#8B0000]/80 text-white' : 'bg-[#8B0000]/80 text-white'}`}
                   >
                     {remainingStock > 0
                       ? t('product.in_stock')
                       : t('product.out_of_stock')}
                   </div>
-                  <div className="text-sm font-medium">
-                    {remainingStock > 0
-                      ? t('product.remaining_stock', { count: remainingStock })
-                      : t('product.no_stock')}
-                  </div>
+                  {remainingStock > 0 && (
+                    <div className="text-sm font-medium text-foreground/80 px-1">
+                      {t('product.remaining_stock', { count: remainingStock })}
+                    </div>
+                  )}
                 </div>
               </div>
 
               {remainingStock > 0 ? (
                 <>
-                  <Alert className="mb-4 bg-muted/50 border border-border">
-                    <AlertDescription>
-                      {t('product.stock_warning')}
-                    </AlertDescription>
-                  </Alert>
-
                   <Button
                     className="w-full bg-crimson hover:bg-crimson/90 text-black font-medium py-6 text-lg relative"
                     onClick={handleAddToCart}
@@ -406,16 +425,6 @@ const ProductDetail = () => {
                   {t('product.out_of_stock')}
                 </Button>
               )}
-            </div>
-
-            <div className="border-t border-border pt-6">
-              <h3 className="text-lg font-bold mb-3">{t('product.details')}</h3>
-              <ul className="space-y-2 text-foreground/80">
-                <li>{t('product.detail_1')}</li>
-                <li>{t('product.detail_2')}</li>
-                <li>{t('product.detail_3')}</li>
-                <li>{t('product.detail_4')}</li>
-              </ul>
             </div>
           </div>
         </div>
