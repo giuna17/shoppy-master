@@ -266,105 +266,116 @@ const Navbar = () => {
                 </span>
               </Button>
             </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>{t('cart.title')}</SheetTitle>
-              </SheetHeader>
-              <div className="mt-4 space-y-4">
+            <SheetContent className="flex flex-col p-0">
+              <div className="flex flex-col h-full">
+                <SheetHeader className="px-6 pt-6 pb-4 border-b">
+                  <SheetTitle className="text-left">{t('cart.title')}</SheetTitle>
+                </SheetHeader>
                 {cart.length === 0 ? (
-                  <div className="text-center text-muted-foreground">
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground p-6">
                     {t('cart.empty')}
                   </div>
                 ) : (
-                  <>
-                    <div className="space-y-4">
-                      {cart.map((item) => (
-                        <CartItem key={item.product.id} item={item} />
-                      ))}
-                    </div>
-                    <div className="border-t pt-4 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>{t('cart.subtotal')}:</span>
-                        <span className="font-medium">
-                          {cart.reduce(
-                            (total, item) =>
-                              total + item.product.price * item.quantity,
-                            0,
-                          )}{' '}
-                          ₾
-                        </span>
+                  <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Cart items container with scroll */}
+                    <div className="flex-1 overflow-y-auto p-6 pb-0">
+                      <div className="space-y-4 pr-2">
+                        <div className="max-h-[60vh] overflow-y-auto pr-2">
+                          {cart.map((item) => (
+                            <div key={item.product.id} className="pb-4 last:pb-0">
+                              <CartItem item={item} />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="flex items-center gap-1.5 px-2 py-1 h-auto bg-crimson/5 text-crimson hover:bg-crimson/10 border border-crimson/20 rounded-md"
-                          onClick={() => setIsDeliveryModalOpen(true)}
-                        >
-                          <Truck className="w-4 h-4" />
-                          <span>{t('cart.delivery')}</span>
-                        </Button>
-                        <div className="flex flex-col items-end">
-                          <span className="text-green-600">
+                    </div>
+                    
+                    {/* Cart summary - stays fixed at the bottom */}
+                    <div className="border-t p-6 bg-background flex-shrink-0">
+                      <div className="space-y-4">
+                        <div className="flex justify-between text-sm">
+                          <span>{t('cart.subtotal')}:</span>
+                          <span className="font-medium">
+                            {cart.reduce(
+                              (total, item) =>
+                                total + item.product.price * item.quantity,
+                              0,
+                            )}{' '}
+                            ₾
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="flex items-center gap-1.5 px-2 py-1 h-auto bg-crimson/5 text-crimson hover:bg-crimson/10 border border-crimson/20 rounded-md"
+                            onClick={() => setIsDeliveryModalOpen(true)}
+                          >
+                            <Truck className="w-4 h-4" />
+                            <span>{t('cart.delivery')}</span>
+                          </Button>
+                          <div className="flex flex-col items-end">
+                            <span className="text-green-600">
+                              {cart.reduce(
+                                (total, item) =>
+                                  total + item.product.price * item.quantity,
+                                0,
+                              ) >= 100
+                                ? t('cart.free')
+                                : '5 ₾'}
+                            </span>
+                            {cart.reduce(
+                              (total, item) =>
+                                total + item.product.price * item.quantity,
+                              0,
+                            ) >= 500 && (
+                              <span className="text-green-500 text-xs mt-1">
+                                {t('cart.discount_applied', { percent: '10%' })}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-lg font-bold mt-4">
+                          <span>{t('cart.total')}:</span>
+                          <span className="text-crimson">
                             {cart.reduce(
                               (total, item) =>
                                 total + item.product.price * item.quantity,
                               0,
                             ) >= 100
-                              ? t('cart.free')
-                              : '5 ₾'}
+                              ? cart.reduce(
+                                  (total, item) =>
+                                    total + item.product.price * item.quantity,
+                                  0,
+                                )
+                              : cart.reduce(
+                                  (total, item) =>
+                                    total + item.product.price * item.quantity,
+                                  0,
+                                ) + 5}{' '}
+                            ₾
                           </span>
-                          {cart.reduce(
-                            (total, item) =>
-                              total + item.product.price * item.quantity,
-                            0,
-                          ) >= 500 && (
-                            <span className="text-green-500 text-xs mt-1">
-                              {t('cart.discount_applied', { percent: '10%' })}
-                            </span>
-                          )}
                         </div>
                       </div>
-                      <div className="flex justify-between text-lg font-bold mt-4">
-                        <span>{t('cart.total')}:</span>
-                        <span className="text-crimson">
-                          {cart.reduce(
-                            (total, item) =>
-                              total + item.product.price * item.quantity,
-                            0,
-                          ) >= 100
-                            ? cart.reduce(
-                                (total, item) =>
-                                  total + item.product.price * item.quantity,
-                                0,
-                              )
-                            : cart.reduce(
-                                (total, item) =>
-                                  total + item.product.price * item.quantity,
-                                0,
-                              ) + 5}{' '}
-                          ₾
-                        </span>
+                      <div className="flex flex-col gap-2 mt-4">
+                        <Button 
+                          variant="outline" 
+                          className="w-full flex items-center justify-center gap-2 bg-crimson/5 text-crimson hover:bg-crimson/10 border-crimson/20"
+                          onClick={() => setIsDiscountModalOpen(true)}
+                        >
+                          <Gift className="w-4 h-4" />
+                          <span>{t('cart.get_discount')}</span>
+                        </Button>
+                        <Button
+                          className="w-full bg-crimson hover:bg-crimson/90 text-white"
+                          size="lg"
+                          onClick={() => navigate('/checkout')}
+                        >
+                          {t('cart.checkout')}
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <Button 
-                        variant="outline" 
-                        className="w-full flex items-center justify-center gap-2 bg-crimson/5 text-crimson hover:bg-crimson/10 border-crimson/20"
-                        onClick={() => setIsDiscountModalOpen(true)}
-                      >
-                        <Gift className="w-4 h-4" />
-                        <span>{t('cart.get_discount')}</span>
-                      </Button>
-                    </div>
-                    <Button
-                      className="w-full bg-crimson hover:bg-crimson/90 text-white"
-                      size="lg"
-                      onClick={() => navigate('/checkout')}
-                    >
-                      {t('cart.checkout')}
-                    </Button>
-                  </>
+                  </div>
                 )}
               </div>
             </SheetContent>
