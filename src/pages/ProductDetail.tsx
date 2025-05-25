@@ -26,6 +26,7 @@ import {
 } from '@/services/reviewService';
 import { cartInterestService } from '@/services/cartInterestService';
 import { recentlyViewedService } from '@/services/recentlyViewedService';
+import { ProductImageGallery } from '@/components/ProductImageGallery';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -55,6 +56,7 @@ const ProductDetail = () => {
   const [reviewsLoaded, setReviewsLoaded] = useState(false);
   const [imageError, setImageError] = useState<number | null>(null);
   const [isSomeoneViewing, setIsSomeoneViewing] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const userHasPurchased = auth.hasUserPurchasedProduct(productId);
 
 
@@ -234,12 +236,15 @@ const ProductDetail = () => {
                   </div>
                 )}
                 {/* Main image with red border */}
-                <div className="absolute inset-0 flex items-center justify-center p-1 bg-transparent">
+                <div 
+                  className="absolute inset-0 flex items-center justify-center p-1 bg-transparent cursor-zoom-in"
+                  onClick={() => setIsGalleryOpen(true)}
+                >
                   {!imageError || imageError !== selectedImageIndex ? (
                     <img
                       src={product.images[selectedImageIndex]}
                       alt={product.name[language]}
-                      className="w-[115%] h-[115%] object-contain"
+                      className="w-[115%] h-[115%] object-contain transition-transform duration-300 group-hover:scale-105"
                       style={{ transform: 'scale(1.15)' }}
                       onError={() => handleImageError(selectedImageIndex)}
                     />
@@ -250,7 +255,10 @@ const ProductDetail = () => {
                           Не удалось загрузить изображение
                         </div>
                         <button
-                          onClick={() => setImageError(null)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setImageError(null);
+                          }}
                           className="text-sm text-crimson hover:underline"
                         >
                           Попробовать снова
@@ -433,6 +441,15 @@ const ProductDetail = () => {
       </div>
 
       <Footer />
+      {/* Image Gallery Modal */}
+      {isGalleryOpen && (
+        <ProductImageGallery
+          images={product.images}
+          currentIndex={selectedImageIndex}
+          onClose={() => setIsGalleryOpen(false)}
+          onIndexChange={setSelectedImageIndex}
+        />
+      )}
     </div>
   );
 };

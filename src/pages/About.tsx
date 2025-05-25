@@ -81,7 +81,7 @@ const About = () => {
                 </svg>
               </a>
               <a
-                href="https://t.me/nekostorege"
+                href="https://t.me/not_even_here"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-full bg-muted flex items-center justify-center hover:bg-crimson/20 transition-colors"

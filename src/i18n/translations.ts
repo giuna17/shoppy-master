@@ -1579,7 +1579,7 @@ export const translations: Translations = {
   'footer.alternative_jewelry': {
     ru: 'Альтернативные украшения для тех, кто бросает вызов нормам и принимает анархию.',
     en: 'Alternative jewelry for those who defy norms and embrace anarchy.',
-    ge: 'ალტერნატიული ბიჭაობა იმათთვის, ვინც უარყოფს ნორმებს და იღებს ანარქიას.',
+    ge: 'ალტერნატივა მათთვის, ვინც უარყოფს ნორმებს და აწვება თავის გზას.',
   },
   'reviews.testimonials': {
     ru: 'Отзывы',
