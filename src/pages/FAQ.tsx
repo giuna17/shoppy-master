@@ -63,8 +63,7 @@ const FAQ: React.FC = () => {
     { id: 1, questionKey: 'faq.q1.question', answerKey: 'faq.q1.answer' },
     { id: 2, questionKey: 'faq.q2.question', answerKey: 'faq.q2.answer' },
     { id: 3, questionKey: 'faq.q3.question', answerKey: 'faq.q3.answer' },
-    { id: 4, questionKey: 'faq.q4.question', answerKey: 'faq.q4.answer' },
-    { id: 5, questionKey: 'faq.q5.question', answerKey: 'faq.q5.answer' },
+    { id: 4, questionKey: 'faq.q5.question', answerKey: 'faq.q5.answer' },
   ], []);
 
   const toggleItem = (id: number) => {

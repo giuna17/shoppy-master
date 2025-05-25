@@ -305,54 +305,68 @@ const Navbar = () => {
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="flex items-center gap-1.5 px-2 py-1 h-auto bg-crimson/5 text-crimson hover:bg-crimson/10 border border-crimson/20 rounded-md"
-                            onClick={() => setIsDeliveryModalOpen(true)}
-                          >
-                            <Truck className="w-4 h-4" />
-                            <span>{t('cart.delivery')}</span>
-                          </Button>
-                          <div className="flex flex-col items-end">
-                            <span className="text-green-600">
-                              {cart.reduce(
-                                (total, item) =>
-                                  total + item.product.price * item.quantity,
-                                0,
-                              ) >= 100
-                                ? t('cart.free')
-                                : '5 ₾'}
-                            </span>
-                            {cart.reduce(
-                              (total, item) =>
-                                total + item.product.price * item.quantity,
-                              0,
-                            ) >= 500 && (
-                              <span className="text-green-500 text-xs mt-1">
-                                {t('cart.discount_applied', { percent: '10%' })}
+                          <div className="flex flex-col gap-2 w-full">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="flex items-center gap-1.5 px-2 py-1 h-auto bg-crimson/5 text-crimson hover:bg-crimson/10 border border-crimson/20 rounded-md w-full justify-start"
+                              onClick={() => setIsDeliveryModalOpen(true)}
+                            >
+                              <Truck className="w-4 h-4" />
+                              <span>{t('cart.delivery')}</span>
+                              <span className="ml-auto text-green-600">
+                                {cart.reduce(
+                                  (total, item) => total + item.product.price * item.quantity,
+                                  0,
+                                ) >= 100
+                                  ? t('cart.free')
+                                  : '5 ₾'}
                               </span>
-                            )}
+                            </Button>
+                            {(() => {
+                              const total = cart.reduce(
+                                (total, item) => total + item.product.price * item.quantity,
+                                0
+                              );
+                              if (total >= 500) {
+                                return (
+                                  <div className="flex items-center gap-1.5 px-2 py-1 h-auto bg-green-600/10 text-green-600 border border-green-600/20 rounded-md w-full">
+                                    <Gift className="w-4 h-4" />
+                                    <span>ფასდაკლება: <span className="font-bold">10%</span></span>
+                                  </div>
+                                );
+                              } else if (total >= 200 && total < 500) {
+                                return (
+                                  <div className="flex items-center gap-1.5 px-2 py-1 h-auto bg-blue-600/10 text-blue-600 border border-blue-600/20 rounded-md w-full">
+                                    <Gift className="w-4 h-4" />
+                                    <span>ფასდაკლება: <span className="font-bold">5%</span></span>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
                         </div>
                         <div className="flex justify-between text-lg font-bold mt-4">
                           <span>{t('cart.total')}:</span>
                           <span className="text-crimson">
-                            {cart.reduce(
-                              (total, item) =>
-                                total + item.product.price * item.quantity,
-                              0,
-                            ) >= 100
-                              ? cart.reduce(
-                                  (total, item) =>
-                                    total + item.product.price * item.quantity,
-                                  0,
-                                )
-                              : cart.reduce(
-                                  (total, item) =>
-                                    total + item.product.price * item.quantity,
-                                  0,
-                                ) + 5}{' '}
+                            {(() => {
+                              const subtotal = cart.reduce(
+                                (total, item) => total + item.product.price * item.quantity,
+                                0
+                              );
+                              let total = subtotal;
+                              
+                              if (subtotal < 100) {
+                                total += 5; // Add delivery fee if under 100₾
+                              } else if (subtotal >= 500) {
+                                total = subtotal * 0.9; // 10% discount for 500₾ and above
+                              } else if (subtotal >= 200) {
+                                total = subtotal * 0.95; // 5% discount for 200-499₾
+                              }
+                              
+                              return Math.round(total * 100) / 100; // Round to 2 decimal places
+                            })()}{' '}
                             ₾
                           </span>
                         </div>
