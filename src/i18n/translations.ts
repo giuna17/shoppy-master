@@ -42,7 +42,7 @@ export const translations: Translations = {
   'nav.faq': {
     ru: 'ЧЗВ',
     en: 'FAQ',
-    ge: 'ხშირი კითხვები',
+    ge: 'კითხვები',
   },
   'nav.categories': {
     ru: 'Категории',

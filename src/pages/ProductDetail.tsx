@@ -31,6 +31,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const { t, language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+  const mainImageRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
   // Get product data
@@ -69,9 +70,17 @@ const ProductDetail = () => {
       window.history.replaceState(null, '', ' ');
     }
     
-    // Scroll to top with a small delay to ensure the DOM is ready
+    // Scroll to main image with a small delay to ensure the DOM is ready
     const timer = setTimeout(() => {
-      window.scrollTo(0, 0);
+      if (mainImageRef.current) {
+        mainImageRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      } else {
+        // Fallback to top if main image ref is not available
+        window.scrollTo(0, 0);
+      }
     }, 100);
     
     return () => clearTimeout(timer);
@@ -201,7 +210,7 @@ const ProductDetail = () => {
       <div className="flex-grow container mx-auto py-12 px-4">
         <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Product Images */}
-          <div className="space-y-4 relative">
+          <div className="space-y-4 relative" ref={mainImageRef}>
             {/* Back to Shop Button - Positioned above product image */}
             <div className="absolute -top-10 left-0 z-10">
               <button

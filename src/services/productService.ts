@@ -78,7 +78,21 @@ export const getProducts = () => {
 };
 
 export const getProductById = (id: number) => {
-  return products.find((product) => product.id === id);
+  try {
+    console.log(`[getProductById] Looking for product with ID: ${id}`);
+    const product = products.find((product) => product.id === id);
+    
+    if (!product) {
+      console.warn(`[getProductById] Product not found with ID: ${id}`);
+      return null;
+    }
+    
+    console.log(`[getProductById] Found product:`, product);
+    return product;
+  } catch (error) {
+    console.error(`[getProductById] Error finding product with ID ${id}:`, error);
+    return null;
+  }
 };
 
 export const getFeaturedProducts = () => {

@@ -1,5 +1,6 @@
-import { collection, doc, setDoc, getDocs, query, where, orderBy, limit, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, query, where, orderBy, limit, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { getAnalytics, logEvent } from 'firebase/analytics';
 
 interface RecentlyViewedProduct {
   id?: string;
@@ -52,66 +53,82 @@ export const recentlyViewedService = {
         });
         
         // Keep only the most recent items
-        if (items.length > MAX_ITEMS) {
-          items.pop();
+        const recentItems = items
+          .sort((a: any, b: any) => b.timestamp - a.timestamp)
+          .slice(0, MAX_ITEMS);
+        
+        localStorage.setItem(storageKey, JSON.stringify(recentItems));
+        return;
+      }
+    }
+    
+    // Handle authenticated users with Firestore
+    try {
+      const docRef = doc(db, 'recentlyViewed', userId, 'products', productId.toString());
+      
+      // Use serverTimestamp for consistency
+      const timestamp = serverTimestamp();
+      
+      // Check if document exists using getDoc with the direct reference
+      const docSnap = await getDocs(query(
+        collection(db, 'recentlyViewed', userId, 'products'),
+        where('productId', '==', productId),
+        limit(1)
+      ));
+      
+      if (!docSnap.empty) {
+        // Update existing document
+        const existingDoc = docSnap.docs[0];
+        await updateDoc(doc(db, 'recentlyViewed', userId, 'products', existingDoc.id), {
+          timestamp,
+          viewCount: (existingDoc.data().viewCount || 0) + 1,
+          isFavorite: isFavorite || existingDoc.data().isFavorite || false
+        });
+      } else {
+        // Create new document
+        await setDoc(docRef, {
+          productId,
+          userId,
+          timestamp,
+          viewCount: 1,
+          isFavorite: isFavorite || false,
+          createdAt: timestamp,
+          updatedAt: timestamp
+        });
+      }
+      
+      // Log analytics event
+      if (typeof window !== 'undefined') {
+        try {
+          logEvent(getAnalytics(), 'view_item', {
+            items: [{
+              item_id: productId.toString(),
+              item_name: `Product ${productId}`,
+              item_category: 'product',
+            }],
+          });
+        } catch (analyticsError) {
+          console.warn('Analytics error:', analyticsError);
         }
       }
       
-      localStorage.setItem(storageKey, JSON.stringify(items));
-    } else {
-      // Handle authenticated users with Firestore
-      try {
-        const userRef = collection(db, 'users', userId, 'recentlyViewed');
-        const q = query(userRef, where('productId', '==', productId));
-        const querySnapshot = await getDocs(q);
-        
-        if (!querySnapshot.empty) {
-          // Update existing document
-          const docRef = doc(db, 'users', userId, 'recentlyViewed', querySnapshot.docs[0].id);
-          await updateDoc(docRef, {
-            timestamp: Date.now(),
-            viewCount: (querySnapshot.docs[0].data().viewCount || 0) + 1,
-            isFavorite: isFavorite || querySnapshot.docs[0].data().isFavorite || false
-          });
-        } else {
-          // Add new document
-          const newItem = {
-            productId,
-            userId,
-            timestamp: Date.now(),
-            viewCount: 1,
-            isFavorite
-          };
-          
-          // Check if we need to remove the oldest item
-          const allItems = await this.getAll();
-          if (allItems.length >= MAX_ITEMS) {
-            const oldestItem = allItems[allItems.length - 1];
-            if (oldestItem.id) {
-              await deleteDoc(doc(db, 'users', userId, 'recentlyViewed', oldestItem.id));
-            }
-          }
-          
-          await setDoc(doc(userRef), newItem);
-        }
-      } catch (error) {
-        console.error('Error updating recently viewed in Firestore:', error);
-        // Fallback to localStorage if Firestore fails
-        const items = this.getAll();
+    } catch (error) {
+      console.error('Error adding to recently viewed:', error);
+      // Fallback to localStorage if Firestore fails
+      if (error.code === 'permission-denied') {
+        console.warn('Permission denied. Falling back to localStorage.');
+        const storageKey = getStorageKey();
+        const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
         items.unshift({
           productId,
           userId,
           timestamp: Date.now(),
           viewCount: 1,
-          isFavorite
+          isFavorite: isFavorite || false
         });
-        
-        if (items.length > MAX_ITEMS) {
-          items.pop();
-        }
-        
-        localStorage.setItem(getStorageKey(), JSON.stringify(items));
+        localStorage.setItem(storageKey, JSON.stringify(items));
       }
+      throw error;
     }
   },
   
@@ -146,25 +163,48 @@ export const recentlyViewedService = {
     } else {
       // Handle authenticated users with Firestore
       try {
-        const userRef = collection(db, 'users', userId, 'recentlyViewed');
-        const q = query(userRef, orderBy('timestamp', 'desc'));
-        const querySnapshot = await getDocs(q);
+        const q = query(
+          collection(db, 'recentlyViewed', userId, 'products'),
+          orderBy('timestamp', 'desc')
+        );
         
-        return querySnapshot.docs
-          .map(doc => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              productId: data.productId,
-              userId: data.userId || userId,
-              timestamp: data.timestamp || 0,
-              viewCount: data.viewCount || 1,
-              isFavorite: data.isFavorite || false,
-            } as RecentlyViewedProduct;
-          })
-          .filter(item => item.productId !== undefined && item.timestamp !== undefined);
+        const querySnapshot = await getDocs(q);
+        const items = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          // Convert Firestore Timestamp to milliseconds
+          const timestamp = data.timestamp?.toDate?.()?.getTime() || 
+                          (typeof data.timestamp === 'number' ? data.timestamp : Date.now());
+                          
+          return {
+            id: doc.id,
+            ...data,
+            productId: data.productId || parseInt(doc.id, 10) || 0,
+            isFavorite: data.isFavorite || false,
+            viewCount: data.viewCount || 1,
+            timestamp: timestamp,
+            userId: data.userId || userId
+          } as RecentlyViewedProduct;
+        });
+        
+        // Ensure we have valid product IDs
+        return items.filter(item => item.productId > 0);
+        
       } catch (error) {
-        console.error('Error getting recently viewed products from Firestore:', error);
+        console.error('Error fetching recently viewed products:', error);
+        // Fallback to localStorage if Firestore fails
+        if (error.code === 'permission-denied') {
+          console.warn('Permission denied. Falling back to localStorage.');
+          const storageKey = getStorageKey();
+          const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+          return items
+            .filter((item: any) => item && item.productId !== undefined)
+            .map((item: any) => ({
+              ...item,
+              isFavorite: item.isFavorite || false,
+              viewCount: item.viewCount || 1,
+              userId: item.userId || userId
+            }));
+        }
         return [];
       }
     }
@@ -204,9 +244,11 @@ export const recentlyViewedService = {
       localStorage.removeItem(getStorageKey());
     } else {
       try {
-        const userRef = collection(db, 'users', userId, 'recentlyViewed');
-        const querySnapshot = await getDocs(userRef);
+        const q = query(
+          collection(db, 'recentlyViewed', userId, 'products')
+        );
         
+        const querySnapshot = await getDocs(q);
         const batch = [];
         querySnapshot.forEach((doc) => {
           batch.push(deleteDoc(doc.ref));
@@ -220,7 +262,10 @@ export const recentlyViewedService = {
     }
   },
   
-  // Remove a specific product
+  /**
+   * Remove a specific product from recently viewed
+   * @param productId - The ID of the product to remove
+   */
   async removeProduct(productId: number): Promise<void> {
     const userId = getUserId();
     
@@ -230,16 +275,17 @@ export const recentlyViewedService = {
       localStorage.setItem(getStorageKey(), JSON.stringify(filtered));
     } else {
       try {
-        const userRef = collection(db, 'users', userId, 'recentlyViewed');
-        const q = query(userRef, where('productId', '==', productId));
+        const q = query(
+          collection(db, 'recentlyViewed', userId, 'products'),
+          where('productId', '==', productId),
+          limit(1)
+        );
+        
         const querySnapshot = await getDocs(q);
         
-        const batch = [];
-        querySnapshot.forEach((doc) => {
-          batch.push(deleteDoc(doc.ref));
-        });
-        
-        await Promise.all(batch);
+        if (!querySnapshot.empty) {
+          await deleteDoc(querySnapshot.docs[0].ref);
+        }
       } catch (error) {
         console.error('Error removing product from recently viewed:', error);
         const items = await this.getAll();
@@ -254,33 +300,66 @@ export const recentlyViewedService = {
     const userId = getUserId();
     
     if (userId === 'guest') {
-      const items = await this.getAll();
-      const item = items.find(item => item.productId === productId);
+      // Handle guest users with localStorage
+      const storageKey = getStorageKey();
+      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const itemIndex = items.findIndex((item: any) => item.productId === productId);
       
-      if (item) {
-        item.isFavorite = isFavorite;
-        localStorage.setItem(getStorageKey(), JSON.stringify(items));
+      if (itemIndex >= 0) {
+        items[itemIndex].isFavorite = isFavorite;
+        localStorage.setItem(storageKey, JSON.stringify(items));
       }
-    } else {
+      return;
+    }
+    
+    // Handle authenticated users with Firestore
+    try {
+      const docRef = doc(db, 'recentlyViewed', userId, 'products', productId.toString());
+      
+      // First try to update directly
       try {
-        const userRef = collection(db, 'users', userId, 'recentlyViewed');
-        const q = query(userRef, where('productId', '==', productId));
-        const querySnapshot = await getDocs(q);
-        
-        if (!querySnapshot.empty) {
-          const docRef = doc(db, 'users', userId, 'recentlyViewed', querySnapshot.docs[0].id);
-          await updateDoc(docRef, { isFavorite });
-        }
-      } catch (error) {
-        console.error('Error updating favorite status:', error);
-        const items = await this.getAll();
-        const item = items.find(item => item.productId === productId);
-        
-        if (item) {
-          item.isFavorite = isFavorite;
-          localStorage.setItem(getStorageKey(), JSON.stringify(items));
+        await updateDoc(docRef, { 
+          isFavorite,
+          updatedAt: serverTimestamp() 
+        });
+        return;
+      } catch (directUpdateError: any) {
+        // If direct update fails (document might not exist), try to find and update
+        if (directUpdateError.code === 'not-found') {
+          console.log('Document not found, trying query...');
+          const q = query(
+            collection(db, 'recentlyViewed', userId, 'products'),
+            where('productId', '==', productId),
+            limit(1)
+          );
+          
+          const querySnapshot = await getDocs(q);
+          
+          if (!querySnapshot.empty) {
+            const doc = querySnapshot.docs[0];
+            await updateDoc(doc.ref, { 
+              isFavorite,
+              updatedAt: serverTimestamp() 
+            });
+          } else {
+            // If document doesn't exist, create it
+            await setDoc(docRef, {
+              productId,
+              userId,
+              timestamp: serverTimestamp(),
+              viewCount: 1,
+              isFavorite,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+          }
+        } else {
+          throw directUpdateError;
         }
       }
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      throw error;
     }
   }
 };
