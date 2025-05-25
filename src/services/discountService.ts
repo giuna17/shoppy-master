@@ -5,7 +5,7 @@ export interface Discount {
   id: string;
   type: DiscountType;
   value: number;
-  userId: number;
+  userId: string;  // Changed from number to string to match Firebase UID
   isUsed: boolean;
 }
 
@@ -25,7 +25,7 @@ let discounts: Discount[] = loadDiscounts();
 
 // Добавить новую скидку
 export const addDiscount = (
-  userId: number,
+  userId: string,
   type: DiscountType,
   value: number,
 ): Discount => {
@@ -43,10 +43,18 @@ export const addDiscount = (
 };
 
 // Получить все активные скидки пользователя
-export const getUserDiscounts = (userId: number): Discount[] => {
+export const getUserDiscounts = (userId: string): Discount[] => {
   return discounts.filter(
     (discount) => discount.userId === userId && !discount.isUsed,
   );
+};
+
+// Скидка за 5-звёздочный отзыв (одноразовая)
+export const setUserDiscount = (userId: string) => {
+  const existingDiscount = discounts.find(d => d.userId === userId && d.type === 'review' && !d.isUsed);
+  if (!existingDiscount) {
+    addDiscount(userId, 'review', 10); // 10% скидка за отзыв
+  }
 };
 
 // Использовать скидку
@@ -58,7 +66,7 @@ export const useDiscount = (discountId: string) => {
 };
 
 // Рассчитать общую скидку для пользователя
-export const calculateTotalDiscount = (userId: number): number => {
+export const calculateTotalDiscount = (userId: string): number => {
   const userDiscounts = getUserDiscounts(userId);
   if (userDiscounts.length === 0) return 0;
 

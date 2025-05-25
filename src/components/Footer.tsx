@@ -118,7 +118,6 @@ const Footer = () => {
             <h4 className="text-lg font-bold">{t('footer.info')}</h4>
             <div className="space-y-2 text-foreground/80">
               <p>{t('footer.handmade')}</p>
-              <p>{t('footer.delivery')}</p>
             </div>
           </div>
         </div>

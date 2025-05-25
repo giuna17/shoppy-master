@@ -7,10 +7,18 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { translations } from '@/i18n/translations';
 
 // Пример контекста языка, можно доработать под ваши нужды
-const LanguageContext = createContext({
+interface LanguageContextType {
+  language: string;
+  currentLanguage: string;
+  setLanguage: (lang: string) => void;
+  t: (key: string, params?: Record<string, any>) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType>({
   language: 'ru',
-  setLanguage: (lang: string) => {},
-  t: (key: string, params?: Record<string, any>) => key,
+  currentLanguage: 'ru',
+  setLanguage: () => {},
+  t: (key: string) => key,
 });
 
 // Key for localStorage
@@ -51,8 +59,11 @@ export const LanguageProvider = ({
     return text;
   };
 
+  // Expose currentLanguage as an alias for language for better semantics
+  const currentLanguage = language;
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, currentLanguage, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, User, LogOut, Heart } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Heart, Truck, Gift } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
@@ -32,8 +32,10 @@ import { getProducts, type Product } from '@/services/productService';
 import { useCartContext } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useAuth } from '@/contexts/AuthContext';
+import DiscountInfo from './DiscountInfo';
 import CartItem from './CartItem';
 import LanguageSwitcher from './LanguageSwitcher';
+import DeliveryModal from './DeliveryModal';
 
 const LoginForm = ({ onClose }: { onClose: () => void }) => {
   const { t } = useLanguage();
@@ -88,7 +90,17 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
 
 const Navbar = () => {
   const { t, language, setLanguage } = useLanguage();
-  const { cart } = useCartContext();
+  const { 
+    cart, 
+    calculateTotal, 
+    calculateDiscount, 
+    isFreeDelivery, 
+    calculateTotalWithDiscount 
+  } = useCartContext();
+  const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+  const total = calculateTotal();
+  const { amount: discount, percentage: discountPercentage } = calculateDiscount();
   const { favorites, removeFromFavorites } = useFavorites();
   const { addToCart } = useCartContext();
   const allProducts = getProducts();
@@ -282,8 +294,16 @@ const Navbar = () => {
                           ₾
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span>{t('cart.shipping')}:</span>
+                      <div className="flex justify-between items-center text-sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="flex items-center gap-1.5 px-2 py-1 h-auto bg-crimson/5 text-crimson hover:bg-crimson/10 border border-crimson/20 rounded-md"
+                          onClick={() => setIsDeliveryModalOpen(true)}
+                        >
+                          <Truck className="w-4 h-4" />
+                          <span>{t('cart.delivery')}</span>
+                        </Button>
                         <div className="flex flex-col items-end">
                           <span className="text-green-600">
                             {cart.reduce(
@@ -327,12 +347,20 @@ const Navbar = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {t('cart.promo_info')}
+                    <div className="flex flex-col gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="w-full flex items-center justify-center gap-2 bg-crimson/5 text-crimson hover:bg-crimson/10 border-crimson/20"
+                        onClick={() => setIsDiscountModalOpen(true)}
+                      >
+                        <Gift className="w-4 h-4" />
+                        <span>{t('cart.get_discount')}</span>
+                      </Button>
                     </div>
                     <Button
                       className="w-full bg-crimson hover:bg-crimson/90 text-white"
                       size="lg"
+                      onClick={() => navigate('/checkout')}
                     >
                       {t('cart.checkout')}
                     </Button>
@@ -568,6 +596,19 @@ const Navbar = () => {
           )}
         </div>
       </div>
+      
+      <DiscountInfo 
+        isOpen={isDiscountModalOpen}
+        onClose={() => setIsDiscountModalOpen(false)}
+      />
+      <DeliveryModal 
+        isOpen={isDeliveryModalOpen} 
+        onClose={() => setIsDeliveryModalOpen(false)} 
+      />
+      <DeliveryModal 
+        isOpen={isDeliveryModalOpen} 
+        onClose={() => setIsDeliveryModalOpen(false)} 
+      />
     </nav>
   );
 };

@@ -6,7 +6,14 @@ export interface User {
   email: string | null;
   photoURL: string | null;
   purchasedProducts: number[];
-  providerData?: any[];
+  providerData?: Array<{
+    providerId: string;
+    uid: string;
+    displayName: string | null;
+    email: string | null;
+    phoneNumber: string | null;
+    photoURL: string | null;
+  }>;
   emailVerified?: boolean;
   phoneNumber?: string | null;
 }

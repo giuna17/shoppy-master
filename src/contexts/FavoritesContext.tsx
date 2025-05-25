@@ -8,6 +8,7 @@ import React, {
 import { favoritesService, FavoriteItem } from '@/services/favoritesService';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from './LanguageContext';
+import { recentlyViewedService } from '@/services/recentlyViewedService';
 
 interface FavoritesContextType {
   favorites: FavoriteItem[];
@@ -35,6 +36,9 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const addToFavorites = (productId: number) => {
     favoritesService.addToFavorites(productId);
     setFavorites(favoritesService.getFavorites());
+    
+    // Update recently viewed service
+    recentlyViewedService.updateFavoriteStatus(productId, true);
 
     toast({
       title: t('favorites.added'),
@@ -46,6 +50,9 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const removeFromFavorites = (productId: number) => {
     favoritesService.removeFromFavorites(productId);
     setFavorites(favoritesService.getFavorites());
+    
+    // Update recently viewed service
+    recentlyViewedService.updateFavoriteStatus(productId, false);
 
     toast({
       title: t('favorites.removed'),

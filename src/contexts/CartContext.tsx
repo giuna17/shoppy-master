@@ -3,7 +3,7 @@ import { Product } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from './LanguageContext';
 import { cartInterestService } from '@/services/cartInterestService';
-import { CartItem, CartContextType, CartContext } from './CartContext.utils';
+import { CartItem, CartContextType, CartContext, DiscountInfo } from './CartContext.utils';
 import { useCartContext } from './CartContext.hook';
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
@@ -105,6 +105,30 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('cart');
   };
 
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  };
+
+  const calculateDiscount = (): DiscountInfo => {
+    const subtotal = calculateTotal();
+    if (subtotal >= 500) {
+      return { amount: subtotal * 0.1, percentage: 10 }; // 10% off
+    } else if (subtotal >= 200) {
+      return { amount: subtotal * 0.05, percentage: 5 }; // 5% off
+    }
+    return { amount: 0, percentage: 0 };
+  };
+
+  const calculateTotalWithDiscount = () => {
+    const subtotal = calculateTotal();
+    const { amount: discount } = calculateDiscount();
+    return Math.max(0, subtotal - discount);
+  };
+
+  const isFreeDelivery = () => {
+    return calculateTotal() >= 100;
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -113,6 +137,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         removeFromCart,
         updateQuantity,
         clearCart,
+        calculateTotal,
+        calculateDiscount,
+        calculateTotalWithDiscount,
+        isFreeDelivery,
       }}
     >
       {children}

@@ -29,6 +29,7 @@ const Shop = () => {
     onSale: false,
   });
   const [searchQuery, setSearchQuery] = useState('');
+
   const [isCustomOrderModalOpen, setIsCustomOrderModalOpen] = useState(false);
 
   const allProducts = getProducts();

@@ -19,6 +19,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   featured = false,
   id,
   name,
+  materials = [],
+  colors = [],
   description,
   price,
   currency,
@@ -143,6 +145,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
               stock,
               category,
               featured,
+              materials: materials || [],
+              colors: colors || []
             })
           }
           disabled={isOutOfStock}

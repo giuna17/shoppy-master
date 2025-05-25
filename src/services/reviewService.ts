@@ -2,16 +2,23 @@ import { Product } from './productService';
 import { hasUserPurchasedProduct } from './orderService';
 import { addDiscount, getUserDiscounts } from './discountService';
 
+export type ReactionType = '🥰' | '😅' | '🤯';
+
+export type FeedbackCategory = '💸' | '⚙️' | '🎨' | '🚀' | '📦' | '🛠';
+
 export interface Review {
   id: number;
   productId: number;
-  userId: number;
+  userId: string;  // Changed from number to string to match Firebase UID
   userName: string;
   rating: number;
   comment: string;
   date: Date;
   photoUrl?: string;
   isVerifiedPurchase: boolean;
+  reaction?: ReactionType;
+  feedbackCategories?: FeedbackCategory[];
+  likedFeatures?: string;
 }
 
 // No initial reviews - only real user-submitted reviews will be stored
@@ -60,11 +67,12 @@ export const getTopReviews = (limit: number = 3): Review[] => {
 
 // Check if user has already reviewed a product
 export const hasUserReviewedProduct = (
-  userId: number,
+  userId: string,
   productId: number,
 ): boolean => {
   return reviews.some(
-    (review) => review.userId === userId && review.productId === productId,
+    (review) =>
+      review.userId === userId && review.productId === productId,
   );
 };
 
@@ -75,25 +83,23 @@ interface ReviewCheckResult {
 
 // Check if user can review a product
 export const canUserReviewProduct = (
-  userId: number,
+  userId: string,
   productId: number,
 ): ReviewCheckResult => {
-  // Проверяем, купил ли пользователь товар
-  if (!hasUserPurchasedProduct(userId, productId)) {
-    return {
-      canReview: false,
-      reason: 'reviews.must_purchase',
-    };
-  }
-
-  // Проверяем, не оставлял ли пользователь уже отзыв (только по реальным отзывам)
-  const userReviewExists = reviews.some(
-    (r) => r.userId === userId && r.productId === productId,
-  );
-  if (userReviewExists) {
+  // Check if user has already reviewed this product
+  if (hasUserReviewedProduct(userId, productId)) {
     return {
       canReview: false,
       reason: 'reviews.already_reviewed',
+    };
+  }
+
+  // Check if user has purchased the product
+  const hasPurchased = hasUserPurchasedProduct(userId, productId);
+  if (!hasPurchased) {
+    return {
+      canReview: false,
+      reason: 'reviews.must_purchase',
     };
   }
 
@@ -182,6 +188,8 @@ export const addReview = (
     const hasReviewDiscount = userDiscounts.some((d) => d.type === 'review');
 
     if (!hasReviewDiscount) {
+      setUserDiscount(reviewData.userId);
+      // Add discount with proper types
       addDiscount(reviewData.userId, 'review', 5); // 5% скидка за отзыв
     }
   }
@@ -199,30 +207,23 @@ export const getProductAverageRating = (productId: number): number => {
 };
 
 // Get user's reviews
-export const getUserReviews = (userId: number): Review[] => {
+export const getUserReviews = (userId: string): Review[] => {
   return reviews
     .filter((review) => review.userId === userId)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
 
 // Get products awaiting review
-export const getProductsAwaitingReview = (userId: number): number[] => {
-  const userReviews = new Set(
-    reviews
-      .filter((review) => review.userId === userId)
-      .map((review) => review.productId),
-  );
+export const getProductsAwaitingReview = (userId: string): number[] => {
+  // This would be replaced with actual logic to get products the user has purchased but not reviewed
+  // For now, return an empty array
+  const purchasedProducts = []; // This would come from order service
+  const reviewedProductIds = reviews
+    .filter((review) => review.userId === userId)
+    .map((review) => review.productId);
 
-  // Получаем все купленные товары, на которые еще нет отзыва
-  return Array.from(
-    new Set(
-      Array.from({ length: 10 }, (_, i) => i + 1) // Предполагаем, что у нас есть товары с ID от 1 до 10
-        .filter(
-          (productId) =>
-            hasUserPurchasedProduct(userId, productId) &&
-            !userReviews.has(productId),
-        ),
-    ),
+  return purchasedProducts.filter(
+    (productId) => !reviewedProductIds.includes(productId)
   );
 };
 
@@ -272,12 +273,47 @@ export const applyFilters = (
 };
 
 // Скидка за 5-звёздочный отзыв (одноразовая)
-export const setUserDiscount = (userId: number) => {
-  localStorage.setItem(`discountForUser_${userId}`, 'true');
+export const setUserDiscount = (userId: string) => {
+  // This would be implemented in the discount service
+  // For now, it's a no-op
 };
-export const hasUserDiscount = (userId: number) => {
-  return localStorage.getItem(`discountForUser_${userId}`) === 'true';
+
+export const hasUserDiscount = (userId: string) => {
+  // This would be implemented in the discount service
+  return false;
 };
-export const clearUserDiscount = (userId: number) => {
-  localStorage.removeItem(`discountForUser_${userId}`);
+
+export const clearUserDiscount = (userId: string) => {
+  // Implementation would go here
+};
+
+/**
+ * Uploads a review image to storage
+ * @param file The image file to upload
+ * @param userId The ID of the user uploading the image
+ * @param onProgress Optional progress callback
+ * @returns Promise that resolves with the download URL of the uploaded image
+ */
+export const uploadReviewImage = async (
+  file: File,
+  userId: string,
+  onProgress?: (progress: number) => void
+): Promise<string> => {
+  // In a real implementation, this would upload to a storage service like Firebase Storage
+  // For now, we'll simulate an upload with a delay
+  return new Promise((resolve) => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10 + Math.random() * 20; // Random progress between 10-30%
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        // Return a mock URL in development
+        const mockUrl = URL.createObjectURL(file);
+        // In production, this would be the actual storage URL
+        resolve(mockUrl);
+      }
+      onProgress?.(progress);
+    }, 200);
+  });
 };

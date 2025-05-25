@@ -71,12 +71,6 @@ const DeliveryModal: React.FC<DeliveryModalProps> = ({ isOpen, onClose }) => {
             </p>
           </div>
         </div>
-        <div className="flex justify-center mt-4">
-          <Button onClick={onClose} variant="outline" className="mt-2">
-            <X className="w-4 h-4 mr-2" />
-            {t('common.close')}
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );

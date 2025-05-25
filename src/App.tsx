@@ -17,6 +17,7 @@ import CategoryPage from './pages/CategoryPage';
 import ReviewsPage from './pages/ReviewsPage';
 import Profile from './pages/Profile';
 import FAQ from './pages/FAQ';
+import Checkout from './pages/Checkout';
 import ScrollToTop from './components/ScrollToTop';
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <ScrollToTop />
+                <div id="main" className="min-h-screen flex flex-col">
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/shop" element={<Shop />} />
@@ -45,9 +47,11 @@ const App = () => (
                   <Route path="/reviews" element={<ReviewsPage />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/faq" element={<FAQ />} />
+                  <Route path="/checkout" element={<Checkout />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                </div>
               </BrowserRouter>
             </FavoritesProvider>
           </CartProvider>

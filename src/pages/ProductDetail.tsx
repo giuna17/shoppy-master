@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  Eye,
 } from 'lucide-react';
 import { getProductById } from '@/services/productService';
 import Navbar from '@/components/Navbar';
@@ -23,32 +24,82 @@ import {
   getProductAverageRating,
   getProductReviews,
 } from '@/services/reviewService';
+import { cartInterestService } from '@/services/cartInterestService';
+import { recentlyViewedService } from '@/services/recentlyViewedService';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const { t, language } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  // Scroll to top when component mounts or when product ID changes
-  useEffect(() => {
-    // Скролл в начало страницы при монтировании
-    containerRef.current?.scrollIntoView({ behavior: 'smooth' });
-
-    // Если товар не найден, редиректим на главную
-    if (!product) {
-      navigate('/');
-      return;
-    }
-    window.scrollTo(0, 0);
-  }, [id]);
+  
+  // Get product data
+  const productId = parseInt(id || '0');
+  const product = getProductById(productId);
+  const reviews = getProductReviews(productId);
+  const averageRating = getProductAverageRating(productId);
+  
+  // Hooks and state
   const { addToCart, cart } = useCartContext();
   const { isInFavorites, addToFavorites, removeFromFavorites } = useFavorites();
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [reviewsLoaded, setReviewsLoaded] = useState(false);
   const auth = useAuth();
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  
+  // Track product view
+  useEffect(() => {
+    if (product?.id) {
+      recentlyViewedService.addProduct(product.id, isInFavorites(product.id));
+    }
+  }, [product?.id, isInFavorites]);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
   const [imageError, setImageError] = useState<number | null>(null);
+  const [isSomeoneViewing, setIsSomeoneViewing] = useState(false);
+  const userHasPurchased = auth.hasUserPurchasedProduct(productId);
 
-  // Обработчик ошибки загрузки изображения
+
+  // Handle scroll and redirect if product not found
+  useEffect(() => {
+    if (!product) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    // Clear any URL hashes
+    if (window.location.hash) {
+      window.history.replaceState(null, '', ' ');
+    }
+    
+    // Scroll to top with a small delay to ensure the DOM is ready
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [id, product, navigate]);
+
+  // Track when someone is viewing this product
+  useEffect(() => {
+    if (!product?.id) return;
+    
+    // Register interest in this product
+    cartInterestService.addInterest(product.id);
+    
+    // Check if someone else is viewing this product
+    const checkViewers = () => {
+      const isViewed = cartInterestService.checkInterest(product.id);
+      setIsSomeoneViewing(isViewed);
+    };
+    
+    // Check immediately
+    checkViewers();
+    
+    // Then check periodically
+    const interval = setInterval(checkViewers, 30000);
+    
+    return () => clearInterval(interval);
+  }, [product?.id]);
+
+  // Handle image loading errors
   const handleImageError = (index: number) => {
     console.error(`Failed to load image: ${product.images[index]}`);
     setImageError(index);
@@ -56,29 +107,19 @@ const ProductDetail = () => {
 
   // Переключение на следующее изображение
   const nextImage = () => {
-    if (!product.images?.length) return;
+    if (!product?.images?.length) return;
     setSelectedImageIndex((prev) => (prev + 1) % product.images.length);
     setImageError(null);
   };
 
   // Переключение на предыдущее изображение
   const prevImage = () => {
-    if (!product.images?.length) return;
+    if (!product?.images?.length) return;
     setSelectedImageIndex(
       (prev) => (prev - 1 + product.images.length) % product.images.length,
     );
     setImageError(null);
   };
-
-  const productId = parseInt(id || '0');
-  const product = getProductById(productId);
-
-  // Get product reviews
-  const reviews = getProductReviews(productId);
-  const averageRating = getProductAverageRating(productId);
-
-  // Check if user has purchased this product
-  const userHasPurchased = auth.hasUserPurchasedProduct(productId);
 
   if (!product) {
     return (
@@ -176,6 +217,13 @@ const ProductDetail = () => {
             </div>
             <div className="relative aspect-square bg-transparent p-2">
               <div className="relative w-full h-full border-2 border-crimson/30 rounded-lg overflow-hidden bg-transparent">
+                {/* Someone is viewing this product */}
+                {isSomeoneViewing && (
+                  <div className="absolute top-2 right-2 z-20 bg-amber-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                    <Eye className="w-3 h-3" />
+                    <span>{t('product.in_cart')}</span>
+                  </div>
+                )}
                 {/* Main image with red border */}
                 <div className="absolute inset-0 flex items-center justify-center p-1 bg-transparent">
                   {!imageError || imageError !== selectedImageIndex ? (

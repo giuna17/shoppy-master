@@ -9,6 +9,7 @@ import { getProducts, getFeaturedProducts } from '@/services/productService';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCartContext } from '@/contexts/CartContext';
+import { RecentlyViewed } from '@/components/RecentlyViewed';
 
 const Index = () => {
   const { t, language } = useLanguage();
@@ -191,9 +192,31 @@ const Index = () => {
                         </p>
                         <button
                           onClick={() => handleAddToCart(starOfDavidProduct.id)}
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-crimson hover:bg-crimson/90 text-black font-medium relative px-6 py-6 text-lg"
+                          className="relative inline-flex items-center justify-center px-6 py-3 bg-crimson hover:bg-crimson/90 text-black font-medium text-lg rounded-md overflow-visible transition-all duration-200 group"
                         >
-                          <div className="absolute inset-0 flex items-center justify-center opacity-10 z-0">
+                          {/* Main icon and text */}
+                          <div className="relative z-10 flex items-center">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="mr-2 h-5 w-5 flex-shrink-0"
+                            >
+                              <circle cx="8" cy="21" r="1" />
+                              <circle cx="19" cy="21" r="1" />
+                              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                            </svg>
+                            <span className="whitespace-nowrap">{t('cart.add_to_cart')}</span>
+                          </div>
+                          
+                          {/* Hover effect */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
@@ -204,32 +227,13 @@ const Index = () => {
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              className="lucide lucide-shopping-cart w-8 h-8"
+                              className="h-12 w-12 text-black/10"
                             >
-                              <circle cx="8" cy="21" r="1"></circle>
-                              <circle cx="19" cy="21" r="1"></circle>
-                              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                              <circle cx="8" cy="21" r="1" />
+                              <circle cx="19" cy="21" r="1" />
+                              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
                             </svg>
                           </div>
-                          <span className="relative z-1 flex items-center">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="lucide lucide-shopping-cart mr-2 h-4 w-4"
-                            >
-                              <circle cx="8" cy="21" r="1"></circle>
-                              <circle cx="19" cy="21" r="1"></circle>
-                              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-                            </svg>
-                            В корзину
-                          </span>
                         </button>
                       </div>
                     </div>
@@ -263,30 +267,27 @@ const Index = () => {
             <h2 className="text-2xl font-bold" style={{ fontSize: '1.8rem' }}>
               {t('home.popular_products')}
             </h2>
-            <Button
-              asChild
-              variant="link"
-              className="text-crimson hover:text-crimson/80 text-lg"
+            <Link 
+              to="/shop"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-medium bg-crimson/10 hover:bg-crimson/20 text-crimson border border-crimson/20 rounded-md transition-colors group"
             >
-              <Link to="/shop">
-                {t('home.view_all')}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-arrow-right ml-2 h-5 w-5"
-                >
-                  <path d="M5 12h14"></path>
-                  <path d="m12 5 7 7-7 7"></path>
-                </svg>
-              </Link>
-            </Button>
+              {t('home.view_all')}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-arrow-right h-4 w-4 transition-transform group-hover:translate-x-1"
+              >
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -297,6 +298,11 @@ const Index = () => {
                 onAddToCart={() => handleAddToCart(product.id)}
               />
             ))}
+          </div>
+
+          {/* Recently Viewed Products - Placed right after New Products */}
+          <div className="col-span-full mt-12">
+            <RecentlyViewed className="bg-muted/30" />
           </div>
         </div>
       </section>

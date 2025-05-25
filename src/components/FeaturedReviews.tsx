@@ -17,18 +17,29 @@ const FeaturedReviews = () => {
             <span className="text-crimson">{t('reviews.title_part1')}</span>{' '}
             <span className="text-white">{t('reviews.title_part2')}</span>
           </h2>
-          <Button
-            asChild
-            variant="link"
-            className="text-crimson hover:text-crimson/80 text-[1.05em]"
-            style={{ transform: 'scale(1.05)' }}
+          <Link 
+            to="/reviews"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-medium bg-crimson/10 hover:bg-crimson/20 text-crimson border border-crimson/20 rounded-md transition-colors group"
           >
-            <Link to="/reviews">{t('reviews.view_all')}</Link>
-          </Button>
+            {t('reviews.view_all')}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-arrow-right h-4 w-4 transition-transform group-hover:translate-x-1"
+            >
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </Link>
         </div>
-        <div className="text-center text-lg font-medium text-crimson bg-black/5 py-2 px-4 rounded-md border border-crimson/20">
-          {t('reviews.leave_good_review_discount')}
-        </div>
+
       </div>
 
       <ReviewList reviews={reviews} showTitle={false} />
