@@ -1595,7 +1595,7 @@ export const translations: Translations = {
   'shop.search_title': {
     ru: 'Ищешь что-то конкретное?',
     en: 'Looking for something specific?',
-    ge: 'შენ რამე კონკრეტული ვინაიდან ძებნა ხართ?',
+    ge: 'რამე კონკრეტულს ეძებთ?',
   },
   'shop.custom_design_title': {
     ru: 'Хочешь заказать свой дизайн?',

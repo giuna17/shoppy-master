@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -17,12 +17,14 @@ interface ProductFiltersProps {
   onFilterChange: (filters: FilterValues) => void;
   categories: Category[];
   initialFilters?: FilterValues;
+  activeCategory?: string;
 }
 
 const ProductFilters: React.FC<ProductFiltersProps> = ({
   onFilterChange,
   categories,
   initialFilters,
+  activeCategory,
 }) => {
   const { t } = useLanguage();
   const products = getProducts();
@@ -42,7 +44,24 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     },
   );
 
+  // Update filters when activeCategory changes
+  useEffect(() => {
+    if (activeCategory) {
+      setFilters(prev => ({
+        ...prev,
+        categories: [activeCategory],
+      }));
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        categories: [],
+      }));
+    }
+  }, [activeCategory]);
+
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const isBraceletsCategory = filters.categories.includes('bracelets') || activeCategory === 'bracelets';
+  console.log('Active category:', activeCategory); // Debugging line
 
   const handlePriceChange = (value: number[]) => {
     // Ensure we have exactly two values for the price range
@@ -58,15 +77,25 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     }
   };
 
-  const handleCategoryToggle = (category: string) => {
+  // Normalize category name for comparison
+  const normalize = (str: string) => str.toLowerCase().trim();
+
+  const handleCategoryToggle = (categoryId: string) => {
     setFilters((prev) => {
-      const newCategories = prev.categories.includes(category)
-        ? prev.categories.filter((c) => c !== category)
-        : [...prev.categories, category];
+      // If clicking the active category, clear the filter
+      if (activeCategory === categoryId) {
+        const updated = {
+          ...prev,
+          categories: [],
+        };
+        onFilterChange(updated);
+        return updated;
+      }
       
+      // Otherwise, set the selected category
       const updated = {
         ...prev,
-        categories: newCategories,
+        categories: [categoryId], // Only allow one category at a time
       };
       onFilterChange(updated);
       return updated;
@@ -136,18 +165,20 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-lg p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium flex items-center">
-            <Filter className="mr-2 h-5 w-5" /> {t('filters.title')}
-          </h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="md:hidden"
-          >
-            {isFilterOpen ? t('filters.hide') : t('filters.show')}
-          </Button>
+        <div className="flex flex-col space-y-2 mb-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium flex items-center">
+              <Filter className="mr-2 h-5 w-5" /> {t('filters.title')}
+            </h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="md:hidden"
+            >
+              {isFilterOpen ? t('filters.hide') : t('filters.show')}
+            </Button>
+          </div>
         </div>
 
         <div
@@ -166,10 +197,18 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 onValueChange={handlePriceChange}
                 className="mb-2"
               />
-              <div className="flex justify-between text-sm text-foreground/80">
+              <div className="flex justify-between text-sm text-foreground/80 mb-3">
                 <span>{filters.priceRange[0]} ₾</span>
                 <span>{filters.priceRange[1]} ₾</span>
               </div>
+              <button
+                onClick={handleResetFilters}
+                className="text-[1.1em] text-crimson hover:text-crimson/80 font-medium transition-colors 
+                         flex items-center justify-center w-full py-2 px-3 rounded-md 
+                         border border-crimson/30 hover:border-crimson/50 hover:bg-crimson/5"
+              >
+                {t('filters.reset')}
+              </button>
             </div>
           </div>
 
@@ -180,26 +219,30 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             </h4>
             <div className="space-y-2">
               {categories.map((category) => {
-                // Use the translation for the category name if available, otherwise fallback to the name from the category object
-                const categoryName = t(
-                  `category.${category.id.toLowerCase()}`,
-                ).startsWith('category.')
-                  ? category.name
+                const isActive = activeCategory ? 
+                  normalize(category.id) === normalize(activeCategory) :
+                  filters.categories.some(cat => normalize(cat) === normalize(category.id));
+                
+                // Get the display name, using translation if available
+                const displayName = t(`category.${category.id.toLowerCase()}`).startsWith('category.') 
+                  ? category.name 
                   : t(`category.${category.id.toLowerCase()}`);
 
                 return (
                   <div key={category.id} className="flex items-center">
                     <Checkbox
                       id={`category-${category.id}`}
-                      checked={filters.categories.includes(category.id)}
+                      checked={isActive}
                       onCheckedChange={() => handleCategoryToggle(category.id)}
                       className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
                     />
                     <Label
                       htmlFor={`category-${category.id}`}
-                      className="ml-2 text-sm font-normal cursor-pointer"
+                      className={`ml-2 text-sm font-normal cursor-pointer ${
+                        isActive ? 'text-crimson font-medium' : ''
+                      }`}
                     >
-                      {categoryName}
+                      {displayName}
                     </Label>
                   </div>
                 );
@@ -261,16 +304,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Reset Button - Less prominent */}
-          <div className="pt-2">
-            <button 
-              onClick={handleResetFilters}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {t('filters.reset_all')}
-            </button>
           </div>
         </div>
       </div>

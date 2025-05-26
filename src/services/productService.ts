@@ -92,14 +92,14 @@ const products: Product[] = [
       '/lovable-uploads/494356912_2907248866121505_2657667423894533600_n_2.jpg'
     ],
     category: 'bracelets',
-    stock: 3,
+    stock: 1,
     featured: true,
     materials: ['Кожа', 'Металл'],
     colors: ['Коричневый', 'Бронза'],
   },
   
   {
-    id: 22,
+    id: 26,
     name: {
       ru: 'Браслет "Рок-Легенда"',
       en: 'Bracelet "Rock Legend"',
@@ -220,7 +220,7 @@ const products: Product[] = [
     colors: ['Розовое золото', 'Кристаллы'],
   },
   {
-    id: 23,
+    id: 27,
     name: {
       ru: 'Серьги "Снежок"',
       en: 'Earrings "Snowball"',

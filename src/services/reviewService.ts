@@ -227,7 +227,15 @@ export const getProductsAwaitingReview = (userId: string): number[] => {
   );
 };
 
-// Simple function to update product model with filter functionality
+// Simple function to normalize strings for comparison
+const normalize = (str: string) => (str || '').toLowerCase().trim();
+
+/**
+ * Applies filters to products array
+ * @param products Array of products to filter
+ * @param filters Object containing filter criteria
+ * @returns Filtered array of products
+ */
 export const applyFilters = (
   products: Product[],
   filters: {
@@ -240,34 +248,27 @@ export const applyFilters = (
 ): Product[] => {
   return products.filter((product) => {
     // Price filter
-    if (
-      filters.priceRange &&
-      (product.price < filters.priceRange[0] ||
-        product.price > filters.priceRange[1])
-    ) {
-      return false;
+    if (filters.priceRange) {
+      if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
+        return false;
+      }
     }
 
-    // Category filter - exact match
+    // Category filter - simple exact match after normalization
     if (filters.categories && filters.categories.length > 0) {
-      const productCategory = product.category.toLowerCase().trim();
-      const hasMatchingCategory = filters.categories.some(filterCategory => 
-        productCategory === filterCategory.toLowerCase().trim()
+      const productCategory = normalize(product.category);
+      const hasMatch = filters.categories.some(
+        cat => normalize(cat) === productCategory
       );
-      if (!hasMatchingCategory) {
+      if (!hasMatch) {
         return false;
       }
     }
 
     // Stock filter
-    if (filters.inStock && product.stock <= 0) {
-      return false;
-    }
-
-    // Out of Stock filter
-    if (filters.outOfStock && product.stock > 0) {
-      return false;
-    }
+    const isInStock = product.stock > 0;
+    if (filters.inStock && !isInStock) return false;
+    if (filters.outOfStock && isInStock) return false;
 
     // On Sale filter
     if (filters.onSale && !product.onSale) {

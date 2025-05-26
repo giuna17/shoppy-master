@@ -96,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   </span>
                 ) : (
                   <span className="bg-background/80 backdrop-blur-sm text-crimson text-xs px-2 py-1 rounded">
-                    {t('product.in_stock')}: {remainingStock}
+                    {t('product.in_stock')} {remainingStock}
                   </span>
                 )}
                 {isInSomeoneCart && !isOutOfStock && (

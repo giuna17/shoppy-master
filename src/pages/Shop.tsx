@@ -35,55 +35,90 @@ const Shop = () => {
 
   const allProducts = getProducts();
 
-  // Define all available categories including those that might not have products yet
-  const allCategories = [
-    'chokers',
-    'earrings',
-    'bracelets',
-    'rings',
-    'hairpins',
-    'candles',
-    'necklaces',
-    'accessories',
-  ];
+  // Функция нормализации — всё в нижний регистр и без пробелов
+  const normalize = (str: string) => (str || '').toLowerCase().trim();
 
-  // Get unique categories from products and combine with all categories
-  const productCategories = [
-    ...new Set(allProducts.map((product) => product.category)),
-  ];
-  const categories = [...new Set([...allCategories, ...productCategories])];
+  // Получаем все уникальные категории из продуктов
+  const allCategories = Array.from(
+    new Set([
+      'chokers',
+      'earrings',
+      'bracelets',
+      'rings',
+      'hairpins',
+      'candles',
+      'necklaces',
+      ...allProducts.map(p => p.category)
+    ].filter(Boolean))
+  );
 
-  // Filter products based on filters
-  let products = applyFilters(allProducts, {
+  // Создаем маппинг нормализованных имен категорий к их оригинальным значениям
+  const categoryMap = allCategories.reduce<Record<string, string>>((acc, category) => {
+    const norm = normalize(category);
+    if (!acc[norm]) {
+      acc[norm] = category;
+    }
+    return acc;
+  }, {});
+
+  // Используем оригинальные категории из маппинга
+  const categories = Object.values(categoryMap);
+
+  // Debug: Log categories and filters
+  console.log('All categories:', categories);
+  console.log('Active filters:', filters);
+  console.log('Active category:', activeCategory);
+  
+  // Debug: Log current state
+  console.log('Current filters:', filters);
+  console.log('Active category:', activeCategory);
+  
+  // Apply all filters
+  const filteredProducts = applyFilters(allProducts, {
     priceRange: filters.priceRange,
-    categories: filters.categories.length > 0 ? filters.categories : undefined,
+    categories: activeCategory ? [activeCategory] : (filters.categories?.length ? filters.categories : undefined),
     inStock: filters.inStock,
     outOfStock: filters.outOfStock,
     onSale: filters.onSale,
   });
+  
+  console.log('Filtered products count:', filteredProducts.length);
+  console.log('All products categories:', [...new Set(allProducts.map(p => p.category))]);
+  
+  // Debug: Log filtered products
+  console.log('Filtered products count:', filteredProducts.length);
+  if (filters.categories.length > 0) {
+    console.log('Products in selected categories:', filteredProducts.map(p => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      price: p.price
+    })));
+  }
+
+  // Apply search filter if there's a search query
+  const searchedProducts = searchQuery.trim()
+    ? filteredProducts.filter((product) => {
+        const lang = t('language');
+        return (
+          product.name[lang]?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.description[lang]?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      })
+    : filteredProducts;
 
   // Sort products to show out of stock items at the bottom
-  products = [...products].sort((a, b) => {
+  const sortedProducts = [...searchedProducts].sort((a, b) => {
     if (a.stock <= 0 && b.stock > 0) return 1;
     if (a.stock > 0 && b.stock <= 0) return -1;
     return 0;
   });
 
-  // Применяем поиск по названию и описанию
-  if (searchQuery.trim()) {
-    products = products.filter((product) => {
-      const lang = t('language');
-      return (
-        product.name[lang].toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description[lang]
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
-      );
-    });
-  }
+  // This is the final list of products to render
+  const productsToRender = sortedProducts;
 
   const handleAddToCart = (productId: number) => {
-    const product = products.find((p) => p.id === productId);
+    const product = productsToRender.find((p) => p.id === productId);
     if (product) {
       addToCart(product);
     }
@@ -91,13 +126,6 @@ const Shop = () => {
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
-
-    // If category is selected in filters, update the active category
-    if (newFilters.categories.length === 1) {
-      setActiveCategory(newFilters.categories[0]);
-    } else if (newFilters.categories.length === 0 && activeCategory) {
-      setActiveCategory(null);
-    }
   };
 
   // Effect to handle URL category changes
@@ -114,13 +142,19 @@ const Shop = () => {
     }
   }, [urlCategory]);
 
-  // Function to get localized category name
+  // Function to handle category click
   const handleCategoryClick = (categoryId: string) => {
-    setActiveCategory(categoryId === activeCategory ? null : categoryId);
-    setFilters((prev) => ({
-      ...prev,
-      categories: categoryId === activeCategory ? [] : [categoryId],
-    }));
+    const newActiveCategory = categoryId === activeCategory ? null : categoryId;
+    setActiveCategory(newActiveCategory);
+    
+    // Update filters to match the active category
+    const newFilters = {
+      ...filters,
+      categories: newActiveCategory ? [newActiveCategory] : []
+    };
+    
+    setFilters(newFilters);
+    handleFilterChange(newFilters);
   };
 
   const getCategoryName = (category: string) => {
@@ -184,19 +218,14 @@ const Shop = () => {
               <ProductFilters
                 onFilterChange={handleFilterChange}
                 categories={translatedCategories}
-                initialFilters={{
-                  priceRange: [0, 1000],
-                  categories: [],
-                  inStock: false,
-                  outOfStock: false,
-                  onSale: false,
-                }}
+                initialFilters={filters}
+                activeCategory={activeCategory}
               />
             </div>
 
             {/* Product Grid */}
             <div className="lg:col-span-3">
-              {products.length === 0 ? (
+              {productsToRender.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-foreground/80 text-xl font-semibold">
                     {t('product.no_products_found') ||
@@ -205,7 +234,7 @@ const Shop = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products.map((product) => {
+                  {productsToRender.map((product) => {
                     // Ensure we're passing the correct props to ProductCard
                     const {
                       id,
