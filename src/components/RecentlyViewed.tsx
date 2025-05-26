@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Product } from '@/services/productService';
@@ -71,130 +71,99 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
   const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { t, currentLanguage } = useLanguage();
+  const [isAtStart, setIsAtStart] = useState(true);
+  const [isAtEnd, setIsAtEnd] = useState(false);
+  const { language, t } = useLanguage();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = useCallback(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: -300,
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
+  const scrollRight = useCallback(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: 300,
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
   const { toast } = useToast();
   const { isInFavorites, addToFavorites, removeFromFavorites } = useFavorites();
 
-  const getLocalizedField = useCallback((field: any, fieldType: 'name' | 'description' = 'name'): string => {
-    if (!field) return fieldType === 'name' ? t('product') : '';
-    if (typeof field === 'string') return field;
-    if (typeof field === 'object' && field !== null) {
-      const fieldObj = field as Record<string, string>;
-      return (
-        fieldObj[currentLanguage] ||
-        fieldObj.en ||
-        fieldObj.ru ||
-        fieldObj.ge ||
-        Object.values(fieldObj)[0] ||
-        (fieldType === 'name' ? t('product') : t('no_description'))
-      );
-    }
-    return fieldType === 'name' ? t('product') : t('no_description');
-  }, [currentLanguage, t]);
+  const getLocalizedContent = useCallback((product: Product) => {
+    const name = typeof product.name === 'object' 
+      ? (product.name[language as keyof typeof product.name] || product.name.en || '')
+      : product.name || '';
+
+    const description = typeof product.description === 'object'
+      ? (product.description[language as keyof typeof product.description] || product.description.en || '')
+      : product.description || '';
+
+    return { name, description };
+  }, [language]);
 
   const fetchRecentlyViewed = useCallback(async () => {
     console.log('Fetching recently viewed items...');
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
+      // Get recently viewed items from the service
+      const recentItems = await recentlyViewedService.getRecent(12);
+      console.log('Recently viewed items:', recentItems);
       
-      // 1. Get recent items from the service
-      const items = await recentlyViewedService.getRecent(MAX_ITEMS);
-      console.log('Recently viewed items from service:', items);
-      
-      if (!items || items.length === 0) {
+      if (!recentItems || recentItems.length === 0) {
         console.log('No recently viewed items found');
         setRecentlyViewed([]);
         return;
       }
-
-          // 2. Process items to remove duplicates (keep the most recent)
-      const uniqueItems = items.reduce<{[key: number]: any}>((acc, item) => {
-        if (!acc[item.productId] || (item.timestamp || 0) > (acc[item.productId].timestamp || 0)) {
-          acc[item.productId] = item;
-        } else {
-          // Update view count for existing items
-          acc[item.productId].viewCount = (acc[item.productId].viewCount || 0) + 1;
-        }
-        return acc;
-      }, {});
       
-      // Convert back to array and sort by timestamp (newest first)
-      const sortedUniqueItems = Object.values(uniqueItems)
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-        .slice(0, MAX_ITEMS);
-      
-      console.log(`Processed ${items.length} items, ${sortedUniqueItems.length} unique after deduplication`);
-      
-      // 3. Fetch product details for each unique item
-      const productPromises = sortedUniqueItems.map(async (item) => {
-        try {
-          console.log('Fetching product with ID:', item.productId);
-          const product = await getProductById(item.productId);
-          console.log('Product data for ID', item.productId, ':', product);
-          
-          if (!product) {
-            console.warn('Product not found for ID:', item.productId);
-            // Return a minimal product object with the ID we know
-            return {
-              id: item.productId,
-              displayName: `Product #${item.productId}`,
-              displayDescription: t('product_not_found'),
-              price: 0,
-              currency: '₾',
-              images: ['/placeholder-product.jpg'],
-              category: 'unknown',
-              stock: 0,
-              featured: false,
-              viewCount: item.viewCount || 1,
-              isFavorite: item.isFavorite || false,
-              materials: [],
-              colors: [],
-              rating: 0
-            } as RecentlyViewedProduct;
+      // Fetch product details for each item
+      const products = await Promise.all(
+        recentItems.map(async (item) => {
+          try {
+            const product = await getProductById(item.productId);
+            if (product) {
+              const isFavorite = await isInFavorites(item.productId);
+              const { name, description } = getLocalizedContent(product);
+              return {
+                ...product,
+                id: item.productId,
+                viewCount: item.viewCount || 1,
+                isFavorite: item.isFavorite || isFavorite,
+                displayName: name,
+                displayDescription: description,
+                rating: (product as any).rating || 0, // Rating might not be in the base Product type
+              } as RecentlyViewedProduct;
+            }
+            return null;
+          } catch (err) {
+            console.error(`Error fetching product ${item.productId}:`, err);
+            return null;
           }
-          
-          const enhancedProduct = {
-            ...product,
-            id: product.id || item.productId,
-            viewCount: item.viewCount || 1,
-            isFavorite: item.isFavorite || false,
-            displayName: getLocalizedField(product.name, 'name'),
-            displayDescription: getLocalizedField(product.description, 'description'),
-            price: product.price || 0,
-            currency: product.currency || '₾',
-            images: product.images || [],
-            category: product.category || 'other',
-            stock: product.stock || 0,
-            featured: product.featured || false,
-            rating: (product as any).rating || 0 // Handle rating safely
-          } as RecentlyViewedProduct;
-          
-          console.log('Enhanced product data:', enhancedProduct);
-          return enhancedProduct;
-          
-        } catch (err) {
-          console.error('Error loading product:', err);
-          return null;
-        }
-      });
-
-      // 4. Process all product promises and filter out nulls
-      const validProducts = (await Promise.all(productPromises))
-        .filter((p): p is RecentlyViewedProduct => p !== null);
-      console.log('Valid products after filtering:', validProducts);
+        })
+      );
       
-      // 4. Update state with the valid products
+      // Filter out any null values
+      const validProducts = products.filter((p): p is RecentlyViewedProduct => p !== null);
+      
+      console.log('Fetched recently viewed products:', validProducts);
       setRecentlyViewed(validProducts);
-      console.log('Updated recentlyViewed state with', validProducts.length, 'items');
       
     } catch (err) {
-      console.error('Error in fetchRecentlyViewed:', err);
-      setError(t('error_loading'));
+      console.error('Error fetching recently viewed items:', err);
+      setError(t('error_loading_products'));
     } finally {
       setLoading(false);
-      console.log('Finished loading recently viewed items');
     }
-  }, [getLocalizedField, t]);
+  }, [t, isInFavorites, getLocalizedContent]);
 
   useEffect(() => {
     fetchRecentlyViewed();
@@ -231,9 +200,32 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
     };
   }, [fetchRecentlyViewed]);
   
-  // Debug: Log when recentlyViewed changes
+  // Handle scroll events and update button visibility
   useEffect(() => {
-    console.log('recentlyViewed updated:', recentlyViewed);
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const checkScroll = () => {
+      if (!container) return;
+      
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const isStart = scrollLeft < 10;
+      const isEnd = scrollLeft + clientWidth >= scrollWidth - 10;
+      
+      setIsAtStart(isStart);
+      setIsAtEnd(isEnd);
+    };
+
+    // Initial check
+    checkScroll();
+    
+    // Add scroll event listener
+    container.addEventListener('scroll', checkScroll, { passive: true });
+    
+    // Clean up
+    return () => {
+      container.removeEventListener('scroll', checkScroll);
+    };
   }, [recentlyViewed]);
 
   const handleToggleFavorite = async (product: RecentlyViewedProduct, e: React.MouseEvent) => {
@@ -350,13 +342,52 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
 
   return (
     <section className={cn('py-8', className)}>
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl font-bold mb-6 px-2">{t('recently_viewed')}</h2>
+      <div className="w-full overflow-hidden">
+        <div className="max-w-[86%] mx-auto mb-6 -mt-3">
+          <h2 className="text-2xl md:text-3xl font-bold">{t('recently_viewed')}</h2>
+          <div className="w-16 h-0.5 bg-crimson/60 mt-2" />
+        </div>
+
         <div className="relative">
+          {/* Fade effect */}
+          <div className={`absolute left-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none transition-opacity duration-300 ${isAtStart ? 'opacity-0' : 'opacity-100'}`} />
+          <div className={`absolute right-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none transition-opacity duration-300 ${isAtEnd ? 'opacity-0' : 'opacity-100'}`} />
+          
+          {/* Scroll buttons */}
+          <button
+            onClick={scrollLeft}
+            className={`absolute left-0 top-0 bottom-0 z-20 w-12 flex items-center justify-center text-foreground/70 hover:text-foreground transition-all duration-300 group ${isAtStart ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            aria-label="Scroll left"
+          >
+            <div className="h-12 w-8 flex items-center justify-center bg-background/70 hover:bg-background/90 transition-colors duration-200 rounded-r-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </div>
+          </button>
+          <button
+            onClick={scrollRight}
+            className={`absolute right-0 top-0 bottom-0 z-20 w-12 flex items-center justify-center text-foreground/70 hover:text-foreground transition-all duration-300 group ${isAtEnd ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            aria-label="Scroll right"
+          >
+            <div className="h-12 w-8 flex items-center justify-center bg-background/70 hover:bg-background/90 transition-colors duration-200 rounded-l-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </button>
+
           {/* Scrollable container */}
-          <div className="flex overflow-x-auto pb-4 -mx-2 px-2 scrollbar-hide">
-            {/* Add negative margin and padding to allow full-width cards on the edges */}
-            <div className="flex space-x-4 min-w-max">
+          <div
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto pb-6 scrollbar-hide px-4"
+            style={{
+              scrollBehavior: 'smooth',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
+            <div className="flex space-x-4 transition-all duration-300">
               {recentlyViewed.map((product) => (
                 <div key={product.id} className="w-[200px] flex-shrink-0">
                   <Link

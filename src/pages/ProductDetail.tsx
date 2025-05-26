@@ -31,6 +31,7 @@ import {
 import { cartInterestService } from '@/services/cartInterestService';
 import { recentlyViewedService } from '@/services/recentlyViewedService';
 import { ProductImageGallery } from '@/components/ProductImageGallery';
+import { SimilarProducts } from '@/components/SimilarProducts';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -362,22 +363,27 @@ const ProductDetail = () => {
                 </p>
                 <button 
                   onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
-                  className="mt-2 text-sm text-crimson hover:underline flex items-center gap-1"
+                  className="mt-2 text-sm text-crimson hover:underline flex items-center gap-1 transition-colors"
+                  aria-expanded={isDetailsExpanded}
+                  aria-controls="product-details"
                 >
-                  {isDetailsExpanded ? 'დამალვა' : 'დეტალები'}
+                  {isDetailsExpanded ? t('product.hide_details') : t('product.details')}
                   <ChevronDown className={`w-4 h-4 transition-transform ${isDetailsExpanded ? 'rotate-180' : ''}`} />
                 </button>
-                {isDetailsExpanded && (
+                <div 
+                  id="product-details"
+                  className={`overflow-hidden transition-all duration-300 ${isDetailsExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                >
                   <div className="border-t border-border pt-4 mt-3">
-                    <h3 className="text-lg font-bold mb-3">დეტალები</h3>
+                    <h3 className="text-lg font-bold mb-3">{t('product.details')}</h3>
                     <ul className="space-y-2 text-foreground/80">
-                      <li>• ხელნაკეთი პრემიუმ მასალებისგან</li>
-                      <li>• უნიკალური ალტერნატიული სტილი</li>
-                      <li>• Nekoshop - დამზადებულია თათებით</li>
-                      <li>• შექმნილია საუკუნოდ</li>
+                      <li>{t('product.details.handmade')}</li>
+                      <li>{t('product.details.style')}</li>
+                      <li>{t('product.details.made_by')}</li>
+                      <li>{t('product.details.quality')}</li>
                     </ul>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
@@ -428,6 +434,16 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Similar Products */}
+        {product && (
+          <div className="mt-16">
+            <SimilarProducts 
+              currentProductId={product.id}
+              category={typeof product.category === 'string' ? product.category : ''}
+            />
+          </div>
+        )}
 
         {/* Reviews Section */}
         <div className="max-w-6xl mx-auto mt-16">

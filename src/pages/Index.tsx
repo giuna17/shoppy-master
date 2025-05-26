@@ -83,7 +83,7 @@ const Index = () => {
         {/* Content */}
         <div className="container mx-auto text-center relative z-10">
           <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-4 mt-6 relative z-10 font-medieval">
-            <span className="text-crimson">Handmade</span>{' '}
+            <span className="text-crimson">Pawmade</span>{' '}
             <span className="text-white">Oddities</span>
           </h1>
           <p className="text-xl text-foreground/80 max-w-2xl mx-auto mb-8">

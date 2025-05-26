@@ -22,8 +22,11 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(
     urlCategory,
   );
+  // Calculate default price range
+  const defaultPriceRange: [number, number] = [0, 1000];
+  
   const [filters, setFilters] = useState<FilterValues>({
-    priceRange: [0, 1000],
+    priceRange: defaultPriceRange,
     categories: urlCategory ? [urlCategory] : [],
     inStock: false,
     outOfStock: false,
@@ -125,19 +128,44 @@ const Shop = () => {
   };
 
   const handleFilterChange = (newFilters: FilterValues) => {
-    setFilters(newFilters);
+    // If categories array is empty, clear the active category
+    if (newFilters.categories && newFilters.categories.length === 0) {
+      setActiveCategory(null);
+    } else if (newFilters.categories && newFilters.categories.length > 0) {
+      // If a category is selected, update the active category
+      setActiveCategory(newFilters.categories[0]);
+    }
+
+    // Ensure price range stays within default bounds
+    const updatedFilters = {
+      ...newFilters,
+      priceRange: [
+        Math.max(0, newFilters.priceRange[0]),
+        Math.min(1000, newFilters.priceRange[1])
+      ] as [number, number]
+    };
+    setFilters(updatedFilters);
   };
 
   // Effect to handle URL category changes
   useEffect(() => {
     if (urlCategory) {
       setActiveCategory(urlCategory);
-      setFilters((prev) => ({
-        priceRange: prev?.priceRange || [0, 1000],
+      // Update filters to match URL category
+      setFilters(prev => ({
+        ...prev,
         categories: [urlCategory],
-        inStock: prev?.inStock || false,
-        outOfStock: prev?.outOfStock || false,
-        onSale: prev?.onSale || false,
+        // Reset other filters when URL changes
+        inStock: false,
+        outOfStock: false,
+        onSale: false
+      }));
+    } else {
+      setActiveCategory(null);
+      // Clear categories when no URL category
+      setFilters(prev => ({
+        ...prev,
+        categories: []
       }));
     }
   }, [urlCategory]);
@@ -150,11 +178,14 @@ const Shop = () => {
     // Update filters to match the active category
     const newFilters = {
       ...filters,
-      categories: newActiveCategory ? [newActiveCategory] : []
+      categories: newActiveCategory ? [newActiveCategory] : [],
+      // Reset other filters when changing categories
+      inStock: false,
+      outOfStock: false,
+      onSale: false
     };
     
     setFilters(newFilters);
-    handleFilterChange(newFilters);
   };
 
   const getCategoryName = (category: string) => {

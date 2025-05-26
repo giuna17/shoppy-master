@@ -51,13 +51,15 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         ...prev,
         categories: [activeCategory],
       }));
-    } else {
+      // Don't call onFilterChange here to prevent infinite loop
+    } else if (filters.categories.length > 0) {
+      // Only clear categories if they were set by activeCategory
       setFilters(prev => ({
         ...prev,
         categories: [],
       }));
     }
-  }, [activeCategory]);
+  }, [activeCategory]); // Only depend on activeCategory
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const isBraceletsCategory = filters.categories.includes('bracelets') || activeCategory === 'bracelets';
@@ -83,7 +85,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const handleCategoryToggle = (categoryId: string) => {
     setFilters((prev) => {
       // If clicking the active category, clear the filter
-      if (activeCategory === categoryId) {
+      if (prev.categories.includes(categoryId)) {
         const updated = {
           ...prev,
           categories: [],
@@ -141,15 +143,22 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   const handleResetFilters = () => {
     const resetFilters = {
-      priceRange: [minProductPrice, maxProductPrice] as [number, number],
+      priceRange: [0, 1000] as [number, number], // Always reset to default range
       categories: [],
       inStock: false,
       outOfStock: false,
       onSale: false,
     };
 
+    // Reset active category in parent component
+    onFilterChange({
+      ...resetFilters,
+      // Force categories to be an empty array to trigger the reset
+      categories: []
+    });
+
+    // Also update local state
     setFilters(resetFilters);
-    onFilterChange(resetFilters);
   };
 
   // Function to get localized category name

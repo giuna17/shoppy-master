@@ -50,7 +50,7 @@ const About = () => {
               <p className="text-lg leading-relaxed">{t('about.join_text')}</p>
             </div>
 
-            <p className="text-lg font-medium text-center mb-8">
+            <p className="text-base font-medium text-center mb-8 text-red-900 dark:text-red-800">
               {t('about.closing')}
             </p>
 

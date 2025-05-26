@@ -1014,6 +1014,36 @@ export const translations: Translations = {
     en: 'Remove',
     ge: 'წაშლა',
   },
+  'similar.products': {
+    ru: 'Похожие товары',
+    en: 'Similar Products',
+    ge: 'მსგავსი პროდუქტები',
+  },
+  'product.hide_details': {
+    ru: 'Скрыть детали',
+    en: 'Hide details',
+    ge: 'დამალვა დეტალები',
+  },
+  'product.details.handmade': {
+    ru: '• Ручная работа из премиальных материалов',
+    en: '• Handmade from premium materials',
+    ge: '• ხელნაკეთი პრემიუმ მასალებისგან',
+  },
+  'product.details.style': {
+    ru: '• Уникальный альтернативный стиль',
+    en: '• Unique alternative style',
+    ge: '• უნიკალური ალტერნატიული სტილი',
+  },
+  'product.details.made_by': {
+    ru: '• Nekoshop - сделано с любовью',
+    en: '• Nekoshop - made with love',
+    ge: '• Nekoshop - დამზადებულია თათებით',
+  },
+  'product.quality': {
+    ru: '• Создано на века',
+    en: '• Made to last a lifetime',
+    ge: '• შექმნილია საუკუნოდ',
+  },
   'cart.quantity': {
     ru: 'Количество',
     en: 'Quantity',
@@ -1200,9 +1230,9 @@ export const translations: Translations = {
     ge: 'როდესაც ჩვენგან ყიდულობ, შენ მხოლოდ ნივთს არ იღებ. შენ იდეის ნაწილს ატარებ. შენ ხდები ჯგუფის ნაწილი. ხდები ის, ვინც აფასებს უნიკალურობას, დეტალებისადმი ზრუნვას და ხელნაკეთი ნივთის მაგიას.',
   },
   'about.closing': {
-    ru: 'NEKO SHOP это про свободу самодельщиков!',
-    en: 'NEKO SHOP is about the freedom of makers!',
-    ge: 'NEKO SHOP თავისუფლება თვითგამოხატვას!',
+    ru: 'NEKO SHOP это не просто магазин, это магазин моей принцессы для продажы ее самоделок золотыми лапками, горжусь тобой моя ведьмочка <3',
+    en: 'NEKO SHOP is not just a shop, it\'s my princess\'s shop for selling her handmade creations with golden paws, I\'m proud of you my little witch <3',
+    ge: 'NEKO SHOP არ არის უბრალოდ მაღაზია, ეს არის ჩემი პრინცესის მაღაზია მისი ხელნაკეთი ნივთების გასაყიდად ოქროსხელებით აწყობილი, ვამაყობ შენით ჩემო პატარა witch<3',
   },
 
   // FAQ translations
