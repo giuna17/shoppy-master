@@ -341,10 +341,10 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
   }
 
   return (
-    <section className={cn('py-8', className)}>
+    <section className={cn('pt-12 pb-8', className)}>
       <div className="w-full overflow-hidden">
-        <div className="max-w-[86%] mx-auto mb-6 -mt-3">
-          <h2 className="text-2xl md:text-3xl font-bold">{t('recently_viewed')}</h2>
+        <div className="container mx-auto px-4 mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-left">{t('recently_viewed')}</h2>
           <div className="w-16 h-0.5 bg-crimson/60 mt-2" />
         </div>
 
@@ -394,7 +394,7 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
                     to={`/product/${product.id}`}
                     className="group relative block h-full"
                   >
-                    <div className="relative overflow-hidden rounded-lg bg-card shadow-sm transition-all duration-300 group-hover:shadow-md h-full flex flex-col">
+                    <div className="relative overflow-hidden rounded-lg bg-card border border-gray-200/30 shadow-sm transition-all duration-300 group-hover:shadow-md h-full flex flex-col">
                       <div className="aspect-square overflow-hidden">
                         <img
                           src={product.images?.[0] || '/placeholder-product.jpg'}
