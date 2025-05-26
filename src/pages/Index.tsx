@@ -69,47 +69,52 @@ const Index = () => {
       <Navbar />
 
       {/* Hero section */}
-      <section className="py-16 px-4 bg-background relative flex items-center justify-center min-h-[60vh]">
+      <section className="relative overflow-hidden">
         {/* Background image */}
-        <div className="absolute inset-0 z-0">
-          <div className="w-full h-full bg-no-repeat bg-center bg-contain opacity-50 scale-[1.95] translate-y-[15%]" />
-          {/* Gradient overlay to hide bottom part */}
-          <div
-            className="absolute inset-0 bg-gradient-to-b from-transparent via-background to-background"
-            style={{ top: '65%' }}
-          />
+        <div className="relative flex items-start justify-center h-[calc(70vh-64px)] -mt-[6%]">
+          <div className="relative w-[65%] h-full">
+            <img 
+              src="/lovable-uploads/backgrnd.jpeg" 
+              alt="Background" 
+              className="w-full h-full object-cover object-center"
+              style={{
+                objectPosition: 'center 30%',
+                opacity: 0.37
+              }}
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/30 to-background/90" />
         </div>
-
+        
         {/* Content */}
-        <div className="container mx-auto text-center relative z-10">
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-4 mt-6 relative z-10 font-medieval">
-            <span className="text-crimson">Pawmade</span>{' '}
-            <span className="text-white">Oddities</span>
-          </h1>
-          <p className="text-xl text-foreground/80 max-w-2xl mx-auto mb-8">
-            {t('home.subtitle')}
-          </p>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="container mx-auto text-center relative z-10">
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-4 relative z-10 font-medieval">
+              <span className="text-crimson">Pawmade</span>{' '}
+              <span className="text-white">Oddities</span>
+            </h1>
+            <p className="text-xl text-foreground/80 max-w-2xl mx-auto mb-8">
+              {t('home.subtitle')}
+            </p>
 
-          {/* Action Buttons */}
-          <div
-            className="flex flex-wrap justify-center"
-            style={{ gap: '4.4%' }}
-          >
-            <Button
-              asChild
-              className="bg-crimson hover:bg-crimson/90 text-black font-medium px-10 py-7 text-lg"
-              style={{ transform: 'scale(1.15)' }}
-            >
-              <Link to="/shop">{t('home.shop_now')}</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="text-foreground border-crimson hover:bg-crimson/10 px-10 py-7 text-lg"
-              style={{ transform: 'scale(1.15)' }}
-            >
-              <Link to="/about">{t('home.our_story')}</Link>
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center" style={{ gap: '4.4%' }}>
+              <Button
+                asChild
+                className="bg-crimson hover:bg-crimson/90 text-black font-medium px-10 py-7 text-lg"
+                style={{ transform: 'scale(1.15)' }}
+              >
+                <Link to="/shop">{t('home.shop_now')}</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="text-foreground border-crimson hover:bg-crimson/10 px-10 py-7 text-lg"
+                style={{ transform: 'scale(1.15)' }}
+              >
+                <Link to="/about">{t('home.our_story')}</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -264,9 +269,15 @@ const Index = () => {
       <section className="py-12 px-4 bg-background relative z-20">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold" style={{ fontSize: '1.8rem' }}>
-              {t('home.popular_products')}
-            </h2>
+            <div className="space-y-2">
+              <h2 className="text-4xl md:text-6xl font-bold tracking-tight relative z-10 font-medieval">
+                <span className="text-crimson">{t('home.popular_products').split(' ')[0]}</span>
+                {t('home.popular_products').split(' ').length > 1 && (
+                  <span className="text-white"> {t('home.popular_products').split(' ').slice(1).join(' ')}</span>
+                )}
+              </h2>
+              <div className="w-16 h-0.5 bg-crimson/60 mt-2" />
+            </div>
             <Link 
               to="/shop"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-medium bg-crimson/10 hover:bg-crimson/20 text-crimson border border-crimson/20 rounded-md transition-colors group"
@@ -308,7 +319,11 @@ const Index = () => {
       </section>
 
       {/* Featured Reviews */}
-      <FeaturedReviews />
+      <div className="w-[94%] mx-auto">
+        <div className="mx-0.5">
+          <FeaturedReviews />
+        </div>
+      </div>
 
       <Footer />
     </div>

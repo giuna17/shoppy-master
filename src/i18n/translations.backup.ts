@@ -1659,7 +1659,7 @@ export const translations: Translations = {
   },
   'shop.search_title': {
     ru: 'Ищешь что-то конкретное?',
-    en: 'Looking for something? ',
+    en: 'Looking for something specific?',
     ge: 'რამე კონკრეტულს ეძებთ?',
   },
   'shop.custom_design_title': {

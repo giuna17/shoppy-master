@@ -10,15 +10,23 @@ interface TranslationValue {
 }
 
 // Helper function to transform our translations structure
-const transformTranslations = (translations: Record<string, TranslationValue | any>) => {
+const transformTranslations = (
+  translations: Record<string, TranslationValue | any>,
+) => {
   const result = {
     ru: {} as Record<string, string>,
     en: {} as Record<string, string>,
-    ge: {} as Record<string, string>
+    ge: {} as Record<string, string>,
   };
-  
+
   Object.entries(translations).forEach(([key, value]) => {
-    if (value && typeof value === 'object' && 'ru' in value && 'en' in value && 'ge' in value) {
+    if (
+      value &&
+      typeof value === 'object' &&
+      'ru' in value &&
+      'en' in value &&
+      'ge' in value
+    ) {
       // This is a translation object with ru, en, ge properties
       const translation = value as TranslationValue;
       result.ru[key] = translation.ru;
@@ -32,7 +40,7 @@ const transformTranslations = (translations: Record<string, TranslationValue | a
       result.ge[key] = stringValue;
     }
   });
-  
+
   return result;
 };
 
@@ -41,14 +49,14 @@ const transformedTranslations = transformTranslations(translations);
 i18n.use(initReactI18next).init({
   resources: {
     ru: {
-      translation: transformedTranslations.ru
+      translation: transformedTranslations.ru,
     },
     en: {
-      translation: transformedTranslations.en
+      translation: transformedTranslations.en,
     },
     ge: {
-      translation: transformedTranslations.ge
-    }
+      translation: transformedTranslations.ge,
+    },
   },
   lng: 'ge',
   fallbackLng: 'ge',

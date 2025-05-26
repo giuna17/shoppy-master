@@ -39,12 +39,6 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     
     // Update recently viewed service
     recentlyViewedService.updateFavoriteStatus(productId, true);
-
-    toast({
-      title: t('favorites.added'),
-      description: t('favorites.added_description'),
-      duration: 3000,
-    });
   };
 
   const removeFromFavorites = (productId: number) => {
@@ -53,12 +47,6 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     
     // Update recently viewed service
     recentlyViewedService.updateFavoriteStatus(productId, false);
-
-    toast({
-      title: t('favorites.removed'),
-      description: t('favorites.removed_description'),
-      duration: 3000,
-    });
   };
 
   const isInFavorites = (productId: number) => {

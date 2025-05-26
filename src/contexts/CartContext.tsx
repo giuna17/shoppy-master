@@ -30,13 +30,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (existingItem) {
         // Check if adding one more would exceed stock
         if (existingItem.quantity >= product.stock) {
-          // Show warning toast instead of adding to cart
-          toast({
-            title: t('product.out_of_stock'),
-            description: t('toast.stock_limit_message'),
-            duration: 3000,
-            variant: 'destructive',
-          });
           return currentCart;
         }
 
@@ -51,12 +44,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         cartInterestService.addInterest(product.id);
         return [...currentCart, { product, quantity: 1 }];
       }
-    });
-
-    toast({
-      title: t('toast.added_to_cart'),
-      description: t('toast.added_to_cart_description'),
-      duration: 3000,
     });
   };
 

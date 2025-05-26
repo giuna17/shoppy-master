@@ -84,16 +84,16 @@ export function SimilarProducts({ currentProductId, category, className }: Simil
 
   if (isLoading) {
     return (
-      <section className={cn('relative py-12', className)}>
-        <div className="max-w-[86%] mx-auto px-4">
-          <div className="mb-8 -mt-3">
-            <h2 className="text-2xl md:text-3xl font-bold">{t('similar.products')}</h2>
+      <section className={cn('relative py-12 w-full', className)}>
+        <div className="w-full max-w-[1400px] mx-auto px-4">
+          <div className="mb-8 -mt-3 w-full">
+            <h2 className="text-2xl md:text-3xl font-bold break-words w-full">{t('similar.products')}</h2>
             <div className="w-16 h-0.5 bg-crimson/60 mt-2" />
           </div>
-          <div className="relative">
-            <div className="flex space-x-6 overflow-x-auto pb-6 scrollbar-hide">
+          <div className="relative w-full">
+            <div className="flex space-x-6 overflow-x-auto pb-6 scrollbar-hide w-full pr-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="w-[200px] flex-shrink-0">
+                <div key={i} className="min-w-[200px] flex-shrink-0">
                   <Skeleton className="aspect-square w-full rounded-lg" />
                   <div className="mt-2 space-y-2">
                     <Skeleton className="h-4 w-3/4" />
@@ -125,54 +125,48 @@ export function SimilarProducts({ currentProductId, category, className }: Simil
   };
 
   return (
-    <section className={cn('relative py-12', className)}>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background to-transparent opacity-5" />
-      <div className="w-full overflow-hidden">
-        <div className="max-w-[86%] mx-auto mb-6 -mt-3">
-          <h2 className="text-2xl md:text-3xl font-bold">{t('similar.products')}</h2>
+    <section className={cn('relative pt-2 pb-12 w-full', className)}>
+      <div className="w-full">
+        <div className="mb-2 -mt-3 w-full pl-[1.5%]">
+          <h2 className="text-2xl md:text-3xl font-bold break-words w-full">{t('similar.products')}</h2>
           <div className="w-16 h-0.5 bg-crimson/60 mt-2" />
         </div>
 
-        <div className="relative">
-          {/* Fade effect */}
-          <div className={`absolute left-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none transition-opacity duration-300 ${isAtStart ? 'opacity-0' : 'opacity-100'}`} />
-          <div className={`absolute right-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none transition-opacity duration-300 ${isAtEnd ? 'opacity-0' : 'opacity-100'}`} />
-          
+        <div className="relative w-full">
           {/* Scroll buttons */}
           <button
             onClick={scrollLeft}
-            className={`absolute left-0 top-0 bottom-0 z-20 w-12 flex items-center justify-center text-foreground/70 hover:text-foreground transition-all duration-300 group ${isAtStart ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            className={`absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-background/80 hover:bg-background text-foreground/70 hover:text-foreground rounded-full shadow-lg transition-all duration-300 group ${isAtStart ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             aria-label="Scroll left"
           >
-            <div className="h-12 w-8 flex items-center justify-center bg-background/70 hover:bg-background/90 transition-colors duration-200 rounded-r-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
+          
           <button
             onClick={scrollRight}
-            className={`absolute right-0 top-0 bottom-0 z-20 w-12 flex items-center justify-center text-foreground/70 hover:text-foreground transition-all duration-300 group ${isAtEnd ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+            className={`absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-background/80 hover:bg-background text-foreground/70 hover:text-foreground rounded-full shadow-lg transition-all duration-300 group ${isAtEnd ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             aria-label="Scroll right"
           >
-            <div className="h-12 w-8 flex items-center justify-center bg-background/70 hover:bg-background/90 transition-colors duration-200 rounded-l-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
           </button>
 
           {/* Scrollable container */}
           <div
             ref={scrollContainerRef}
-            className="flex overflow-x-auto pb-6 scrollbar-hide px-4"
+            className="w-full overflow-x-auto pb-6 scrollbar-hide"
             style={{
               scrollBehavior: 'smooth',
               scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
+              msOverflowStyle: 'none',
+              paddingLeft: 'calc((100% - 1280px) / 2)', // Centers the container and adds left padding
+              paddingRight: 'calc((100% - 1280px) / 2)' // Centers the container and adds right padding
             }}
           >
-            <div className="flex space-x-4 transition-all duration-300">
+            <div className="flex space-x-6 px-4">
               {similarProducts?.map((product) => (
                 <div key={product.id} className="w-[200px] flex-shrink-0">
                   <Link
@@ -210,4 +204,4 @@ export function SimilarProducts({ currentProductId, category, className }: Simil
       </div>
     </section>
   );
-}
+};

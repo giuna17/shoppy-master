@@ -165,38 +165,27 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
     }
   }, [t, isInFavorites, getLocalizedContent]);
 
-  useEffect(() => {
-    fetchRecentlyViewed();
-  }, [fetchRecentlyViewed]);
-
-  // Debug: Log when component mounts and unmounts
+  // Initial fetch when component mounts
   useEffect(() => {
     console.log('RecentlyViewed component mounted');
-    
-    // Initial fetch
     fetchRecentlyViewed();
     
     // Set up storage event listener for cross-tab synchronization
     const handleStorageChange = (e: StorageEvent) => {
       console.log('Storage event detected:', e);
-      if (e.key?.startsWith('recently_viewed_products') || !e.key) {
+      // Only refresh if this is a removal event from another tab
+      if (e.key === 'recently_viewed_removed' || 
+          (e.key?.startsWith('recently_viewed_products') && e.newValue === null)) {
         console.log('Relevant storage change detected, refreshing...');
         fetchRecentlyViewed();
       }
     };
-
-    // Also set up a periodic check in case storage events don't fire
-    const intervalId = setInterval(() => {
-      console.log('Periodic check for recently viewed items...');
-      fetchRecentlyViewed();
-    }, 30000); // Check every 30 seconds
 
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
       console.log('RecentlyViewed component unmounting');
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
     };
   }, [fetchRecentlyViewed]);
   
@@ -276,16 +265,26 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
+    // Store the current list in case we need to revert
+    const previousItems = [...recentlyViewed];
+    
+    // Optimistically update the UI
+    setRecentlyViewed(prev => prev.filter(p => p.id !== productId));
+    
     try {
       await recentlyViewedService.removeProduct(productId);
-      setRecentlyViewed(prev => prev.filter(p => p.id !== productId));
       
-      toast({
-        title: t('remove'),
-        variant: 'default',
-      });
+      // Manually dispatch a storage event to sync across tabs
+      if (typeof window !== 'undefined') {
+        // Set a flag in localStorage to indicate a removal
+        localStorage.setItem('recently_viewed_removed', Date.now().toString());
+        // Trigger the storage event
+        window.dispatchEvent(new Event('storage'));
+      }
     } catch (err) {
       console.error('Error removing item:', err);
+      // Revert to the previous items if there was an error
+      setRecentlyViewed(previousItems);
       toast({
         title: t('common.error_occurred'),
         variant: 'destructive',
@@ -296,7 +295,8 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
   // Debug: Show current state
   console.log('Render - Loading:', loading, 'Error:', error, 'Items:', recentlyViewed.length);
   
-  if (loading) {
+  // Only show loading state on initial load, not during item removal
+  if (loading && recentlyViewed.length === 0) {
     return (
       <section className={cn('py-12', className)}>
         <div className="container mx-auto px-4">
@@ -331,21 +331,51 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
 
   if (recentlyViewed.length === 0) {
     return (
-      <section className={cn('py-12', className)}>
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold mb-4">{t('recently_viewed')}</h2>
-          <p className="text-muted-foreground">{t('no_products')}</p>
+      <section className={cn('py-16 bg-black', className)}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 font-medieval tracking-tight">
+                <span className="text-crimson">{t('recently_viewed')}</span>
+              </h2>
+              <p className="text-xl text-gray-300/90 mb-8 max-w-lg mx-auto leading-relaxed">
+                {t('recently_viewed.empty_state')}
+              </p>
+              <Link 
+                to="/shop" 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-crimson bg-crimson/10 hover:bg-crimson/20 text-white text-lg font-medium rounded-md transition-all duration-300 hover:shadow-lg hover:shadow-crimson/20 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-crimson focus:ring-offset-2 focus:ring-offset-gray-900"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-5 w-5 mr-2 text-crimson" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                {t('recently_viewed.view_shop')}
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className={cn('pt-12 pb-8', className)}>
+    <section className={cn('py-12', className)}>
       <div className="w-full overflow-hidden">
-        <div className="container mx-auto px-4 mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-left">{t('recently_viewed')}</h2>
-          <div className="w-16 h-0.5 bg-crimson/60 mt-2" />
+        <div className="container mx-auto px-4 mb-8">
+          <h2 className="text-4xl md:text-5xl font-bold text-center font-medieval tracking-tight mb-2">
+            <span className="text-crimson">{t('recently_viewed')}</span>
+          </h2>
+          <div className="w-24 h-0.5 bg-crimson/60 mx-auto" />
         </div>
 
         <div className="relative">

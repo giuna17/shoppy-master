@@ -1,5 +1,6 @@
 import React, { useState, ReactNode } from 'react';
-import { translations, Translations } from './translations';
+import { Translations } from './translations';
+import { translations } from './translations.1';
 import { translateText, getSavedLanguage, saveLanguage } from './languageUtils';
 import { LanguageContext, LanguageContextType } from './useLanguage.utils';
 

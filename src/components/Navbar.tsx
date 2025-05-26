@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, User, LogOut, Heart, Truck, Gift } from 'lucide-react';
+import {
+  ShoppingCart,
+  User,
+  LogOut,
+  Heart,
+  Truck,
+  Gift,
+  X,
+  Star,
+  HeartOff,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
@@ -90,17 +100,18 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
 
 const Navbar = () => {
   const { t, language, setLanguage } = useLanguage();
-  const { 
-    cart, 
-    calculateTotal, 
-    calculateDiscount, 
-    isFreeDelivery, 
-    calculateTotalWithDiscount 
+  const {
+    cart,
+    calculateTotal,
+    calculateDiscount,
+    isFreeDelivery,
+    calculateTotalWithDiscount,
   } = useCartContext();
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
   const total = calculateTotal();
-  const { amount: discount, percentage: discountPercentage } = calculateDiscount();
+  const { amount: discount, percentage: discountPercentage } =
+    calculateDiscount();
   const { favorites, removeFromFavorites } = useFavorites();
   const { addToCart } = useCartContext();
   const allProducts = getProducts();
@@ -112,6 +123,7 @@ const Navbar = () => {
       return product;
     })
     .filter((product): product is Product => product !== undefined);
+
   const auth = useAuth();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -132,24 +144,41 @@ const Navbar = () => {
         <div className="flex items-center gap-6 flex-1">
           <Link
             to="/"
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-crimson focus:ring-offset-2 focus:ring-offset-gray-900 rounded-full"
+            className="group relative flex items-center gap-3 focus:outline-none"
             aria-label={t('nav.home')}
           >
-            <img
-              src="/lovable-uploads/nekos-logo.jpeg"
-              alt=""
-              className="h-[4.4rem] w-[4.4rem] object-cover rounded-full"
-              aria-hidden="true"
-            />
-            <span className="text-[2.2rem] font-bold tracking-wide">
-              <span className="text-crimson" aria-hidden="true">
-                NEKO
-              </span>
-              <span className="text-white" aria-hidden="true">
-                shop
-              </span>
+            <div className="relative overflow-hidden rounded-full transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(220,38,38,0.7)]">
+              <img
+                src="/lovable-uploads/nekos-logo.jpeg"
+                alt=""
+                className="h-[4.4rem] w-[4.4rem] object-cover rounded-full transition-transform duration-500 group-hover:scale-110"
+                aria-hidden="true"
+              />
+              <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-crimson/50 transition-all duration-300" />
+            </div>
+            <div className="relative">
+              <h1 className="text-[2.2rem] md:text-4xl font-bold tracking-tight relative font-medieval">
+                <span
+                  className="text-crimson transition-all duration-300 group-hover:text-red-400"
+                  aria-hidden="true"
+                >
+                  NEKO
+                </span>
+                <span
+                  className="text-white transition-all duration-300 group-hover:text-gray-200"
+                  aria-hidden="true"
+                >
+                  SHOP
+                </span>
+                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-crimson animate-pulse">NEKO</span>
+                  <span className="text-white animate-pulse">SHOP</span>
+                </span>
+              </h1>
+              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-crimson transition-all duration-300 group-hover:w-full" />
+              <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-crimson/20" />
               <span className="sr-only">Home</span>
-            </span>
+            </div>
           </Link>
 
           <nav aria-label={t('nav.main')}>
@@ -269,7 +298,9 @@ const Navbar = () => {
             <SheetContent className="flex flex-col p-0">
               <div className="flex flex-col h-full">
                 <SheetHeader className="px-6 pt-6 pb-4 border-b">
-                  <SheetTitle className="text-left">{t('cart.title')}</SheetTitle>
+                  <SheetTitle className="text-left">
+                    {t('cart.title')}
+                  </SheetTitle>
                 </SheetHeader>
                 {cart.length === 0 ? (
                   <div className="flex-1 flex items-center justify-center text-muted-foreground p-6">
@@ -282,14 +313,17 @@ const Navbar = () => {
                       <div className="space-y-4 pr-2">
                         <div className="max-h-[60vh] overflow-y-auto pr-2">
                           {cart.map((item) => (
-                            <div key={item.product.id} className="pb-4 last:pb-0">
+                            <div
+                              key={item.product.id}
+                              className="pb-4 last:pb-0"
+                            >
                               <CartItem item={item} />
                             </div>
                           ))}
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Cart summary - stays fixed at the bottom */}
                     <div className="border-t p-6 bg-background flex-shrink-0">
                       <div className="space-y-4">
@@ -306,8 +340,8 @@ const Navbar = () => {
                         </div>
                         <div className="flex justify-between items-center text-sm">
                           <div className="flex flex-col gap-2 w-full">
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="sm"
                               className="flex items-center gap-1.5 px-2 py-1 h-auto bg-crimson/5 text-crimson hover:bg-crimson/10 border border-crimson/20 rounded-md w-full justify-start"
                               onClick={() => setIsDeliveryModalOpen(true)}
@@ -316,7 +350,8 @@ const Navbar = () => {
                               <span>{t('cart.delivery')}</span>
                               <span className="ml-auto text-green-600">
                                 {cart.reduce(
-                                  (total, item) => total + item.product.price * item.quantity,
+                                  (total, item) =>
+                                    total + item.product.price * item.quantity,
                                   0,
                                 ) >= 100
                                   ? t('cart.free')
@@ -325,21 +360,28 @@ const Navbar = () => {
                             </Button>
                             {(() => {
                               const total = cart.reduce(
-                                (total, item) => total + item.product.price * item.quantity,
-                                0
+                                (total, item) =>
+                                  total + item.product.price * item.quantity,
+                                0,
                               );
                               if (total >= 500) {
                                 return (
                                   <div className="flex items-center gap-1.5 px-2 py-1 h-auto bg-green-600/10 text-green-600 border border-green-600/20 rounded-md w-full">
                                     <Gift className="w-4 h-4" />
-                                    <span>ფასდაკლება: <span className="font-bold">10%</span></span>
+                                    <span>
+                                      ფასდაკლება:{' '}
+                                      <span className="font-bold">10%</span>
+                                    </span>
                                   </div>
                                 );
                               } else if (total >= 200 && total < 500) {
                                 return (
                                   <div className="flex items-center gap-1.5 px-2 py-1 h-auto bg-blue-600/10 text-blue-600 border border-blue-600/20 rounded-md w-full">
                                     <Gift className="w-4 h-4" />
-                                    <span>ფასდაკლება: <span className="font-bold">5%</span></span>
+                                    <span>
+                                      ფასდაკლება:{' '}
+                                      <span className="font-bold">5%</span>
+                                    </span>
                                   </div>
                                 );
                               }
@@ -352,11 +394,12 @@ const Navbar = () => {
                           <span className="text-crimson">
                             {(() => {
                               const subtotal = cart.reduce(
-                                (total, item) => total + item.product.price * item.quantity,
-                                0
+                                (total, item) =>
+                                  total + item.product.price * item.quantity,
+                                0,
                               );
                               let total = subtotal;
-                              
+
                               if (subtotal < 100) {
                                 total += 5; // Add delivery fee if under 100₾
                               } else if (subtotal >= 500) {
@@ -364,7 +407,7 @@ const Navbar = () => {
                               } else if (subtotal >= 200) {
                                 total = subtotal * 0.95; // 5% discount for 200-499₾
                               }
-                              
+
                               return Math.round(total * 100) / 100; // Round to 2 decimal places
                             })()}{' '}
                             ₾
@@ -372,8 +415,8 @@ const Navbar = () => {
                         </div>
                       </div>
                       <div className="flex flex-col gap-2 mt-4">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           className="w-full flex items-center justify-center gap-2 bg-crimson/5 text-crimson hover:bg-crimson/10 border-crimson/20"
                           onClick={() => setIsDiscountModalOpen(true)}
                         >
@@ -421,68 +464,204 @@ const Navbar = () => {
                 </span>
               </Button>
             </SheetTrigger>
-            <SheetContent className="w-[90%] sm:max-w-xl">
-              <SheetHeader>
-                <SheetTitle>{t('favorites.title')}</SheetTitle>
+            <SheetContent className="w-full sm:max-w-xl bg-gradient-to-b from-gray-950 via-black/95 to-gray-950 border-l border-crimson/20 flex flex-col h-screen max-h-screen">
+              <SheetHeader className="border-b border-crimson/20 pb-4">
+                <SheetTitle className="text-white text-2xl font-bold">
+                  <span className="text-crimson">{t('favorites.title')}</span>
+                  {favorites.length > 0 && (
+                    <span className="ml-2 text-sm font-normal text-gray-400">
+                      ({favorites.length}{' '}
+                      {favorites.length === 1
+                        ? t('favorites.item')
+                        : t('favorites.items')}
+                      )
+                    </span>
+                  )}
+                </SheetTitle>
               </SheetHeader>
-              <div className="mt-4 space-y-4">
+              <div
+                className="flex-1 overflow-y-auto pr-2 favorites-scrollbar"
+                style={{
+                  scrollBehavior: 'smooth',
+                  msOverflowStyle: 'none' /* IE and Edge */,
+                  scrollbarWidth: 'thin' /* Firefox */,
+                  scrollbarColor:
+                    'rgba(220, 38, 38, 0.4) rgba(220, 38, 38, 0.1)',
+                  height: '100%',
+                  padding: '1.5rem 0.5rem 1rem 0',
+                  WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
+                }}
+              >
+                <style>
+                  {`
+                  @keyframes fadeInUp {
+                    0% {
+                      opacity: 0;
+                      transform: translateY(10px);
+                    }
+                    100% {
+                      opacity: 1;
+                      transform: translateY(0);
+                    }
+                  }
+                  
+                  /* Custom scrollbar for WebKit browsers */
+                  .favorites-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                    height: 6px;
+                  }
+                  .favorites-scrollbar::-webkit-scrollbar-track {
+                    background: rgba(220, 38, 38, 0.1);
+                    border-radius: 3px;
+                  }
+                  .favorites-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(220, 38, 38, 0.4);
+                    border-radius: 3px;
+                  }
+                  .favorites-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: rgba(220, 38, 38, 0.6);
+                  }
+                  
+                  /* For Firefox */
+                  .favorites-scrollbar {
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(220, 38, 38, 0.4) rgba(220, 38, 38, 0.1);
+                  }`}
+                </style>
                 {favorites.length === 0 ? (
-                  <div className="text-center text-muted-foreground">
-                    {t('favorites.empty')}
+                  <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                    <Heart className="w-12 h-12 text-crimson/30 mb-4" />
+                    <h3 className="text-lg font-medium text-white mb-2">
+                      {t('favorites.empty_title', {
+                        defaultValue: 'Your favorites list is empty',
+                      })}
+                    </h3>
+                    <p className="text-gray-400 max-w-xs mb-6">
+                      {t('favorites.empty_description', {
+                        defaultValue:
+                          'Add items to your favorites and they will appear here',
+                      })}
+                    </p>
+                    <Link to="/shop">
+                      <Button
+                        variant="outline"
+                        className="border-crimson/30 text-crimson hover:bg-crimson/10 hover:border-crimson/50"
+                        onClick={() =>
+                          document.dispatchEvent(
+                            new KeyboardEvent('keydown', { key: 'Escape' }),
+                          )
+                        }
+                      >
+                        {t('favorites.browse_shop', {
+                          defaultValue: 'Browse Shop',
+                        })}
+                      </Button>
+                    </Link>
                   </div>
                 ) : (
-                  favoriteProducts.map((product) => (
-                    <div key={product.id} className="flex gap-4 py-4 border-b">
-                      <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
-                        {product.images && product.images.length > 0 ? (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name[language]}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = '/placeholder-product.jpg';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                            <span className="text-xs text-gray-500">
-                              No image
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col flex-grow">
+                  <div className="flex flex-col h-full -mt-1 -mx-1">
+                    {favoriteProducts.map((product, index) => (
+                      <div
+                        key={product.id}
+                        className="group relative flex gap-2 p-0 rounded-lg bg-gradient-to-r from-gray-900/90 via-gray-900/80 to-gray-900/60 hover:from-gray-900 hover:via-gray-900/90 hover:to-gray-900/70 transition-all duration-300 border border-crimson/10 hover:border-crimson/30 backdrop-blur-sm h-[calc(6rem*1.05)] m-0.5"
+                        style={{
+                          opacity: 0,
+                          transform: 'translateY(10px)',
+                          animation: `fadeInUp 0.3s ease-out forwards ${index * 0.05}s`,
+                          willChange: 'opacity, transform',
+                          transition:
+                            'opacity 0.3s ease, transform 0.3s ease, border-color 0.3s ease',
+                          boxShadow:
+                            '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        }}
+                        onClick={(e) => {
+                          // Only navigate if the click is not on a button
+                          if (!(e.target as HTMLElement).closest('button')) {
+                            navigate(`/product/${product.id}`);
+                          }
+                        }}
+                      >
                         <Link
                           to={`/product/${product.id}`}
-                          className="font-medium text-sm hover:text-crimson"
+                          className="flex-shrink-0 w-24 h-full rounded-l-md overflow-hidden bg-gray-700/50"
                         >
-                          {product.name[language]}
+                          {product.images && product.images.length > 0 ? (
+                            <img
+                              src={product.images[0]}
+                              alt={product.name[language]}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = '/placeholder-product.jpg';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-700 p-2">
+                              <span className="text-xs text-gray-400 text-center">
+                                {t('product.no_image')}
+                              </span>
+                            </div>
+                          )}
                         </Link>
-                        <span className="text-muted-foreground text-xs mb-1">
-                          {product.price} ₾
-                        </span>
-                        <div className="flex justify-between items-center mt-auto">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-crimson hover:text-crimson/80"
-                            onClick={() => removeFromFavorites(product.id)}
-                          >
-                            {t('favorites.remove')}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => addToCart(product)}
-                            disabled={product.stock === 0}
-                          >
-                            {t('product.add_to_cart')}
-                          </Button>
+                        <div className="flex-1 min-w-0 p-2 flex flex-col h-full justify-between">
+                          <div>
+                            <Link
+                              to={`/product/${product.id}`}
+                              className="block font-semibold text-white hover:text-crimson transition-colors text-[1.1rem] leading-tight line-clamp-2 mb-1"
+                              title={product.name[language]}
+                              style={{ fontSize: 'calc(1rem * 1.1)' }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {product.name[language]}
+                            </Link>
+                            <div className="flex justify-between items-center mb-1">
+                              <span
+                                className="text-crimson font-bold whitespace-nowrap"
+                                style={{ fontSize: 'calc(1.125rem * 1.1)' }}
+                              >
+                                {product.price} ₾
+                              </span>
+                              {product.stock === 0 && (
+                                <span className="text-xs text-amber-400 bg-amber-900/30 px-2 py-0.5 rounded-full">
+                                  {t('product.out_of_stock')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="mt-auto flex justify-between items-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-xs border-crimson/20 text-crimson hover:bg-crimson/10 hover:border-crimson/40 transition-colors group/remove"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removeFromFavorites(product.id);
+                              }}
+                            >
+                              <Heart className="w-3.5 h-3.5 mr-1.5 fill-current group-hover/remove:hidden" />
+                              <HeartOff className="w-3.5 h-3.5 mr-1.5 hidden group-hover/remove:block text-red-400" />
+                              {t('favorites.remove')}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 text-xs border-crimson/20 text-crimson hover:bg-crimson/10 hover:border-crimson/40 transition-colors group/add"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                addToCart(product);
+                              }}
+                              disabled={product.stock === 0}
+                            >
+                              <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
+                              {t('product.add_to_cart')}
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
             </SheetContent>
@@ -512,18 +691,21 @@ const Navbar = () => {
                               console.error('Error loading user photo:', {
                                 photoURL: auth.user?.photoURL,
                                 user: auth.user,
-                                error: e
+                                error: e,
                               });
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
-                              const fallback = target.nextElementSibling as HTMLElement;
+                              const fallback =
+                                target.nextElementSibling as HTMLElement;
                               if (fallback) fallback.style.display = 'flex';
                             }}
                             onLoad={(e) => {
                               console.log('Successfully loaded user photo:', {
                                 photoURL: auth.user?.photoURL,
-                                naturalWidth: (e.target as HTMLImageElement).naturalWidth,
-                                naturalHeight: (e.target as HTMLImageElement).naturalHeight
+                                naturalWidth: (e.target as HTMLImageElement)
+                                  .naturalWidth,
+                                naturalHeight: (e.target as HTMLImageElement)
+                                  .naturalHeight,
                               });
                             }}
                             crossOrigin="anonymous"
@@ -544,7 +726,10 @@ const Navbar = () => {
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-black/90 text-white text-xs p-2 rounded z-50 whitespace-pre-wrap max-w-xs pointer-events-none transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                         <div className="font-bold">User Photo Debug</div>
                         <div>URL: {auth.user?.photoURL || 'Not available'}</div>
-                        <div>Provider: {auth.user?.providerData?.[0]?.providerId || 'None'}</div>
+                        <div>
+                          Provider:{' '}
+                          {auth.user?.providerData?.[0]?.providerId || 'None'}
+                        </div>
                         <div>UID: {auth.user?.uid || 'None'}</div>
                       </div>
                     )}
@@ -621,18 +806,18 @@ const Navbar = () => {
           )}
         </div>
       </div>
-      
-      <DiscountInfo 
+
+      <DiscountInfo
         isOpen={isDiscountModalOpen}
         onClose={() => setIsDiscountModalOpen(false)}
       />
-      <DeliveryModal 
-        isOpen={isDeliveryModalOpen} 
-        onClose={() => setIsDeliveryModalOpen(false)} 
+      <DeliveryModal
+        isOpen={isDeliveryModalOpen}
+        onClose={() => setIsDeliveryModalOpen(false)}
       />
-      <DeliveryModal 
-        isOpen={isDeliveryModalOpen} 
-        onClose={() => setIsDeliveryModalOpen(false)} 
+      <DeliveryModal
+        isOpen={isDeliveryModalOpen}
+        onClose={() => setIsDeliveryModalOpen(false)}
       />
     </nav>
   );

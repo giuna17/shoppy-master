@@ -10,8 +10,8 @@ const FeaturedReviews = () => {
   const reviews = getTopReviews(3); // Get top 3 reviews
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6">
-      <div className="flex flex-col space-y-4 mb-6">
+    <div className="w-full">
+      <div className="flex flex-col space-y-4 mb-6 bg-card border border-border rounded-lg p-6">
         <div className="flex justify-between items-center">
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 relative z-10 font-medieval">
             <span className="text-crimson">{t('reviews.title_part1')}</span>{' '}

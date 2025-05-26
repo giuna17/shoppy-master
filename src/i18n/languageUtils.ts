@@ -1,4 +1,4 @@
-import { translations } from './translations';
+import { translations } from './translations.1';
 
 type TranslationParam = string | number | boolean;
 

@@ -4,7 +4,7 @@
 // Add auth context to avoid circular dependencies
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { translations } from '@/i18n/translations';
+import { translations } from '@/i18n/translations.1';
 
 // Пример контекста языка, можно доработать под ваши нужды
 interface LanguageContextType {
@@ -63,7 +63,9 @@ export const LanguageProvider = ({
   const currentLanguage = language;
 
   return (
-    <LanguageContext.Provider value={{ language, currentLanguage, setLanguage, t }}>
+    <LanguageContext.Provider
+      value={{ language, currentLanguage, setLanguage, t }}
+    >
       {children}
     </LanguageContext.Provider>
   );

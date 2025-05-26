@@ -19,6 +19,7 @@ import Profile from './pages/Profile';
 import FAQ from './pages/FAQ';
 import Checkout from './pages/Checkout';
 import ScrollToTop from './components/ScrollToTop';
+import Layout from './components/Layout';
 
 const queryClient = new QueryClient();
 
@@ -33,25 +34,27 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <ScrollToTop />
-                <div id="main" className="min-h-screen flex flex-col">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/shop" element={<Shop />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route
-                    path="/category/:categoryName"
-                    element={<CategoryPage />}
-                  />
-                  <Route path="/reviews" element={<ReviewsPage />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                </div>
+                <Layout>
+                  <div id="main" className="min-h-screen flex flex-col">
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/shop" element={<Shop />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/product/:id" element={<ProductDetail />} />
+                      <Route
+                        path="/category/:categoryName"
+                        element={<CategoryPage />}
+                      />
+                      <Route path="/reviews" element={<ReviewsPage />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/checkout" element={<Checkout />} />
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </div>
+                </Layout>
               </BrowserRouter>
             </FavoritesProvider>
           </CartProvider>

@@ -161,7 +161,7 @@ const ProductDetail = () => {
             </h1>
             <p className="mb-8">{t('product.not_found_message')}</p>
             <Button asChild>
-              <Link to="/shop">{t('product.return_to_shop')}</Link>
+              <Link to="/shop">{t('product.back_to_shop')}</Link>
             </Button>
           </div>
         </div>
@@ -218,11 +218,10 @@ const ProductDetail = () => {
       <div className="flex-grow container mx-auto py-12 px-4">
         <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Product Images */}
-          <div className="space-y-4 relative" ref={mainImageRef}>
+          <div className="space-y-4 relative -translate-x-[2.5%]" ref={mainImageRef}>
             {/* Back to Shop Button - Positioned above product image */}
             <div className="absolute -top-10 left-0 z-10">
-              <button
-                onClick={() => window.history.back()}
+              <Link to="/shop"
                 className="group flex items-center gap-1.5 px-4 py-2 bg-red-500/90 hover:bg-red-500 text-white rounded-full shadow-lg border border-red-600/50 hover:border-red-600/70 transition-all duration-300 hover:shadow-red-500/20"
                 aria-label={t('product.back_to_shop')}
               >
@@ -230,7 +229,7 @@ const ProductDetail = () => {
                 <span className="text-base font-medium">
                   {t('product.back_to_shop')}
                 </span>
-              </button>
+              </Link>
             </div>
             <div className="relative bg-transparent">
               <div className="relative inline-block max-w-full border-2 border-crimson/30 rounded-lg overflow-hidden bg-transparent">
@@ -317,7 +316,7 @@ const ProductDetail = () => {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-4 -ml-[15%] text-[0.92em]">
+          <div className="space-y-4 text-[0.92em] pl-[calc((100%-1280px)/2+100px-20%)] pr-8 mt-[2.5%] min-h-[calc(100%+3%)] w-[calc(100%+50px)]">
             <div>
               <h1 className="text-[2.3em] font-bold text-crimson mb-1">
                 {product.name[language]}
@@ -437,21 +436,19 @@ const ProductDetail = () => {
 
         {/* Similar Products */}
         {product && (
-          <div className="mt-16">
-            <SimilarProducts 
-              currentProductId={product.id}
-              category={typeof product.category === 'string' ? product.category : ''}
-            />
+          <div className="mt-16 pl-[calc((100%-1280px)/2+100px-5%)] pr-8 w-full">
+            <div className="relative w-full">
+              <SimilarProducts 
+                currentProductId={product.id}
+                category={typeof product.category === 'string' ? product.category : ''}
+                className="w-full" />
+            </div>
           </div>
         )}
 
         {/* Reviews Section */}
-        <div className="max-w-6xl mx-auto mt-16">
-          <div className="border-t border-border pt-8 pb-4">
-            <h2 className="text-2xl font-bold mb-6">
-              <span className="text-crimson">{t('reviews.title_part1')}</span>{' '}
-              <span className="text-white">{t('reviews.title_part2')}</span>
-            </h2>
+        <div className="max-w-6xl mx-auto -mt-[5%] relative z-10">
+          <div className="border-t border-border pt-6 pb-4">
 
             {/* Review Form */}
             <ReviewForm
