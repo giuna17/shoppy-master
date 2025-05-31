@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "^/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "^/shoppy-master/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "^/lovable-uploads/(.*)",
+      "dest": "/lovable-uploads/$1"
+    },
+    {
+      "src": "^/shoppy-master/lovable-uploads/(.*)",
+      "dest": "/lovable-uploads/$1"
+    },
+    {
+      "src": "^/(.*)$",
+      "dest": "/index.html"
+    }
+  ]
+}

@@ -1,0 +1,333 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Product } from '@/services/productService';
+import { recentlyViewedService } from '@/services/recentlyViewedService';
+import { getProductById } from '@/services/productService';
+import { Skeleton } from './ui/skeleton';
+import { Button } from './ui/button';
+import { Heart, X, Star } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { useFavorites } from '@/contexts/FavoritesContext';
+
+interface RecentlyViewedProduct extends Product {
+  viewCount: number;
+  isFavorite: boolean;
+  displayName: string;
+  displayDescription: string;
+}
+
+interface RecentlyViewedProps {
+  className?: string;
+}
+
+const translations = {
+  recently_viewed: {
+    ru: 'Недавно просмотренные',
+    en: 'Recently Viewed',
+    ge: 'თქვენ ბოლოს ნახეთ',
+  },
+  no_products: {
+    ru: 'Здесь будут отображаться недавно просмотренные товары',
+    en: 'Your recently viewed products will appear here',
+    ge: 'თქვენი ბოლოს ნანახი პროდუქცია გამოჩნდება აქ',
+  },
+  product: {
+    ru: 'Товар',
+    en: 'Product',
+    ge: 'პროდუქტი',
+  },
+  no_description: {
+    ru: 'Нет описания',
+    en: 'No description',
+    ge: 'აღწერა არ არის',
+  },
+  error_loading: {
+    ru: 'Ошибка при загрузке',
+    en: 'Error loading',
+    ge: 'შეცდომა ჩატვირთვისას',
+  },
+  remove: {
+    ru: 'Удалить',
+    en: 'Remove',
+    ge: 'წაშლა',
+  },
+};
+
+const MAX_ITEMS = 10;
+
+export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
+  className = '',
+}) => {
+  const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { t, currentLanguage } = useLanguage();
+  const { toast } = useToast();
+  const { isInFavorites, addToFavorites, removeFromFavorites } = useFavorites();
+
+  const getLocalizedField = useCallback((field: any, fieldType: 'name' | 'description' = 'name'): string => {
+    if (!field) return fieldType === 'name' ? t('product') : '';
+    if (typeof field === 'string') return field;
+    if (typeof field === 'object' && field !== null) {
+      const fieldObj = field as Record<string, string>;
+      return (
+        fieldObj[currentLanguage] ||
+        fieldObj.en ||
+        fieldObj.ru ||
+        fieldObj.ge ||
+        Object.values(fieldObj)[0] ||
+        (fieldType === 'name' ? t('product') : t('no_description'))
+      );
+    }
+    return fieldType === 'name' ? t('product') : t('no_description');
+  }, [currentLanguage, t]);
+
+  const fetchRecentlyViewed = useCallback(async () => {
+    try {
+      setLoading(true);
+      const items = await recentlyViewedService.getRecent(MAX_ITEMS);
+      
+      if (!items || items.length === 0) {
+        setRecentlyViewed([]);
+        return;
+      }
+
+      const productPromises = items.map(async (item) => {
+        try {
+          const product = await getProductById(item.productId);
+          if (!product) return null;
+          
+          return {
+            ...product,
+            id: product.id || item.productId,
+            viewCount: item.viewCount || 1,
+            isFavorite: item.isFavorite || false,
+            displayName: getLocalizedField(product.name, 'name'),
+            displayDescription: getLocalizedField(product.description, 'description'),
+            price: product.price || 0,
+            currency: product.currency || '₾',
+            images: product.images || [],
+            category: product.category || 'other',
+            stock: product.stock || 0,
+            featured: product.featured || false,
+            rating: 'rating' in product ? (product as any).rating : 0
+          } as RecentlyViewedProduct;
+        } catch (err) {
+          console.error('Error loading product:', err);
+          return null;
+        }
+      });
+
+      const products = await Promise.all(productPromises);
+      const validProducts = products.filter(Boolean) as RecentlyViewedProduct[];
+      setRecentlyViewed(validProducts);
+    } catch (err) {
+      console.error('Error fetching recently viewed:', err);
+      setError(t('error_loading'));
+    } finally {
+      setLoading(false);
+    }
+  }, [getLocalizedField, t]);
+
+  useEffect(() => {
+    fetchRecentlyViewed();
+  }, [fetchRecentlyViewed]);
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key?.startsWith('recently_viewed_products') || !e.key) {
+        fetchRecentlyViewed();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [fetchRecentlyViewed]);
+
+  const handleToggleFavorite = async (product: RecentlyViewedProduct, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      const newFavoriteStatus = !product.isFavorite;
+      
+      setRecentlyViewed(prev => 
+        prev.map(p => 
+          p.id === product.id 
+            ? { ...p, isFavorite: newFavoriteStatus } 
+            : p
+        )
+      );
+      
+      if (newFavoriteStatus) {
+        await addToFavorites(product.id);
+      } else {
+        await removeFromFavorites(product.id);
+      }
+      
+      await recentlyViewedService.updateFavoriteStatus(product.id, newFavoriteStatus);
+      
+      toast({
+        title: newFavoriteStatus ? t('favorites.added') : t('favorites.removed'),
+        variant: 'default',
+      });
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      toast({
+        title: t('common.error_occurred'),
+        variant: 'destructive',
+      });
+      
+      setRecentlyViewed(prev => 
+        prev.map(p => 
+          p.id === product.id 
+            ? { ...p, isFavorite: !product.isFavorite } 
+            : p
+        )
+      );
+    }
+  };
+
+  const handleRemoveItem = async (productId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      await recentlyViewedService.removeProduct(productId);
+      setRecentlyViewed(prev => prev.filter(p => p.id !== productId));
+      
+      toast({
+        title: t('remove'),
+        variant: 'default',
+      });
+    } catch (err) {
+      console.error('Error removing item:', err);
+      toast({
+        title: t('common.error_occurred'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className={cn('py-12', className)}>
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-6">{t('recently_viewed')}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-48 w-full rounded-lg" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className={cn('py-12', className)}>
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-red-500">{error}</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (recentlyViewed.length === 0) {
+    return (
+      <section className={cn('py-12', className)}>
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold mb-4">{t('recently_viewed')}</h2>
+          <p className="text-muted-foreground">{t('no_products')}</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className={cn('py-12', className)}>
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl font-bold mb-6">{t('recently_viewed')}</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {recentlyViewed.map((product) => (
+            <Link 
+              key={product.id} 
+              to={`/product/${product.id}`}
+              className="group relative block"
+            >
+              <div className="relative overflow-hidden rounded-lg bg-card shadow-sm transition-all duration-300 group-hover:shadow-md">
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src={product.images?.[0] || '/placeholder-product.jpg'}
+                    alt={product.displayName}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder-product.jpg';
+                    }}
+                  />
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={(e) => handleToggleFavorite(product, e)}
+                  className={cn(
+                    'absolute top-2 right-2 p-2 rounded-full bg-background/80 backdrop-blur-sm',
+                    'transition-colors duration-200',
+                    product.isFavorite 
+                      ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30' 
+                      : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'
+                  )}
+                  aria-label={product.isFavorite ? t('favorites.remove') : t('favorites.add')}
+                >
+                  <Heart 
+                    className={cn(
+                      'h-5 w-5',
+                      product.isFavorite ? 'fill-current' : 'fill-none'
+                    )} 
+                    strokeWidth={1.5} 
+                  />
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={(e) => handleRemoveItem(product.id, e)}
+                  className="absolute top-2 left-2 p-2 rounded-full bg-background/80 backdrop-blur-sm text-muted-foreground hover:bg-foreground/5 hover:text-foreground transition-colors duration-200"
+                  aria-label={t('remove')}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+                
+                <div className="p-4">
+                  <h3 className="font-medium text-sm line-clamp-2 mb-1 text-foreground">
+                    {product.displayName}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">
+                      {product.price} {product.currency}
+                    </span>
+                    <div className="flex items-center space-x-1">
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span className="text-xs text-muted-foreground">
+                        {product.rating?.toFixed(1) || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default RecentlyViewed;

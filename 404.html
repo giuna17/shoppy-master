@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Shoppy</title>
+    <script type="module">
+      // Single Page Apps for GitHub Pages
+      (function (l) {
+        // Each time when a user navigates to a 404 page, the session storage is checked for a redirect flag.
+        // If the flag exists, the user is redirected to the index page with the original URL as a query parameter.
+        if (sessionStorage.redirect) {
+          const redirect = sessionStorage.redirect;
+          delete sessionStorage.redirect;
+          if (redirect !== location.href) {
+            history.replaceState(null, null, redirect);
+          }
+        }
+        // When the page loads, if the current path is not the root path, store the current path in session storage and redirect to the root path.
+        if (l.pathname !== '/shoppy-master/' && !l.pathname.startsWith('/shoppy-master/')) {
+          sessionStorage.setItem('redirect', l.pathname + l.search + l.hash);
+          l.replace(
+            'shoppy-master/' +
+              l.pathname.slice(l.pathname.startsWith('/') ? 1 : 0) +
+              l.search +
+              l.hash
+          );
+        }
+      })(window.location);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/shoppy-master/src/main.tsx"></script>
+  </body>
+</html>
