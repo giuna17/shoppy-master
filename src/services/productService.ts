@@ -24,6 +24,182 @@ export interface Product {
 
 const products: Product[] = [
   {
+    id: 37,
+    name: {
+      ru: 'Чокер "Ловец Снов"',
+      en: 'Choker "Dream Catcher"',
+      ge: 'ჩოკერი "ოდის მაძებნელი"',
+    },
+    description: {
+      ru: 'Оберегите свои сны и добавьте мистический акцент в свой образ с чокером "Ловец Снов". Этот оригинальный аксессуар выполнен из широкой полосы натуральной кожи глубокого коричневого оттенка и украшен крупным металлическим кольцом. От кольца каскадом спускаются плетеные нити и декоративные элементы, напоминающие ловца снов, призванного задерживать плохие сновидения. Медные заклепки добавляют чокеру выразительности и индивидуальности, делая его идеальным для тех, кто ценит этнические мотивы и необычные украшения.',
+      en: 'Protect your dreams and add a mystical touch to your look with the "Dream Catcher" choker. This unique accessory is crafted from a wide strip of deep brown genuine leather and adorned with a large metal ring. From the ring cascade woven threads and decorative elements reminiscent of a dream catcher, designed to trap bad dreams. Copper rivets add expressiveness and individuality to the choker, making it perfect for those who appreciate ethnic motifs and unusual jewelry.',
+      ge: 'დაიცავით თქვენი სიზმრები და დაამატეთ მისტიკური აკცენტი თქვენს იმიჯს ჩოკერით "ოდის მაძებნელი". ეს ორიგინალური აქსესუარი დამზადებულია ბუნებრივი ტყავის ფართო ზოლისგან ღრმა ყავისფერ ფერში და დაფარულია დიდი ლითონის ბეჭდით. ბეჭდიდან კასკადურად ეშვება ნაქსოვი ძაფები და დეკორატიული ელემენტები, რომლებიც წააგავს ოცნების მაძებნელს, რომელიც განკუთვნილია ცუდი სიზმრების შესაჩერებლად. სპილენძის მოჭიქული ელემენტები ჩოკერს აძლევს გამომსახველობას და ინდივიდუალურობას, რაც მას იდეალურს ხდის მათთვის, ვინც აფასებს ეთნიკურ მოტივებს და უჩვეულო სამკაულებს.',
+    },
+    price: 35,
+    originalPrice: 0,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/496509400_743942131472387_8262938680518641557_n.jpg',
+      '/lovable-uploads/496509400_743942131472387_8262938680518641557_n_2.jpg',
+    ],
+    category: 'chokers',
+    stock: 1,
+    featured: true,
+    materials: ['Натуральная кожа', 'Металл', 'Медные элементы'],
+    colors: ['Коричневый', 'Металлик'],
+    onSale: false
+  },
+  {
+    id: 36,
+    name: {
+      ru: 'Чокер "Двойное Признание"',
+      en: 'Choker "Double Confession"',
+      ge: 'ჩოკერი "ორმაგი აღიარება"',
+    },
+    description: {
+      ru: 'Выразите свои чувства с чокером "Двойное Признание"! Этот нежный и стильный аксессуар состоит из двух тонких ремешков – черного и бордового, – которые элегантно облегают шею. В центре внимания – подвеска в форме объемного ромба, внутри которого расположено ажурное сердце со словом "Love". Идеальный выбор для тех, кто ищет романтичное и в то же время современное украшение, символизирующее любовь и индивидуальность.',
+      en: 'Express your feelings with the "Double Confession" choker! This delicate and stylish accessory consists of two thin straps - black and burgundy - that elegantly wrap around the neck. The centerpiece is a three-dimensional rhombus pendant featuring an ornate heart with the word "Love" inside. The perfect choice for those seeking a romantic yet modern piece of jewelry that symbolizes love and individuality.',
+      ge: 'გამოთქვით თქვენი გრძნობები ჩოკერით "ორმაგი აღიარება"! ეს დელიკატური და ელეგანტური აქსესუარი შედგება ორი წვრილი ზოლისგან - შავი და ბორდოს ფერის - რომლებიც ელეგანტურად ერტყმის კისერს. ცენტრში - ვოლუმური რომბის ფორმის ქინძისთავი, რომლის შიგნითაც გრავირებული გულია სიტყვით "Love". იდეალური არჩევანი მათთვის, ვინ ეძებს რომანტიკულ და ამავდროულად თანამედროვე სამკაულს, რომელიც განასახიერებს სიყვარულსა და ინდივიდუალურობას.',
+    },
+    price: 35,
+    originalPrice: 0,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/494361586_1116622167153556_2158416052284255224_n.jpg',
+      '/lovable-uploads/494361586_1116622167153556_2158416052284255224_n_2.jpg',
+    ],
+    category: 'chokers',
+    stock: 1,
+    featured: true,
+    materials: ['Искусственная кожа', 'Металл'],
+    colors: ['Черный', 'Бордовый'],
+    onSale: false
+  },
+  {
+    id: 35,
+    name: {
+      ru: 'Чокер "Эхо Веков"',
+      en: 'Choker "Echo of Ages"',
+      ge: 'ჩოკერი "საუკუნეების ექო"',
+    },
+    description: {
+      ru: 'Ощутите дыхание истории с чокером "Эхо Веков". Это уникальное украшение создано вручную из натуральной кожи и старинных монет, каждая из которых несет в себе тайны прошлых эпох. Эти монеты, бережно вплетенные в дизайн, придают чокеру особую глубину и неповторимый винтажный характер. "Эхо Веков" – это больше, чем просто аксессуар; это носитель истории, который добавит загадочности и индивидуальности вашему образу.',
+      en: 'Feel the breath of history with the "Echo of Ages" choker. This unique piece is handcrafted from natural leather and antique coins, each carrying the secrets of past eras. These coins, carefully woven into the design, give the choker a special depth and a unique vintage character. "Echo of Ages" is more than just an accessory; it\'s a carrier of history that will add mystery and individuality to your look.',
+      ge: 'იგრძენით ისტორიის სუნთქვა ჩოკერით "საუკუნეების ექო". ეს უნიკალური სამკაული ხელით არის შექმნილი ბუნებრივი ტყავისა და ანტიკვარული მონეტებისგან, რომლებიც წარსული ეპოქების საიდუმლოებებს ატარებენ. ეს მონეტები, ფრთხილად ჩაქსოვილი დიზაინში, ჩოკერს განსაკუთრებულ სიღრმესა და უნიკალურ ვინტაჟურ ხასიათს ანიჭებს. "საუკუნეების ექო" მხოლოდ აქსესუარზე მეტია; ის ისტორიის მატარებელია, რომელიც თქვენს იმიჯს საიდუმლოებასა და ინდივიდუალურობას დაუმატებს.',
+    },
+    price: 45,
+    originalPrice: 0,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/monet.jpg',
+      '/lovable-uploads/monet_2.jpg',
+    ],
+    category: 'chokers',
+    stock: 1,
+    featured: true,
+    materials: ['Натуральная кожа', 'Металл', 'Старинные монеты'],
+    colors: ['Коричневый', 'Золотистый'],
+    onSale: false
+  },
+  {
+    id: 34,
+    name: {
+      ru: 'Серьги "Мишка-Сахарок"',
+      en: 'Earrings "Gummy Bear"',
+      ge: 'საყურეები "ტკბილი დათვი"',
+    },
+    description: {
+      ru: 'Погрузитесь в мир беззаботной радости с нашими серьгами "Мишка-Сахарок"! Эти игривые аксессуары, выполненные в виде очаровательных мармеладных мишек, станут вашей порцией ежедневной сладости. Яркий цвет и легкий дизайн сделают каждый ваш образ по-настоящему уникальным и поднимут настроение вам и окружающим',
+      en: 'Immerse yourself in a world of carefree joy with our "Gummy Bear" earrings! These playful accessories, designed in the shape of adorable gummy bears, will be your daily dose of sweetness. The vibrant color and lightweight design will make every look truly unique and lift your spirits',
+      ge: 'ჩაძირეთ თავი უდარდელი სიხარულის სამყაროში ჩვენი "ტკბილი დათვის" საყურეებით! ეს თამაშოთი აქსესუარები, გაკეთებული საყვარელი ტკბილი დათვების ფორმით, გახდება თქვენი ყოველდღიური ტკბილეულის პორცია. ნათელი ფერი და მსუბუქი დიზაინი ყველა თქვენს იმიჯს ნამდვილად უნიკალურს გახდის და გაგახარებთ',
+    },
+    price: 15,
+    originalPrice: 0,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/datv1.jpg',
+      '/lovable-uploads/datv1_2.jpg',
+    ],
+    category: 'earrings',
+    stock: 1,
+    featured: true,
+    materials: ['Пластик', 'Металл'],
+    colors: ['Голубой', 'Золотистый'],
+    onSale: false
+  },
+  {
+    id: 33,
+    name: {
+      ru: 'Брелок "Лезвие Судьбы"',
+      en: 'Keychain "Blade of Destiny"',
+      ge: 'გასაღების დამჭერი "შუბლის ბასრი"',
+    },
+    description: {
+      ru: 'Заявите о своей индивидуальности с брелком "Лезвие Судьбы"! Это не просто аксессуар, а манифест вашего смелого стиля. Центральным элементом служит металлическая подвеска, стилизованная под винтажное бритвенное лезвие, с интригующими вырезами, которые словно шепчут истории прошлых эпох. В сочетании с насыщенным бордовым кожаным ремешком и состаренными металлическими элементами, он создает неповторимый образ, балансирующий на грани брутальности и артистизма. Отличный выбор для тех, кто не боится выделяться из толпы и ценит аксессуары с характером. Прикрепите его к ключам или сумке, чтобы добавить немного винтажной дерзости в ваш повседневный образ.',
+      en: 'Make a statement with the "Blade of Destiny" keychain! This is not just an accessory, but a manifesto of your bold style. The centerpiece is a metal pendant styled like a vintage razor blade, with intriguing cutouts that seem to whisper stories from bygone eras. Paired with a rich burgundy leather strap and aged metal accents, it creates a unique look that balances between brutality and artistry. An excellent choice for those who aren\'t afraid to stand out from the crowd and appreciate accessories with character. Attach it to your keys or bag to add a touch of vintage audacity to your everyday look.',
+      ge: 'გამოხატეთ თქვენი ინდივიდუალობა "შუბლის ბასრის" გასაღების დამჭერით! ეს არ არის უბრალოდ აქსესუარი, არამედ თქვენი მამაცი სტილის მანიფესტი. ცენტრალურ ელემენტს წარმოადგენს მეტალის ქანდაკება, რომელიც სტილიზებულია ვინტაჟურ სამაგრი დანის ბასრად, საინტერესო ამოჭრილებით, რომლებიც თითქოს წარსული ეპოქის ისტორიებს ჩურჩულებენ. გაჯერებული ბორდოს ფერის ტყავის ზოლთან და დაძველებული მეტალის ელემენტებთან ერთად, ის ქმნის უნიკალურ იმიჯს, რომელიც ბალანსს იკავებს ბრუტალურობასა და არტისტიზმს შორის. შესანიშნავი არჩევანი მათთვის, ვინც არ ეშინია გამოირჩეოდეს ბრბოსგან და აფასებს აქსესუარებს ხასიათით. მიამაგრეთ ის თქვენს გასაღებებზე ან ჩანთაზე, რათა დაამატოთ ცოტა ვინტაჟური სიმამაცე თქვენ ყოველდღიურ იერსახეს.',
+    },
+    price: 10,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/5325977326892216759.jpg',
+      '/lovable-uploads/5325977326892216759_2.jpg',
+    ],
+    category: 'keychains',
+    stock: 1,
+    featured: true,
+    materials: ['Металл', 'Кожа'],
+    colors: ['Бордовый', 'Серебристый'],
+  },
+  {
+    id: 32,
+    name: {
+      ru: 'Браслет "Пиксель Леса"',
+      en: 'Bracelet "Forest Pixel"',
+      ge: 'სამაჯური "ტყის პიქსელი"',
+    },
+    description: {
+      ru: 'Встречайте "Пиксель Леса" – браслет, где цифровая точность встречается с органической красотой. Каждая грань квадратных бусин, вырезанных из теплого дерева, напоминает о кропотливой работе природы и человека. Этот браслет – ода современному минимализму и уважению к природным материалам. Он легко впишется как в деловой, так и в кэжуал-образ, добавляя нотку изысканности и интеллектуальности. Идеален для тех, кто ищет баланс между городским стилем и тягой к естественности. С регулируемой длиной, он станет вашим универсальным спутником.',
+      en: 'Meet "Forest Pixel" – a bracelet where digital precision meets organic beauty. Each facet of the square beads, carved from warm wood, speaks of the meticulous work of both nature and humans. This bracelet is an ode to modern minimalism and respect for natural materials. It easily fits both business and casual looks, adding a touch of sophistication and intellect. Perfect for those seeking a balance between urban style and a love for nature. With adjustable length, it will become your universal companion.',
+      ge: 'გაიცანით "ტყის პიქსელი" – სამაჯური, სადაც ციფრული სიზუსტე ხვდება ორგანულ სილამაზეს. თითოეული კვადრატული მძივის წვერი, გამოკვეთილი ნაზი ხისგან, მოგვითხრობს როგორც ბუნების, ასევე ადამიანის გულმოდგინე შრომის შესახებ. ეს სამაჯური თანამედროვე მინიმალიზმისა და ბუნებრივი მასალებისადმი პატივისცემის ოდაა. ის მარტივად ჯდება როგორც ბიზნეს, ისე კაჟუალ სტილში, ემატება ელეგანტურობისა და ინტელექტის ნიშნულს. იდეალურია მათთვის, ვინ ეძებს ბალანსს ურბანულ სტილსა და ბუნებისადმი მოწოდებას შორის. რეგულირებადი სიგრძით, ის გახდება თქვენი უნივერსალური თანამგზავრი.',
+    },
+    price: 35,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/5325977326892216761.jpg',
+      '/lovable-uploads/5325977326892216761_2.jpg',
+    ],
+    category: 'bracelets',
+    stock: 1,
+    featured: true,
+    materials: ['Дерево'],
+    colors: ['Коричневый', 'Бежевый'],
+  },
+  {
+    id: 31,
+    name: {
+      ru: 'Браслет "Эспрессо Ритм"',
+      en: 'Bracelet "Espresso Rhythm"',
+      ge: 'სამაჯური "ესპრესოს რიტმი"',
+    },
+    description: {
+      ru: 'Позвольте себе погрузиться в атмосферу утреннего вдохновения с браслетом "Эспрессо Ритм". Каждая бусина, словно миниатюрное кофейное зернышко, несет в себе тепло и энергию природы. Это не просто украшение, а талисман для тех, кто ценит момент, запах свежесваренного кофе и гармонию бытия. Изготовленный вручную из натурального дерева, он приятно ощущается на коже и добавляет образу непринужденной элегантности. Регулируемая застежка гарантирует идеальную посадку. Носите его как напоминание о том, что каждый день может быть наполнен ароматом приключений!',
+      en: 'Indulge in the atmosphere of morning inspiration with the "Espresso Rhythm" bracelet. Each bead, like a miniature coffee bean, carries the warmth and energy of nature. This is not just jewelry, but a talisman for those who appreciate the moment, the aroma of freshly brewed coffee, and the harmony of existence. Handcrafted from natural wood, it feels pleasant on the skin and adds effortless elegance to any look. The adjustable clasp ensures a perfect fit. Wear it as a reminder that every day can be filled with the aroma of adventure!',
+      ge: 'მოგესალმებით დილის შთაგონების ატმოსფეროში "ესპრესოს რიტმის" სამაჯურით. თითოეული მძივი, ყავის მინიატურული მარცვლის მსგავსად, ატარებს ბუნების სითბოსა და ენერგიას. ეს არ არის უბრალოდ სამკაული, არამედ თილისმა მათთვის, ვინაც ფასობს წუთს, ახლად მოხარშული ყავის სუნს და არსებობის ჰარმონიას. ხელნაკეთი ბუნებრივი ხისგან, ის სასიამოვნოდ გრძნობს კანზე და ამატებს იმიჯს დაუძლეველ ელეგანტურობას. რეგულირებადი საკინძი უზრუნველყოფს იდეალურ მორგებას. ჩაიცვით ის, როგორც შეხსენება, რომ ყოველი დღე შეიძლება იყოს სავსე თავგადასავლების არომატით!',
+    },
+    price: 35,
+    currency: '₾',
+    images: [
+      '/lovable-uploads/5325977326892216763.jpg',
+      '/lovable-uploads/5325977326892216763_2.jpg',
+    ],
+    category: 'bracelets',
+    stock: 1,
+    featured: true,
+    materials: ['Дерево', 'Металл'],
+    colors: ['Коричневый', 'Золотистый'],
+  },
+  {
     id: 25,
     name: {
       ru: 'Браслет "Рок-Скелет"',

@@ -2,10 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Menu, X, User, Search, Gift, Heart, Star, ChevronDown, ChevronUp, Loader2, LogOut, UserCircle, Home, Package, ShoppingBag, Phone, Info, Gift as GiftIcon, MessageSquare, Check, X as XIcon, ChevronRight, ChevronLeft, Truck, HeartOff } from 'lucide-react';
+import styled, { keyframes } from 'styled-components';
+
+const shine = keyframes`
+  to {
+    transform: translateX(200%) skewX(-12deg);
+  }
+`;
+
+const arrowPulse = keyframes`
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+`;
 import { Badge } from '@/components/ui/badge';
 import CartItem from './CartItem';
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -91,8 +108,20 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
+const GlobalStyles = styled.div`
+  @keyframes arrowPulse {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(4px);
+    }
+  }
+`;
+
 const Navbar = () => {
   const { t, language, setLanguage } = useLanguage();
+  const { t: trans } = useTranslation();
   const {
     cart,
     calculateTotal,
@@ -283,12 +312,31 @@ const Navbar = () => {
                 <div className="relative z-10 flex items-center gap-2">
                   <div className="relative">
                     <Gift className="w-5 h-5 flex-shrink-0 relative z-10 transition-all duration-300 group-hover/promo:scale-110 group-hover/promo:rotate-[-15deg] text-crimson-300" />
-                    <div className="absolute inset-0 rounded-full bg-crimson/40 animate-pulse blur-[2px]" />
+                    <div 
+                    className="absolute inset-0 rounded-full bg-crimson/30 blur-[2px]" 
+                    style={{
+                      animation: 'subtlePulse 3s ease-in-out infinite',
+                      opacity: 0.3
+                    }}
+                  />
                   </div>
                   <span className="text-sm font-medium whitespace-nowrap hidden md:inline-block relative">
-                    <span className="relative z-10 text-crimson-200 group-hover/promo:text-white transition-all duration-300">
-                      {t('promo.have_code')}
+                    <span 
+                      className="relative z-10 text-crimson-200 group-hover/promo:text-white transition-all duration-300 inline-block"
+                      style={{
+                        animation: 'subtlePulse 3s ease-in-out infinite',
+                        textShadow: '0 0 8px rgba(220, 38, 38, 0.5)'
+                      }}
+                    >
+                      !
                     </span>
+                    <style>{`
+                      @keyframes subtlePulse {
+                        0% { opacity: 0.7; transform: scale(1); }
+                        50% { opacity: 1; transform: scale(1.15); }
+                        100% { opacity: 0.7; transform: scale(1); }
+                      }
+                    `}</style>
                     <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gradient-to-r from-crimson to-pink-500 transition-all duration-300 group-hover/promo:w-full" />
                   </span>
                 </div>
@@ -417,13 +465,23 @@ const Navbar = () => {
               >
                 <ShoppingCart className="w-5 h-5" aria-hidden="true" />
                 {totalItems > 0 && (
-                  <Badge
-                    variant="secondary"
-                    className="absolute -top-2 -right-2 bg-crimson text-white"
-                    aria-hidden="true"
-                  >
-                    {totalItems}
-                  </Badge>
+                  <div className="absolute -top-2 -right-2">
+                    <div className="relative">
+                      <Badge
+                        variant="secondary"
+                        className="bg-crimson text-white relative z-10 animate-pulse"
+                        aria-hidden="true"
+                        style={{
+                          animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        }}
+                      >
+                        {totalItems}
+                      </Badge>
+                      <div className="absolute inset-0 bg-crimson/50 rounded-full blur-[6px] -z-0 animate-ping-slow" style={{
+                        animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+                      }} />
+                    </div>
+                  </div>
                 )}
                 <span className="sr-only">
                   {totalItems > 0
@@ -434,20 +492,43 @@ const Navbar = () => {
             </SheetTrigger>
             <SheetContent className="flex flex-col p-0">
               <div className="flex flex-col h-full">
-                <SheetHeader className="px-6 pt-6 pb-4 border-b">
-                  <SheetTitle className="text-left">
-                    {t('cart.title')}
-                  </SheetTitle>
+                <SheetHeader className="border-b border-red-900/30">
+                  {/* Title removed as requested */}
                 </SheetHeader>
                 {cart.length === 0 ? (
-                  <div className="flex-1 flex items-center justify-center text-muted-foreground p-6">
-                    {t('cart.empty')}
+                  <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                    <div className="relative mb-6">
+                      <div className="relative">
+                        <ShoppingCart className="w-16 h-16 text-crimson animate-bounce" />
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3">
+                      {t('cart.empty_title', {
+                        defaultValue: 'Your cart is empty',
+                      })}
+                    </h3>
+                    <p className="text-gray-300 max-w-xs mb-6">
+                      {t('cart.empty_description', {
+                        defaultValue:
+                          'Add items to your cart and they will appear here',
+                      })}
+                    </p>
+                    <SheetClose asChild>
+                      <Button
+                        variant="outline"
+                        className="bg-crimson/10 border-crimson/20 text-white hover:bg-crimson/20 hover:border-crimson/30 transition-colors"
+                        onClick={() => navigate('/shop')}
+                      >
+                        {t('cart.continue_shopping')}
+                      </Button>
+                    </SheetClose>
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Cart items container with scroll */}
-                    <div className="flex-1 overflow-y-auto p-6">
-                      <div className="space-y-4 pr-2">
+                    <div className="flex-1 overflow-y-auto p-4">
+                      <div className="space-y-2 pr-2">
                         {cart.map((item) => (
                           <div
                             key={item.product.id}
@@ -461,98 +542,91 @@ const Navbar = () => {
 
                     {/* Cart summary - stays fixed at the bottom */}
                     <div className="border-t p-6 bg-background flex-shrink-0 sticky bottom-0">
-                      <div className="space-y-4">
-                        <div className="flex justify-between text-sm">
-                          <span>{t('cart.subtotal')}:</span>
-                          <span className="font-medium">
-                            {cart.reduce(
-                              (total, item) =>
-                                total + item.product.price * item.quantity,
-                              0,
-                            )}{' '}
-                            ₾
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <div className="flex flex-col gap-2 w-full">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="flex items-center gap-1.5 px-2 py-1 h-auto bg-crimson/5 text-crimson hover:bg-crimson/10 border border-crimson/20 rounded-md w-full justify-start"
-                              onClick={() => setIsDeliveryModalOpen(true)}
-                            >
-                              <Truck className="w-4 h-4" />
-                              <span>{t('cart.delivery')}</span>
-                              <span className="ml-auto text-green-600">
-                                {cart.reduce(
-                                  (total, item) =>
-                                    total + item.product.price * item.quantity,
-                                  0,
-                                ) >= 100
-                                  ? t('cart.free')
-                                  : '5 ₾'}
-                              </span>
-                            </Button>
-                            {(() => {
-                              const subtotal = cart.reduce(
-                                (total, item) => total + item.product.price * item.quantity,
-                                0,
-                              );
+                      <div className="space-y-3">
+                        {(() => {
+                          const subtotal = cart.reduce(
+                            (total, item) => total + item.product.price * item.quantity,
+                            0,
+                          );
+                          const deliveryCost = subtotal >= 100 ? 0 : 5;
+                          let discount = 0;
+                          let discountPercentage = 0;
+                          
+                          if (subtotal >= 500) {
+                            discount = subtotal * 0.1;
+                            discountPercentage = 10;
+                          } else if (subtotal >= 200) {
+                            discount = subtotal * 0.05;
+                            discountPercentage = 5;
+                          }
+                          
+                          const total = subtotal - discount + deliveryCost;
+                          
+                          return (
+                            <>
+                              {/* Delivery cost */}
+                              {deliveryCost > 0 && (
+                                <div className="flex justify-between text-sm text-gray-300">
+                                  <span>{t('cart.delivery')}</span>
+                                  <span>{deliveryCost} ₾</span>
+                                </div>
+                              )}
                               
-                              if (subtotal >= 500) {
-                                const discount = subtotal * 0.1;
-                                return (
-                                  <div className="flex justify-between text-green-600 w-full mt-2">
-                                    <span>Discount (10%)</span>
-                                    <span>-{discount.toFixed(2)} ₾</span>
-                                  </div>
-                                );
-                              } else if (subtotal >= 200) {
-                                const discount = subtotal * 0.05;
-                                return (
-                                  <div className="flex justify-between text-green-600 w-full mt-2">
-                                    <span>Discount (5%)</span>
-                                    <span>-{discount.toFixed(2)} ₾</span>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            })()}
-                          </div>
-                        </div>
-                        <div className="flex justify-between text-lg font-bold mt-4">
-                          <span>{t('cart.total')}:</span>
-                          <span className="text-crimson">
-                            {(() => {
-                              const subtotal = cart.reduce(
-                                (total, item) =>
-                                  total + item.product.price * item.quantity,
-                                0,
-                              );
-                              let total = subtotal;
-
-                              if (subtotal < 100) {
-                                total += 5; // Add delivery fee if under 100₾
-                              } else if (subtotal >= 500) {
-                                total = subtotal * 0.9; // 10% discount for 500₾ and above
-                              } else if (subtotal >= 200) {
-                                total = subtotal * 0.95; // 5% discount for 200-499₾
-                              }
-
-                              return Math.round(total * 100) / 100; // Round to 2 decimal places
-                            })()}{' '}
-                            ₾
-                          </span>
-                        </div>
+                              {/* Discount */}
+                              {discount > 0 && (
+                                <div className="flex justify-between text-green-500 text-sm">
+                                  <span>Discount ({discountPercentage}%):</span>
+                                  <span>-{discount.toFixed(2)} ₾</span>
+                                </div>
+                              )}
+                              
+                              {/* Total */}
+                              <div className="flex justify-between text-lg font-bold mt-3 pt-3 border-t border-gray-700">
+                                <span>{t('cart.total')}:</span>
+                                <span className="text-crimson">
+                                  {Math.round(total * 100) / 100} ₾
+                                </span>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
-                      <div className="flex flex-col gap-2 mt-4">
+                      <div className="flex flex-col gap-2 mt-4 relative group">
                         <Button
-                          className="w-full bg-crimson hover:bg-crimson/90 text-white"
+                          className="w-full relative overflow-hidden bg-crimson/80 hover:bg-crimson/90 transition-all duration-300 text-white font-semibold text-base py-6 rounded-lg shadow-lg hover:shadow-xl hover:shadow-crimson/30 transform hover:-translate-y-0.5 border border-crimson/50"
                           size="lg"
                           onClick={() => navigate('/checkout')}
                         >
-                          {t('cart.checkout')}
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <span className="inline-block group-hover:animate-bounce">
+                              <ShoppingCart className="w-5 h-5" />
+                            </span>
+                            <span>{t('cart.checkout')}</span>
+                            <span className="inline-flex items-center ml-1">
+                              <span className="relative w-4 h-4 inline-flex items-center justify-center">
+                                <svg 
+                                  className="absolute inset-0 w-full h-full" 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  strokeWidth="2.5"
+                                  viewBox="0 0 24 24" 
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  style={{
+                                    animation: 'arrowPulse 1.5s ease-in-out infinite',
+                                    willChange: 'transform',
+                                    transformOrigin: 'center center'
+                                  }}
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                              </span>
+                            </span>
+                          </span>
+                          {/* Subtle shine effect */}
+                          <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </Button>
+                        {/* Subtle glow effect */}
+                        <div className="absolute -bottom-1 left-1/2 w-4/5 h-2 bg-crimson/20 blur-md -translate-x-1/2 group-hover:opacity-100 opacity-70 transition-opacity duration-300"></div>
                       </div>
                     </div>
                   </div>
@@ -572,13 +646,23 @@ const Navbar = () => {
               >
                 <Heart className="w-5 h-5" aria-hidden="true" />
                 {favorites.length > 0 && (
-                  <Badge
-                    variant="secondary"
-                    className="ml-2 bg-crimson text-white"
-                    aria-hidden="true"
-                  >
-                    {favorites.length}
-                  </Badge>
+                  <div className="absolute -top-2 -right-2">
+                    <div className="relative">
+                      <Badge
+                        variant="secondary"
+                        className="bg-crimson text-white relative z-10 animate-pulse"
+                        aria-hidden="true"
+                        style={{
+                          animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        }}
+                      >
+                        {favorites.length}
+                      </Badge>
+                      <div className="absolute inset-0 bg-crimson/50 rounded-full blur-[6px] -z-0 animate-ping-slow" style={{
+                        animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+                      }} />
+                    </div>
+                  </div>
                 )}
                 <span className="sr-only">
                   {favorites.length > 0
@@ -797,7 +881,7 @@ const Navbar = () => {
               className="flex items-center gap-2 group p-1 pr-4 rounded-full transition-colors hover:bg-gray-800/50"
             >
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gray-800 border-2 border-gray-600 overflow-hidden flex items-center justify-center group-hover:border-crimson/50 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-black border-2 border-crimson/50 overflow-hidden flex items-center justify-center group-hover:border-crimson transition-all duration-300 shadow-[0_0_10px_rgba(220,38,38,0.3)] hover:shadow-[0_0_15px_rgba(220,38,38,0.5)]">
                   {auth.user?.photoURL ? (
                     <>
                       <img
@@ -829,7 +913,7 @@ const Navbar = () => {
                         aria-hidden="true"
                       />
                       <div className="absolute inset-0 hidden items-center justify-center bg-gray-800">
-                        <User className="w-5 h-5 text-gray-300" />
+                        <User className="w-5 h-5 text-crimson" />
                       </div>
                     </>
                   ) : (
@@ -854,11 +938,11 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative h-10 w-10 p-0 rounded-full border-2 border-gray-600 hover:border-crimson/50 focus:outline-none focus:ring-2 focus:ring-crimson focus:ring-offset-2 focus:ring-offset-gray-900 overflow-hidden"
+                  className="relative h-10 w-10 p-0 rounded-full border-2 border-crimson/50 hover:border-crimson focus:outline-none focus:ring-2 focus:ring-crimson focus:ring-offset-2 focus:ring-offset-gray-900 overflow-hidden transition-all duration-300 shadow-[0_0_10px_rgba(220,38,38,0.3)] hover:shadow-[0_0_15px_rgba(220,38,38,0.5)]"
                   aria-label={t('auth.sign_in')}
                 >
-                  <div className="w-full h-full flex items-center justify-center bg-gray-800 rounded-full">
-                    <User className="w-5 h-5 text-gray-300" />
+                  <div className="w-full h-full flex items-center justify-center bg-black rounded-full group-hover:bg-gray-900 transition-colors duration-300">
+                    <User className="w-5 h-5 text-crimson group-hover:scale-110 transition-transform duration-300" />
                   </div>
                 </Button>
               </DialogTrigger>
@@ -892,4 +976,11 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+const NavbarWithStyles = () => (
+  <>
+    <GlobalStyles />
+    <Navbar />
+  </>
+);
+
+export default NavbarWithStyles;
