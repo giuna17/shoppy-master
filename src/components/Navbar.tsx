@@ -1,7 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Menu, X, User, Search, Gift, Heart, Star, ChevronDown, ChevronUp, Loader2, LogOut, UserCircle, Home, Package, ShoppingBag, Phone, Info, Gift as GiftIcon, MessageSquare, Check, X as XIcon, ChevronRight, ChevronLeft, Truck, HeartOff } from 'lucide-react';
+import {
+  ShoppingCart,
+  Menu,
+  X,
+  User,
+  Search,
+  Gift,
+  Heart,
+  Star,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  LogOut,
+  UserCircle,
+  Home,
+  Package,
+  ShoppingBag,
+  Phone,
+  Info,
+  Gift as GiftIcon,
+  MessageSquare,
+  Check,
+  X as XIcon,
+  ChevronRight,
+  ChevronLeft,
+  Truck,
+  HeartOff,
+  List,
+} from 'lucide-react';
 import styled, { keyframes } from 'styled-components';
 
 const shine = keyframes`
@@ -46,7 +74,7 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getProducts, type Product } from '@/services/productService';
+import { getProducts, getProductsByCategory, type Product } from '@/services/productService';
 import { useCartContext } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -110,7 +138,8 @@ const LoginForm = ({ onClose }: { onClose: () => void }) => {
 
 const GlobalStyles = styled.div`
   @keyframes arrowPulse {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateX(0);
     }
     50% {
@@ -137,20 +166,55 @@ const Navbar = () => {
   const [hasReviewDiscount, setHasReviewDiscount] = useState(false);
   const [showPromoDialog, setShowPromoDialog] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 
   const total = calculateTotal();
-  const { amount: discount, percentage: discountPercentage } = calculateDiscount();
+  const { amount: discount, percentage: discountPercentage } =
+    calculateDiscount();
   const { favorites, removeFromFavorites } = useFavorites();
   const allProducts = getProducts();
+  
+  // Get all unique categories from products
+  const categories = React.useMemo(() => {
+    return Array.from(
+      new Set([
+        'chokers',
+        'earrings',
+        'bracelets',
+        'rings',
+        'hairpins',
+        'candles',
+        'necklaces',
+        ...allProducts.map(p => p.category)
+      ].filter(Boolean))
+    ).sort();
+  }, [allProducts]);
+  
   const auth = useAuth();
   const { user } = auth;
   const navigate = useNavigate();
   const { t: translation } = useTranslation();
 
+  // Close categories when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (isCategoriesOpen && !target.closest('.categories-dropdown')) {
+        setIsCategoriesOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCategoriesOpen]);
+
   useEffect(() => {
     if (user) {
       const userDiscounts = getUserDiscounts(user.uid);
-      const reviewDiscount = userDiscounts.find(discount => discount.type === 'review' && !discount.isUsed);
+      const reviewDiscount = userDiscounts.find(
+        (discount) => discount.type === 'review' && !discount.isUsed,
+      );
       setHasReviewDiscount(!!reviewDiscount);
     }
   }, [user]);
@@ -172,16 +236,16 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-black shadow-sm h-[5.5rem]">
+    <nav className="sticky top-0 z-50 w-full border-b bg-black shadow-sm h-[5.5rem] categories-dropdown">
       <div className="container flex h-full items-center">
         {/* Left - Logo and Navigation */}
         <div className="flex items-center gap-6 flex-1">
           <Link
             to="/"
-            className="group relative flex items-center gap-3 focus:outline-none"
+            className="group relative flex items-center gap-3 focus:outline-none flex-shrink-0"
             aria-label={t('nav.home')}
           >
-            <div className="relative overflow-hidden rounded-full transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(234,56,76,0.6)] transform-gpu">
+            <div className="relative overflow-hidden rounded-full transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(234,56,76,0.6)] transform-gpu flex-shrink-0">
               <img
                 src="/lovable-uploads/nekos-logo.jpeg"
                 alt="NEKOSHOP Logo"
@@ -191,8 +255,8 @@ const Navbar = () => {
               <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-crimson/60 transition-all duration-300 group-hover:shadow-inner" />
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-transparent via-transparent to-crimson/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
-            <div className="relative">
-              <h1 className="text-[2.2rem] md:text-4xl font-bold tracking-tight relative font-medieval">
+            <div className="relative flex-shrink-0">
+              <h1 className="text-[2.2rem] md:text-4xl font-bold tracking-tight relative font-medieval whitespace-nowrap">
                 <span
                   className="text-crimson transition-all duration-300 group-hover:text-red-400"
                   aria-hidden="true"
@@ -203,11 +267,16 @@ const Navbar = () => {
                   className="text-white transition-all duration-300 group-hover:text-gray-200"
                   aria-hidden="true"
                 >
+                  {' '}
                   SHOP
                 </span>
                 <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="text-crimson animate-[pulse_1.5s_ease-in-out_infinite] drop-shadow-[0_0_8px_rgba(234,56,76,0.7)]">NEKO</span>
-                  <span className="text-white animate-[pulse_1.5s_ease-in-out_0.2s_infinite] drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">SHOP</span>
+                  <span className="text-crimson animate-[pulse_1.5s_ease-in-out_infinite] drop-shadow-[0_0_8px_rgba(234,56,76,0.7)]">
+                    NEKO
+                  </span>
+                  <span className="text-white animate-[pulse_1.5s_ease-in-out_0.2s_infinite] drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+                    SHOP
+                  </span>
                 </span>
               </h1>
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-crimson transition-all duration-300 group-hover:w-full" />
@@ -220,65 +289,261 @@ const Navbar = () => {
             <ul className="hidden md:flex items-center list-none p-0 m-0 space-x-1">
               {/* Navigation Items */}
               {[
-                { 
-                  type: 'link', 
-                  to: '/shop', 
-                  icon: <ShoppingBag className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />, 
-                  text: t('nav.shop') 
+                {
+                  type: 'link',
+                  to: '/shop',
+                  icon: (
+                    <ShoppingBag className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />
+                  ),
+                  text: t('nav.shop'),
+                  alwaysShow: true, // Always show text for Shop
                 },
-                { 
-                  type: 'button', 
-                  onClick: () => setIsDeliveryModalOpen(true), 
-                  icon: <Truck className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />, 
-                  text: t('cart.delivery').replace(':', '') 
+                {
+                  type: 'button',
+                  onClick: () => setIsCategoriesOpen(!isCategoriesOpen),
+                  icon: (
+                    <List className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />
+                  ),
+                  text: t('nav.categories'),
+                  alwaysShow: true,
+                  hasDropdown: true,
+                  isDropdownOpen: isCategoriesOpen,
                 },
-                { 
-                  type: 'link', 
-                  to: '/about', 
-                  icon: <Info className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />, 
-                  text: t('home.our_story') 
+                {
+                  type: 'button',
+                  onClick: () => setIsDeliveryModalOpen(true),
+                  icon: (
+                    <Truck className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />
+                  ),
+                  text: t('cart.delivery').replace(':', ''),
                 },
-                { 
-                  type: 'link', 
-                  to: '/contact', 
-                  icon: <Phone className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />, 
-                  text: t('nav.contact') 
+                {
+                  type: 'link',
+                  to: '/about',
+                  icon: (
+                    <Info className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />
+                  ),
+                  text: t('home.our_story'),
                 },
-                { 
-                  type: 'link', 
-                  to: '/faq', 
-                  icon: <MessageSquare className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />, 
-                  text: t('nav.faq') 
-                }
+                {
+                  type: 'link',
+                  to: '/contact',
+                  icon: (
+                    <Phone className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />
+                  ),
+                  text: t('nav.contact'),
+                },
+                {
+                  type: 'link',
+                  to: '/faq',
+                  icon: (
+                    <MessageSquare className="w-[1.25rem] h-[1.25rem] text-crimson group-hover:animate-bounce" />
+                  ),
+                  text: t('nav.faq'),
+                },
               ].map((item, index) => (
-                <li key={index} className="relative">
+                <li key={index} className="relative group/nav-item">
+                  {item.hasDropdown && isCategoriesOpen && categories.length > 0 && (
+                    <div 
+                      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                      onClick={() => setIsCategoriesOpen(false)}
+                    >
+                      <div 
+                        className="bg-black/70 backdrop-blur-sm rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-crimson/50 shadow-2xl shadow-crimson/10 transform transition-all duration-300 scale-95 hover:scale-100"
+                        onClick={e => e.stopPropagation()}
+                        style={{
+                          animation: 'fadeInUp 0.4s ease-out forwards',
+                          opacity: 0,
+                          transform: 'translateY(20px)'
+                        }}
+                      >
+                        <div className="relative p-8">
+                          {/* Top border */}
+                          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson/90 via-crimson/70 to-crimson/90" />
+                          
+                          {/* Header */}
+                          <div className="flex flex-col items-center mb-8">
+                            <h3 className="text-3xl font-bold text-white font-medieval tracking-wider mb-2">
+                              {t('product.categories')}
+                            </h3>
+                            <div className="w-24 h-1 bg-crimson/70 rounded-full" />
+                          </div>
+
+                          {/* Close button */}
+                          <button 
+                            onClick={() => setIsCategoriesOpen(false)}
+                            className="absolute top-6 right-6 text-gray-300 hover:text-white transition-colors duration-200"
+                            aria-label="Close"
+                          >
+                            <svg 
+                              className="w-8 h-8" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24" 
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={1.5} 
+                                d="M6 18L18 6M6 6l12 12" 
+                                className="transition-transform duration-200 hover:scale-110"
+                              />
+                            </svg>
+                          </button>
+
+                          {/* Categories grid */}
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {categories.filter(Boolean).map((category, index) => {
+                              const categoryProducts = getProductsByCategory(category);
+                              const itemCount = categoryProducts.length;
+                              const featuredProduct = categoryProducts[0];
+                              
+                              return (
+                                <Link
+                                  key={category}
+                                  to={`/shop?category=${encodeURIComponent(category || '')}`}
+                                  className="group relative overflow-hidden rounded-xl bg-black/50 backdrop-blur-sm border border-crimson/30 p-5 transition-all duration-300 hover:border-crimson/70 hover:shadow-lg hover:shadow-crimson/20 hover:scale-105 hover:z-10 h-48 flex flex-col justify-center"
+                                  onClick={() => setIsCategoriesOpen(false)}
+                                  style={{
+                                    animation: `fadeIn 0.4s ease-out ${index * 0.05}s forwards`,
+                                    opacity: 0,
+                                    transform: 'translateY(10px)',
+                                    ...(featuredProduct?.images?.[0] ? {
+                                      backgroundImage: `url(${featuredProduct.images[0]})`,
+                                      backgroundSize: 'cover',
+                                      backgroundPosition: 'center',
+                                      backgroundBlendMode: 'overlay',
+                                      backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                                    } : {})
+                                  }}
+                                >
+                                  <div className="absolute inset-0 bg-gradient-to-br from-crimson/5 to-crimson/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                  
+                                  <div className="relative z-10 flex flex-col items-center text-center">
+                                    {featuredProduct?.images?.[0] ? (
+                                      <div className="mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-sm border border-crimson/50 group-hover:border-crimson/70 transition-all duration-300 relative overflow-hidden">
+                                        <img 
+                                          src={featuredProduct.images[0]} 
+                                          alt={featuredProduct.name[language as keyof typeof featuredProduct.name] || category}
+                                          className="w-full h-full object-cover opacity-90"
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
+                                        <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-crimson/30 transition-all duration-500 group-hover:animate-ping" />
+                                      </div>
+                                    ) : (
+                                      <div className="mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 group-hover:border-crimson/50 transition-all duration-300 relative">
+                                        <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-crimson/30 transition-all duration-500 group-hover:animate-ping" />
+                                        <svg 
+                                          className="w-7 h-7 text-gray-300 group-hover:text-crimson transition-all duration-300 group-hover:scale-110" 
+                                          fill="none" 
+                                          stroke="currentColor" 
+                                          viewBox="0 0 24 24" 
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <path 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round" 
+                                            strokeWidth={1.5} 
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" 
+                                          />
+                                        </svg>
+                                      </div>
+                                    )}
+                                    
+                                    <span className="text-base font-semibold text-white group-hover:text-crimson transition-colors duration-300 mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                                      {t(`category.${category.toLowerCase()}`) || category}
+                                    </span>
+                                    
+                                    <span className="text-xs font-medium px-2 py-1 rounded-full bg-crimson/80 backdrop-blur-sm text-white group-hover:bg-crimson transition-colors duration-300">
+                                      {itemCount} {
+                                        itemCount === 1 ? t('products.one') :
+                                        itemCount < 5 ? t('products.few') :
+                                        t('products.many')
+                                      }
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+                                </Link>
+                              );
+                            })}
+                          </div>
+                          
+                          {/* Bottom border */}
+                          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-crimson/90 via-crimson/70 to-crimson/90" />
+                        </div>
+                        
+                        {/* Animations */}
+                        <style dangerouslySetInnerHTML={{
+                          __html: `
+                            @keyframes fadeInUp {
+                              from { opacity: 0; transform: translateY(20px); }
+                              to { opacity: 1; transform: translateY(0); }
+                            }
+                            
+                            @keyframes fadeIn {
+                              from { opacity: 0; transform: translateY(10px); }
+                              to { opacity: 1; transform: translateY(0); }
+                            }
+                          `
+                        }} />
+                      </div>
+                    </div>
+                  )}
                   {item.type === 'link' ? (
                     <Link
                       to={item.to}
-                      className="relative flex items-center gap-2 px-5 py-4 text-[1.05em] font-medium group"
+                      className={`relative flex items-center ${item.alwaysShow ? 'px-5' : 'px-3 hover:pr-5 hover:pl-5'} py-4 text-[1.05em] font-medium group overflow-hidden transition-all duration-300`}
                     >
-                      <span className="relative z-10 flex items-center gap-2 text-white/90 group-hover:text-white transition-colors duration-200">
-                        {item.icon}
-                        <span className="font-sans" style={{ fontFamily: '"Noto Sans Georgian", sans-serif' }}>
+                      <div className="relative z-10 flex items-center gap-2 text-white/90 group-hover:text-white transition-all duration-300">
+                        <span
+                          className={`flex-shrink-0 ${!item.alwaysShow ? 'group-hover/nav-item:mr-2 transition-all duration-300' : ''}`}
+                        >
+                          {item.icon}
+                        </span>
+                        <span
+                          className={`font-sans whitespace-nowrap transition-all duration-300 transform ${
+                            item.alwaysShow
+                              ? 'opacity-100'
+                              : 'opacity-0 max-w-0 group-hover/nav-item:opacity-100 group-hover/nav-item:max-w-[200px] group-hover/nav-item:mr-2'
+                          }`}
+                          style={{
+                            fontFamily: '"Noto Sans Georgian", sans-serif',
+                          }}
+                        >
                           {item.text}
                         </span>
-                      </span>
+                      </div>
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-crimson/20" />
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-crimson transition-all duration-300 group-hover:w-full" />
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-crimson transition-all duration-300 group-hover/nav-item:w-full" />
                     </Link>
                   ) : (
                     <button
                       onClick={item.onClick}
-                      className="relative flex items-center gap-2 px-5 py-4 text-[1.05em] font-medium group w-full text-left"
+                      className={`relative flex items-center ${item.alwaysShow ? 'px-5' : 'px-3 hover:pr-5 hover:pl-5'} py-4 text-[1.05em] font-medium group overflow-hidden transition-all duration-300 w-full text-left`}
                     >
-                      <span className="relative z-10 flex items-center gap-2 text-white/90 group-hover:text-white transition-colors duration-200">
-                        {item.icon}
-                        <span className="font-sans" style={{ fontFamily: '"Noto Sans Georgian", sans-serif' }}>
+                      <div className="relative z-10 flex items-center gap-2 text-white/90 group-hover:text-white transition-all duration-300">
+                        <span
+                          className={`flex-shrink-0 ${!item.alwaysShow ? 'group-hover/nav-item:mr-2 transition-all duration-300' : ''}`}
+                        >
+                          {item.icon}
+                        </span>
+                        <span
+                          className={`font-sans whitespace-nowrap transition-all duration-300 transform ${
+                            item.alwaysShow
+                              ? 'opacity-100'
+                              : 'opacity-0 max-w-0 group-hover/nav-item:opacity-100 group-hover/nav-item:max-w-[200px] group-hover/nav-item:mr-2'
+                          }`}
+                          style={{
+                            fontFamily: '"Noto Sans Georgian", sans-serif',
+                          }}
+                        >
                           {item.text}
                         </span>
-                      </span>
+                      </div>
                       <span className="absolute bottom-0 left-0 w-full h-0.5 bg-crimson/20" />
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-crimson transition-all duration-300 group-hover:w-full" />
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-crimson transition-all duration-300 group-hover/nav-item:w-full" />
                     </button>
                   )}
                 </li>
@@ -297,8 +562,8 @@ const Navbar = () => {
           {/* Promo Code */}
           <Dialog open={showPromoDialog} onOpenChange={setShowPromoDialog}>
             <DialogTrigger asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="relative group/promo h-12 px-4 py-3 focus:outline-none transition-all duration-300 overflow-hidden"
                 aria-label={t('promo.have_code')}
               >
@@ -307,28 +572,29 @@ const Navbar = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-crimson via-pink-500 to-crimson bg-[length:200%_100%] animate-gradient-xy rounded-lg opacity-100 transition-all duration-500 group-hover:opacity-90" />
                   <div className="absolute inset-[1.5px] bg-gray-950/95 rounded-lg backdrop-blur-sm transition-all duration-300 group-hover:bg-gray-900/95" />
                 </div>
-                
+
                 {/* Main content */}
                 <div className="relative z-10 flex items-center gap-2">
                   <div className="relative">
                     <Gift className="w-5 h-5 flex-shrink-0 relative z-10 transition-all duration-300 group-hover/promo:scale-110 group-hover/promo:rotate-[-15deg] text-crimson-300" />
-                    <div 
-                    className="absolute inset-0 rounded-full bg-crimson/30 blur-[2px]" 
-                    style={{
-                      animation: 'subtlePulse 3s ease-in-out infinite',
-                      opacity: 0.3
-                    }}
-                  />
-                  </div>
-                  <span className="text-sm font-medium whitespace-nowrap hidden md:inline-block relative">
-                    <span 
-                      className="relative z-10 text-crimson-200 group-hover/promo:text-white transition-all duration-300 inline-block"
+                    <div
+                      className="absolute inset-0 rounded-full bg-crimson/30 blur-[2px]"
                       style={{
                         animation: 'subtlePulse 3s ease-in-out infinite',
-                        textShadow: '0 0 8px rgba(220, 38, 38, 0.5)'
+                        opacity: 0.3,
+                      }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium whitespace-nowrap hidden md:inline-block relative">
+                    <span
+                      className="relative z-10 text-crimson-200 group-hover/promo:text-white transition-all duration-300 inline-flex items-center gap-1"
+                      style={{
+                        animation: 'subtlePulse 3s ease-in-out infinite',
+                        textShadow: '0 0 8px rgba(220, 38, 38, 0.5)',
                       }}
                     >
-                      !
+                      <span className="text-sm font-medium">{t('promo.discount')}</span>
+                      <span className="text-lg font-bold">!</span>
                     </span>
                     <style>{`
                       @keyframes subtlePulse {
@@ -340,16 +606,16 @@ const Navbar = () => {
                     <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gradient-to-r from-crimson to-pink-500 transition-all duration-300 group-hover/promo:w-full" />
                   </span>
                 </div>
-                
+
                 {/* Subtle glow effect on hover/focus */}
                 <div className="absolute inset-0 -z-10 rounded-lg overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-crimson/10 via-pink-500/10 to-crimson/10 opacity-0 group-hover/promo:opacity-100 transition-opacity duration-300" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(220,38,38,0.15)_70%,transparent_100%)] opacity-0 group-hover/promo:opacity-100 transition-opacity duration-500" />
                 </div>
-                
+
                 {/* Sparkle effect - always active */}
                 <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-crimson blur-[2px] animate-ping-slow" />
-                
+
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-crimson/5 to-transparent opacity-0 group-hover/promo:opacity-100 transition-opacity duration-300" />
               </Button>
@@ -357,17 +623,20 @@ const Navbar = () => {
             <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-gray-900 to-black border border-crimson/50 overflow-hidden shadow-2xl">
               {/* Animated background elements */}
               <div className="absolute -top-20 -right-20 w-60 h-60 bg-crimson/10 rounded-full filter blur-3xl animate-pulse" />
-              <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-crimson/5 rounded-full filter blur-3xl animate-pulse" style={{
-                animationDelay: '1s',
-                animationDuration: '4s'
-              }} />
-              
+              <div
+                className="absolute -bottom-20 -left-20 w-60 h-60 bg-crimson/5 rounded-full filter blur-3xl animate-pulse"
+                style={{
+                  animationDelay: '1s',
+                  animationDuration: '4s',
+                }}
+              />
+
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-crimson to-pink-500 bg-clip-text text-transparent">
                   {t('promo.want_discount')}
                 </DialogTitle>
               </DialogHeader>
-              
+
               <div className="relative z-10 space-y-6 py-2">
                 {/* Promo Code Input */}
                 <div className="bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-crimson/30">
@@ -377,9 +646,7 @@ const Navbar = () => {
                       placeholder={t('nav.enter_promo')}
                       className="flex-1 px-4 py-3 bg-gray-900/80 border border-crimson/30 rounded-lg text-white placeholder-crimson-200/50 focus:outline-none focus:ring-2 focus:ring-crimson/50 focus:border-crimson/50 transition-all duration-300"
                     />
-                    <Button 
-                      className="ml-3 bg-gradient-to-r from-crimson to-crimson/80 hover:from-crimson hover:to-crimson/90 transition-all duration-300 transform hover:scale-105 active:scale-95 px-6 font-medium shadow-lg shadow-crimson/20"
-                    >
+                    <Button className="ml-3 bg-gradient-to-r from-crimson to-crimson/80 hover:from-crimson hover:to-crimson/90 transition-all duration-300 transform hover:scale-105 active:scale-95 px-6 font-medium shadow-lg shadow-crimson/20">
                       {t('common.apply')}
                     </Button>
                   </div>
@@ -395,29 +662,51 @@ const Navbar = () => {
                       {t('promo.follow_us_for_discounts')}
                     </p>
                     <div className="flex gap-4 mt-4">
-                      <a 
+                      <a
                         href="https://www.facebook.com/NekosShopy"
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 transition-all duration-300 group border border-blue-500/30"
                         aria-label={t('promo.facebook')}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <svg className="w-5 h-5 text-blue-300 group-hover:text-blue-200 transition-colors" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
+                        <svg
+                          className="w-5 h-5 text-blue-300 group-hover:text-blue-200 transition-colors"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
+                            clipRule="evenodd"
+                          />
                         </svg>
-                        <span className="text-sm font-medium text-white">{t('promo.facebook')}</span>
+                        <span className="text-sm font-medium text-white">
+                          {t('promo.facebook')}
+                        </span>
                       </a>
-                      <a 
+                      <a
                         href="https://www.instagram.com/nekosshop/"
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-br from-pink-600/20 to-purple-600/20 hover:from-pink-600/30 hover:to-purple-600/30 transition-all duration-300 group border border-pink-500/30"
                         aria-label={t('promo.instagram')}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <svg className="w-5 h-5 text-pink-300 group-hover:text-pink-200 transition-colors" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.415-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.067-.06-1.407-.06-4.123v-.08c0-2.643.012-2.987.06-4.043.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.976.045-1.505.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.352-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.976.207 1.505.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.352.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.352.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
+                        <svg
+                          className="w-5 h-5 text-pink-300 group-hover:text-pink-200 transition-colors"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.415-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.067-.06-1.407-.06-4.123v-.08c0-2.643.012-2.987.06-4.043.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.976.045-1.505.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.352-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.976.207 1.505.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.352.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.352.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"
+                            clipRule="evenodd"
+                          />
                         </svg>
-                        <span className="text-sm font-medium text-white">{t('promo.instagram')}</span>
+                        <span className="text-sm font-medium text-white">
+                          {t('promo.instagram')}
+                        </span>
                       </a>
                     </div>
                   </div>
@@ -425,29 +714,46 @@ const Navbar = () => {
                   {/* Discount Information */}
                   <div className="p-5 bg-black/30 rounded-xl border border-crimson/20 hover:border-crimson/30 transition-colors">
                     <h3 className="text-lg font-semibold text-crimson-200 mb-4 flex items-center">
-                      <svg className="w-5 h-5 mr-2 text-crimson-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path>
+                      <svg
+                        className="w-5 h-5 mr-2 text-crimson-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+                        ></path>
                       </svg>
                       {t('promo.discount_info_title')}
                     </h3>
                     <div className="space-y-3 text-sm">
                       <p className="text-crimson-100 flex items-start">
-                        <span className="text-crimson-300 font-medium mr-2">•</span>
+                        <span className="text-crimson-300 font-medium mr-2">
+                          •
+                        </span>
                         <span>{t('promo.over_500')}</span>
                       </p>
                       <p className="text-crimson-100 flex items-start">
-                        <span className="text-crimson-300 font-medium mr-2">•</span>
+                        <span className="text-crimson-300 font-medium mr-2">
+                          •
+                        </span>
                         <span>{t('promo.over_200')}</span>
                       </p>
                       <p className="text-crimson-100 flex items-start">
-                        <span className="text-crimson-300 font-medium mr-2">•</span>
+                        <span className="text-crimson-300 font-medium mr-2">
+                          •
+                        </span>
                         <span>{t('promo.over_100')}</span>
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-crimson/10 rounded-full filter blur-xl opacity-70"></div>
               <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-crimson/5 rounded-full filter blur-xl opacity-50"></div>
@@ -472,14 +778,19 @@ const Navbar = () => {
                         className="bg-crimson text-white relative z-10 animate-pulse"
                         aria-hidden="true"
                         style={{
-                          animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                          animation:
+                            'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         }}
                       >
                         {totalItems}
                       </Badge>
-                      <div className="absolute inset-0 bg-crimson/50 rounded-full blur-[6px] -z-0 animate-ping-slow" style={{
-                        animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-                      }} />
+                      <div
+                        className="absolute inset-0 bg-crimson/50 rounded-full blur-[6px] -z-0 animate-ping-slow"
+                        style={{
+                          animation:
+                            'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+                        }}
+                      />
                     </div>
                   </div>
                 )}
@@ -530,10 +841,7 @@ const Navbar = () => {
                     <div className="flex-1 overflow-y-auto p-4">
                       <div className="space-y-2 pr-2">
                         {cart.map((item) => (
-                          <div
-                            key={item.product.id}
-                            className="pb-4 last:pb-0"
-                          >
+                          <div key={item.product.id} className="pb-4 last:pb-0">
                             <CartItem item={item} />
                           </div>
                         ))}
@@ -545,13 +853,14 @@ const Navbar = () => {
                       <div className="space-y-3">
                         {(() => {
                           const subtotal = cart.reduce(
-                            (total, item) => total + item.product.price * item.quantity,
+                            (total, item) =>
+                              total + item.product.price * item.quantity,
                             0,
                           );
                           const deliveryCost = subtotal >= 100 ? 0 : 5;
                           let discount = 0;
                           let discountPercentage = 0;
-                          
+
                           if (subtotal >= 500) {
                             discount = subtotal * 0.1;
                             discountPercentage = 10;
@@ -559,9 +868,9 @@ const Navbar = () => {
                             discount = subtotal * 0.05;
                             discountPercentage = 5;
                           }
-                          
+
                           const total = subtotal - discount + deliveryCost;
-                          
+
                           return (
                             <>
                               {/* Delivery cost */}
@@ -571,7 +880,7 @@ const Navbar = () => {
                                   <span>{deliveryCost} ₾</span>
                                 </div>
                               )}
-                              
+
                               {/* Discount */}
                               {discount > 0 && (
                                 <div className="flex justify-between text-green-500 text-sm">
@@ -579,7 +888,7 @@ const Navbar = () => {
                                   <span>-{discount.toFixed(2)} ₾</span>
                                 </div>
                               )}
-                              
+
                               {/* Total */}
                               <div className="flex justify-between text-lg font-bold mt-3 pt-3 border-t border-gray-700">
                                 <span>{t('cart.total')}:</span>
@@ -604,20 +913,25 @@ const Navbar = () => {
                             <span>{t('cart.checkout')}</span>
                             <span className="inline-flex items-center ml-1">
                               <span className="relative w-4 h-4 inline-flex items-center justify-center">
-                                <svg 
-                                  className="absolute inset-0 w-full h-full" 
-                                  fill="none" 
-                                  stroke="currentColor" 
+                                <svg
+                                  className="absolute inset-0 w-full h-full"
+                                  fill="none"
+                                  stroke="currentColor"
                                   strokeWidth="2.5"
-                                  viewBox="0 0 24 24" 
+                                  viewBox="0 0 24 24"
                                   xmlns="http://www.w3.org/2000/svg"
                                   style={{
-                                    animation: 'arrowPulse 1.5s ease-in-out infinite',
+                                    animation:
+                                      'arrowPulse 1.5s ease-in-out infinite',
                                     willChange: 'transform',
-                                    transformOrigin: 'center center'
+                                    transformOrigin: 'center center',
                                   }}
                                 >
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                  ></path>
                                 </svg>
                               </span>
                             </span>
@@ -653,14 +967,19 @@ const Navbar = () => {
                         className="bg-crimson text-white relative z-10 animate-pulse"
                         aria-hidden="true"
                         style={{
-                          animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                          animation:
+                            'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         }}
                       >
                         {favorites.length}
                       </Badge>
-                      <div className="absolute inset-0 bg-crimson/50 rounded-full blur-[6px] -z-0 animate-ping-slow" style={{
-                        animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-                      }} />
+                      <div
+                        className="absolute inset-0 bg-crimson/50 rounded-full blur-[6px] -z-0 animate-ping-slow"
+                        style={{
+                          animation:
+                            'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+                        }}
+                      />
                     </div>
                   </div>
                 )}
@@ -876,8 +1195,8 @@ const Navbar = () => {
 
           {/* User Profile */}
           {auth.user ? (
-            <Link 
-              to="/profile" 
+            <Link
+              to="/profile"
               className="flex items-center gap-2 group p-1 pr-4 rounded-full transition-colors hover:bg-gray-800/50"
             >
               <div className="relative">
@@ -959,6 +1278,55 @@ const Navbar = () => {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 bg-black/90 backdrop-blur-sm transition-all duration-300 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="relative w-full h-full p-6">
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="absolute top-4 right-4 text-white hover:text-crimson transition-colors"
+            aria-label="Close menu"
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          <div className="h-full flex flex-col justify-center items-center space-y-8">
+            <h2 className="text-3xl font-bold text-crimson mb-8">МАГАЗИН</h2>
+
+            <nav className="w-full">
+              <ul className="space-y-6 text-center">
+                {[
+                  { to: '/shop', text: t('nav.shop') },
+                  { to: '/about', text: t('home.our_story') },
+                  { to: '/contact', text: t('nav.contact') },
+                  { to: '/faq', text: t('nav.faq') },
+                ].map((item, index) => (
+                  <li key={index}>
+                    <Link
+                      to={item.to}
+                      className="text-2xl text-white hover:text-crimson transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item.text}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu Toggle */}
+      <button
+        onClick={() => setIsMobileMenuOpen(true)}
+        className="md:hidden ml-4 p-2 text-white hover:text-crimson transition-colors"
+        aria-label="Open menu"
+      >
+        <Menu className="w-8 h-8" />
+      </button>
 
       <DiscountInfo
         isOpen={isDiscountModalOpen}

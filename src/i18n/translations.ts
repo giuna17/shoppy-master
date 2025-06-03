@@ -42,6 +42,11 @@ const translations: Translations = {
     en: 'Promo Code',
     ge: 'პრომო კოდი',
   },
+  'promo.discount': {
+    ru: 'скидка',
+    en: 'sale',
+    ge: 'ფასდაკლება',
+  },
   'nav.enter_promo': {
     ru: 'Ввести промокод',
     en: 'Enter Promo Code',
