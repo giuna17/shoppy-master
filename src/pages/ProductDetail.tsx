@@ -318,9 +318,11 @@ const ProductDetail = () => {
           {/* Product Info */}
           <div className="space-y-4 text-[0.92em] pl-[calc((100%-1280px)/2+100px-20%)] pr-8 mt-[2.5%] min-h-[calc(100%+3%)] w-[calc(100%+50px)]">
             <div>
-              <h1 className="text-[2.3em] font-bold text-crimson mb-1">
+              <div className="relative overflow-hidden">
+              <h1 className="text-[2.53em] font-black text-crimson mb-4">
                 {product.name[language]}
               </h1>
+            </div>
               <div className="flex items-center gap-4 mt-8">
                 <Button
                   variant="outline"
@@ -355,32 +357,56 @@ const ProductDetail = () => {
                 )}
               </div>
               <div>
-                <p className="text-[0.92em] text-foreground/80">
-                  {product.description[
-                    language as keyof typeof product.description
-                  ] || product.description['en']}
-                </p>
-                <button 
-                  onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
-                  className="mt-2 text-sm text-crimson hover:underline flex items-center gap-1 transition-colors"
-                  aria-expanded={isDetailsExpanded}
-                  aria-controls="product-details"
-                >
-                  {isDetailsExpanded ? t('product.hide_details') : t('product.details')}
-                  <ChevronDown className={`w-4 h-4 transition-transform ${isDetailsExpanded ? 'rotate-180' : ''}`} />
-                </button>
-                <div 
-                  id="product-details"
-                  className={`overflow-hidden transition-all duration-300 ${isDetailsExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                >
-                  <div className="border-t border-border pt-4 mt-3">
-                    <h3 className="text-lg font-bold mb-3">{t('product.details')}</h3>
-                    <ul className="space-y-2 text-foreground/80">
-                      <li>{t('product.details.handmade')}</li>
-                      <li>{t('product.details.style')}</li>
-                      <li>{t('product.details.made_by')}</li>
-                      <li>{t('product.details.quality')}</li>
-                    </ul>
+                <div className="relative overflow-hidden">
+                  <p 
+                    className="text-[1.1em] text-foreground/80 leading-relaxed transition-all duration-500 transform hover:translate-x-1 hover:text-foreground/90"
+                    style={{ lineHeight: '1.6' }}
+                  >
+                    <span className="inline-block transition-all duration-300 hover:bg-gradient-to-r hover:from-transparent hover:to-crimson/5 px-2 -mx-2 py-1 rounded">
+                      {product.description[
+                        language as keyof typeof product.description
+                      ] || product.description['en']}
+                    </span>
+                  </p>
+                </div>
+                <div className="space-y-3 mt-3">
+                  <div className="relative inline-block">
+                    <button 
+                      onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                      className="group relative px-4 py-2 bg-black/80 hover:bg-black/90 text-white rounded-md transition-all duration-300 overflow-hidden border border-red-900/30 hover:border-red-500/50"
+                      aria-expanded={isDetailsExpanded}
+                      aria-controls="product-details"
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        <span className="font-medium">
+                          {isDetailsExpanded ? t('product.hide_details') : t('product.details')}
+                        </span>
+                        <ChevronDown 
+                          className={`w-4 h-4 transition-transform duration-300 ${isDetailsExpanded ? 'rotate-180' : ''}`} 
+                        />
+                      </span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-red-900/30 via-transparent to-red-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    </button>
+                  </div>
+                  <div 
+                    id="product-details"
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${isDetailsExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                  >
+                    <div className="space-y-3 text-white/80 pl-1 pt-2">
+                      <div className="font-light tracking-wide hover:text-white/90 transition-colors duration-200">
+                        {t('product.detail_1')}
+                      </div>
+                      <div className="font-light tracking-wide hover:text-white/90 transition-colors duration-200">
+                        {t('product.detail_2')}
+                      </div>
+                      <div className="font-light tracking-wide hover:text-white/90 transition-colors duration-200">
+                        {t('product.detail_3')}
+                      </div>
+                      <div className="font-light tracking-wide hover:text-white/90 transition-colors duration-200">
+                        {t('product.detail_4')}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -407,37 +433,58 @@ const ProductDetail = () => {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`inline-flex items-center px-4 py-1.5 rounded-md text-sm font-medium ${remainingStock > 2 ? 'bg-[#8B0000]/80 text-white' : 'bg-[#8B0000]/80 text-white'}`}
-                  >
-                    {remainingStock > 0
-                      ? t('product.in_stock')
-                      : t('product.out_of_stock')}
-                  </div>
-                  {remainingStock > 0 && (
-                    <div className="text-sm font-medium text-foreground/80 px-1">
-                      {t('product.remaining_stock', { count: remainingStock })}
+                <div className="flex items-center">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-900 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                    <div className="relative px-4 py-2 bg-black/80 rounded-lg ring-1 ring-red-900/50 backdrop-blur-sm">
+                      <div className="flex items-center gap-2">
+                        {remainingStock > 0 ? (
+                          <>
+                            <span className="relative flex h-3 w-3">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            </span>
+                            <span className="font-medium text-white/90">
+                              {t('product.in_stock')}: <span className="font-bold text-white">{remainingStock}</span>
+                            </span>
+                          </>
+                        ) : (
+                          <span className="flex items-center gap-2 text-white/70">
+                            <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                            {t('product.out_of_stock')}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
               {remainingStock > 0 ? (
                 <>
                   <Button
-                    className="w-full bg-crimson hover:bg-crimson/90 text-black font-medium py-6 text-lg relative"
+                    className="w-full bg-[#8B000066] hover:bg-[#8B000099] text-white font-medium py-6 text-lg relative overflow-hidden group transition-all duration-300 border border-red-900/30 hover:border-red-900/50"
                     onClick={handleAddToCart}
                     disabled={remainingStock <= 0}
                   >
-                    {/* Background cart icon */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                      <ShoppingCart className="w-10 h-10" />
-                    </div>
-                    <span className="relative z-10 flex items-center">
-                      <ShoppingCart className="mr-2 h-5 w-5" />{' '}
-                      {t('product.add_to_cart')}
+                    {/* Animated border effect */}
+                    <span className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nNjAwJyBoZWlnaHQ9JzM1JyB2aWV3Qm94PScwIDAgNjAwIDM1JyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxkZWZzPjxwYXR0ZXJuIGlkPSd0ZXh0dXJlJyBwYXR0ZXJuVW5pdHM9J3VzZXJTcGFjZU9uVXNlJyB3aWR0aD0nNjAwJyBoZWlnaHQ9JzM1Jz48cGF0aCBkPSdNIDAgMCBMIDAgMzUnIGZpbGw9J25vbmUnIHN0cm9rZT0ncmdiYSgyNTUsMjU1LDI1NSwwLjEpJyBzdHJva2Utd2lkdGg9JzAuNScvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9JzEwMCUnIGhlaWdodD0nMTAwJScgZmlsbD0ndXJsKCN0ZXh0dXJlKScvPjwvc3ZnPg==')] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></span>
+                    
+                    {/* Main button content */}
+                    <span className="relative z-10 flex items-center justify-center gap-3">
+                      <span className="relative">
+                        <ShoppingCart className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                        {remainingStock > 0 && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        )}
+                      </span>
+                      <span className="font-semibold tracking-wide">
+                        {t('product.add_to_cart')}
+                      </span>
                     </span>
+                    
+                    {/* Glow effect */}
+                    <span className="absolute inset-0 bg-gradient-to-r from-red-900/20 via-transparent to-red-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
                   </Button>
                 </>
               ) : (
@@ -465,7 +512,7 @@ const ProductDetail = () => {
         )}
 
         {/* Reviews Section */}
-        <div className="max-w-6xl mx-auto -mt-[5%] relative z-10">
+        <div className="max-w-6xl mx-auto mt-8 relative z-10">
           <div className="border-t border-border pt-6 pb-4">
 
             {/* Review Form */}

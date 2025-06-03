@@ -10,6 +10,24 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCartContext } from '@/contexts/CartContext';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
+import styled, { keyframes } from 'styled-components';
+
+// Animation keyframes
+const shimmer = keyframes`
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+`;
+
+const ping = keyframes`
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+`;
 
 // Add custom animation styles
 document.head.insertAdjacentHTML('beforeend', `
@@ -29,6 +47,48 @@ document.head.insertAdjacentHTML('beforeend', `
     }
     .animate-slow-ping {
       animation: slowPing 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    .animate-ping-slow {
+      animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    .animate-pulse-slow {
+      animation: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes move-right {
+      0% { transform: translateX(-100%); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateX(100vw); opacity: 0; }
+    }
+    .animate-float {
+      animation: float 4s ease-in-out infinite;
+    }
+    .animate-move-right {
+      animation: move-right 8s linear infinite;
+    }
+    .delay-500 {
+      animation-delay: 0.5s;
+    }
+    .delay-1000 {
+      animation-delay: 1s;
+    }
+    .animate-spin-slow {
+      animation: spin 3s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spin-reverse {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+    .animate-spin-slow-reverse {
+      animation: spin-reverse 4s linear infinite;
     }
   </style>
 `);
@@ -207,10 +267,34 @@ const Index = () => {
         {/* Content */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="container mx-auto text-center relative z-10">
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-4 relative z-10 font-medieval">
-              <span className="text-crimson">Pawmade</span>{' '}
-              <span className="text-white">Oddities</span>
-            </h1>
+            <div className="relative inline-block">
+              {/* Animated background elements */}
+              <div className="absolute -top-12 -left-12 w-32 h-32 rounded-full bg-crimson/10 blur-3xl animate-pulse-slow"></div>
+              <div className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full bg-crimson/5 blur-2xl animate-pulse-slow delay-1000"></div>
+              
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-6 relative z-10 font-medieval">
+                {/* Animated decorative elements */}
+                <div className="absolute -left-16 -top-8 w-8 h-8 rounded-full bg-crimson/20 blur-md animate-float"></div>
+                <div className="absolute -right-12 -bottom-4 w-6 h-6 rounded-full bg-crimson/15 blur-sm animate-float delay-500"></div>
+                
+                <div className="relative inline-block">
+                  <span className="relative">
+                    <span className="relative z-10 text-crimson drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                      Pawmade
+                    </span>
+                    {' '}
+                    <span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                      Oddities
+                    </span>
+                  </span>
+                  
+                  {/* Animated underline */}
+                  <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-crimson/60 to-transparent">
+                    <span className="absolute top-0 left-0 w-8 h-full bg-crimson/80 blur-sm animate-move-right"></span>
+                  </span>
+                </div>
+              </h1>
+            </div>
             <p className="text-xl text-foreground/80 max-w-2xl mx-auto mb-8">
               {t('home.subtitle')}
             </p>
@@ -325,19 +409,26 @@ const Index = () => {
                         boxShadow: `${showDiscounted && !isCategoriesModalOpen ? '0 0 15px rgba(220, 38, 38, 0.3)' : 'none'}`
                       }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-crimson/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" 
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-crimson/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" 
                            style={{
-                             animation: 'shimmer 3s infinite linear',
+                             animation: 'shimmer 8s infinite linear',
                              backgroundImage: 'linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.2) 50%, transparent)'
                            }}
                       ></div>
-                      <span className={`relative z-10 transition-all duration-300 ${showDiscounted && !isCategoriesModalOpen ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
+                      <span className={`relative z-10 transition-all duration-500 ${showDiscounted && !isCategoriesModalOpen ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
                         {t('product.discounts')}
                       </span>
                       {discountedProducts.length > 0 && (
-                        <span className="relative z-10 bg-red-900/80 text-white text-sm font-bold px-2.5 py-0.5 rounded-full flex items-center justify-center min-w-6 h-6 transform transition-all duration-300 group-hover:scale-110 animate-slow-pulse">
-                          {discountedProducts.length}
-                          <span className="absolute inset-0 rounded-full bg-red-900/80 opacity-70 animate-slow-ping"></span>
+                        <span className="relative z-10 bg-red-900/80 text-white text-sm font-bold px-2.5 py-0.5 rounded-full flex items-center justify-center min-w-6 h-6 transform transition-all duration-500 group-hover:scale-110">
+                          <span className="relative z-20">
+                            {discountedProducts.length}
+                          </span>
+                          <span className="absolute inset-0 rounded-full bg-red-900/80 opacity-70" 
+                                style={{
+                                  animation: 'ping 3s cubic-bezier(0, 0, 0.2, 1) infinite',
+                                  animationDelay: '2s'
+                                }}>
+                          </span>
                         </span>
                       )}
                       <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-crimson to-transparent ${showDiscounted && !isCategoriesModalOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-70'} transition-opacity duration-500`}></div>

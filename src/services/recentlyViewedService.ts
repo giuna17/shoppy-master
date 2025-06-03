@@ -31,35 +31,38 @@ export const recentlyViewedService = {
     if (userId === 'guest') {
       // Handle guest users with localStorage
       const storageKey = getStorageKey();
-      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      const existingIndex = items.findIndex((item: any) => item.productId === productId);
+      let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
       
-      if (existingIndex >= 0) {
-        // Update existing item
-        items[existingIndex] = {
-          ...items[existingIndex],
-          timestamp: Date.now(),
-          viewCount: (items[existingIndex].viewCount || 0) + 1,
-          isFavorite: isFavorite || items[existingIndex].isFavorite
-        };
-      } else {
-        // Add new item
-        items.unshift({
-          productId,
-          userId,
-          timestamp: Date.now(),
-          viewCount: 1,
-          isFavorite
-        });
-        
-        // Keep only the most recent items
-        const recentItems = items
-          .sort((a: any, b: any) => b.timestamp - a.timestamp)
-          .slice(0, MAX_ITEMS);
-        
-        localStorage.setItem(storageKey, JSON.stringify(recentItems));
-        return;
+      // Remove any existing entries with the same productId to prevent duplicates
+      items = items.filter((item: any) => item.productId !== productId);
+      
+      // Add new item at the beginning of the array
+      items.unshift({
+        productId,
+        userId,
+        timestamp: Date.now(),
+        viewCount: 1,
+        isFavorite
+      });
+      
+      // Keep only the most recent items and ensure uniqueness
+      const uniqueItems = [];
+      const productIds = new Set();
+      
+      for (const item of items) {
+        if (!productIds.has(item.productId)) {
+          productIds.add(item.productId);
+          uniqueItems.push(item);
+        }
       }
+      
+      // Keep only the most recent items up to MAX_ITEMS
+      const recentItems = uniqueItems
+        .sort((a: any, b: any) => b.timestamp - a.timestamp)
+        .slice(0, MAX_ITEMS);
+      
+      localStorage.setItem(storageKey, JSON.stringify(recentItems));
+      return;
     }
     
     // Handle authenticated users with Firestore

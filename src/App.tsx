@@ -7,6 +7,8 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { CartProvider } from './contexts/CartContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import Preloader from './components/Preloader';
 import Index from './pages/Index';
 import Shop from './pages/Shop';
 import About from './pages/About';
@@ -25,45 +27,62 @@ import Layout from './components/Layout';
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <ScrollToTop />
-                <Layout>
-                  <div id="main" className="min-h-screen flex flex-col">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/shop" element={<Shop />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/product/:id" element={<ProductDetail />} />
-                      <Route
-                        path="/category/:categoryName"
-                        element={<CategoryPage />}
-                      />
-                      <Route path="/reviews" element={<ReviewsPage />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/faq" element={<FAQ />} />
-                      <Route path="/checkout" element={<Checkout />} />
-                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </div>
-                </Layout>
-              </BrowserRouter>
-            </FavoritesProvider>
-          </CartProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Имитация загрузки данных
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <Preloader />;
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <CartProvider>
+              <FavoritesProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <ScrollToTop />
+                  <Layout>
+                    <div id="main" className="min-h-screen flex flex-col">
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/shop" element={<Shop />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/product/:id" element={<ProductDetail />} />
+                        <Route
+                          path="/category/:categoryName"
+                          element={<CategoryPage />}
+                        />
+                        <Route path="/reviews" element={<ReviewsPage />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/faq" element={<FAQ />} />
+                        <Route path="/checkout" element={<Checkout />} />
+                        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </div>
+                  </Layout>
+                </BrowserRouter>
+              </FavoritesProvider>
+            </CartProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

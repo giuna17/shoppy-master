@@ -6,29 +6,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Languages } from 'lucide-react';
 
 type Language = {
   code: string;
   name: string;
-  flag: string;
+  displayCode: string;
 };
 
 const languages: Language[] = [
   {
     code: 'ru',
     name: 'Русский',
-    flag: '🇷🇺',
+    displayCode: 'RU',
   },
   {
     code: 'en',
     name: 'English',
-    flag: '🇬🇧',
+    displayCode: 'EN',
   },
   {
     code: 'ge',
     name: 'ქართული',
-    flag: '🇬🇪',
+    displayCode: 'GE',
   },
 ];
 
@@ -41,8 +40,7 @@ const LanguageSwitcher = ({
   currentLanguage,
   onLanguageChange,
 }: LanguageSwitcherProps) => {
-  const current =
-    languages.find((lang) => lang.code === currentLanguage) || languages[0];
+  const current = languages.find((lang) => lang.code === currentLanguage) || languages[0];
 
   return (
     <DropdownMenu>
@@ -50,24 +48,28 @@ const LanguageSwitcher = ({
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 px-3 flex items-center gap-1.5 text-sm"
+          className="h-9 w-9 p-0 hover:bg-transparent"
         >
-          <span className="text-sm">{current.flag}</span>
-          <span className="text-sm font-medium">{current.name}</span>
+          <div className="flex items-center justify-center w-8 h-8 border border-crimson/50 hover:border-crimson">
+            <span className="text-sm font-medium text-crimson">
+              {current.displayCode}
+            </span>
+          </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-background border-border">
+      <DropdownMenuContent 
+        align="end" 
+        className="bg-black/95 border border-crimson/20 p-1 min-w-[60px]"
+      >
         {languages.map((language) => (
           <DropdownMenuItem
             key={language.code}
-            className="flex items-center gap-2 cursor-pointer"
+            className={`flex justify-center p-2 text-sm cursor-pointer ${
+              currentLanguage === language.code ? 'text-crimson' : 'text-gray-200 hover:text-white'
+            }`}
             onClick={() => onLanguageChange(language.code)}
           >
-            <span className="text-base">{language.flag}</span>
-            <span>{language.name}</span>
-            <span className="ml-auto text-xs opacity-70">
-              {language.code.toUpperCase()}
-            </span>
+            {language.displayCode}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

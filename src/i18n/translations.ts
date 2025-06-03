@@ -1,9 +1,8 @@
 // Define types for translations
-interface TranslationValue {
-  ru: string;
-  en: string;
-  ge: string;
-}
+type TranslationValue = 
+  | { ru: string; en: string; ge: string }
+  | string[]
+  | string;
 
 interface NestedTranslations {
   [key: string]: TranslationValue | NestedTranslations;
@@ -339,9 +338,9 @@ const translations: Translations = {
     ge: 'ვიღაც უყურებს ამ ნივთს 👀',
   },
   'product.in_stock': {
-    ru: 'В наличии:',
-    en: 'In stock:',
-    ge: 'მარაგში:',
+    ru: 'В наличии',
+    en: 'In stock',
+    ge: 'მარაგში',
   },
   'product.discounted_products': {
     ru: 'Товары со скидкой',
@@ -691,6 +690,11 @@ const translations: Translations = {
     ru: 'Браслет',
     en: 'Bracelet',
     ge: 'სამაჯური',
+  },
+  'category.keychains': {
+    ru: 'Брелки',
+    en: 'Keychains',
+    ge: 'გასაღების დამჭერები',
   },
   'category.ring': {
     ru: 'Кольцо',
@@ -1149,6 +1153,21 @@ const translations: Translations = {
     ru: 'Оформить заказ',
     en: 'Checkout',
     ge: 'შეკვეთის დასრულება',
+  },
+  'cart.empty_title': {
+    ru: 'Ваша корзина пуста',
+    en: 'Your cart is empty',
+    ge: 'თქვენი კალათა ცარიელია',
+  },
+  'cart.empty_description': {
+    ru: 'Добавляйте товары в корзину, и они появятся здесь',
+    en: 'Add items to your cart and they will appear here',
+    ge: 'დაამატეთ ნივთები კალათაში და ისინი აქ გამოჩნდება',
+  },
+  'cart.continue_shopping': {
+    ru: 'В магазин',
+    en: 'Continue Shopping',
+    ge: 'მაღაზიაში',
   },
   'cart.remove': {
     ru: 'Удалить',
@@ -1824,6 +1843,48 @@ const translations: Translations = {
     en: 'Delivery Information',
     ge: 'მიტანის ინფორმაცია',
   },
+  'purchase_messages': [
+    '🎯 Quest completed: [Purchase successful].',
+    '🔓 Unlocked: New equipment item.',
+    '🗃️ Added to inventory. Use wisely.',
+    '🧩 You found hidden loot. Not everyone gets this far.',
+    '🎲 The odds were in your favor. Epic drop!',
+    '👣 You chose the path. This item is now part of your story.',
+    '⚗️ Crafted something worthy. Let\'s test it in battle.',
+    '🛠️ Your build is looking serious now.',
+    '👁️ You saw potential where others passed by.',
+    '🕹️ Equipment slot filled. Time to take the next step.',
+    '💾 Progress saved. No turning back now.',
+    '💣 This is not just an item — it\'s your advantage.',
+    '👑 Purchase confirmed. Prestige +1.',
+    '📡 Signal received. Artifact en route to your world.',
+    '⚔️ Combat rating increased. You\'re ready for the next wave.',
+    '🎮 Item received. Rarity: Unique.',
+    '📦 You unlocked a new ally.',
+    '⚙️ You activated an artifact. Now to figure out what it does.',
+    '🛡️ This is not just gear. It\'s a buff to your style.',
+    '🔥 Inventory updated. Someone just got stronger.',
+    '🕶️ Stylish. Dangerous. Yours.',
+    '💬 NPCs are jealous. You\'re the main character now.',
+    '🌌 You pulled an artifact from another reality. Must-have.',
+    '🧠 +10 to charisma. The rest will follow.',
+    '🚀 You didn\'t just choose a product. You chose an upgrade.',
+    '🔮 Item bound to owner. No returns.',
+    '🎮 Loot secured. Mission accomplished.',
+    '📖 A new chapter begins with this purchase.',
+    '⚡ You received ⚡ buff: Confidence +25%',
+    '🛰️ Your signal received. Delivery launched from the stratosphere.',
+    '🧤 The power is in the details. And you\'ve got it all.',
+    '🪙 You spent coins. Got a legend.',
+    '🚫 You\'re no longer the one who watched. You\'re the one who chose.',
+    '🗡️ Something ominously good in your inventory.',
+    '🎯 You never miss. And this choice is no exception.',
+    '📡 Interdimensional delivery activated. Prepare your slot.',
+    '🎖️ Achievement unlocked: Good taste.',
+    '🕳️ You looked into the black box... and took the best.',
+    '🎁 You didn\'t just order. You summoned this.',
+    '👤 They\'ll be asking: where did you get that?'
+  ],
   'checkout.name': {
     ru: 'Имя',
     en: 'Name',
