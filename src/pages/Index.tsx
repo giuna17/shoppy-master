@@ -99,7 +99,7 @@ const Index = () => {
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
   const [showDiscounted, setShowDiscounted] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
-  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+
   const [mostPopularProduct, setMostPopularProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const featuredProducts = getFeaturedProducts();
@@ -151,7 +151,6 @@ const Index = () => {
   // Toggle between most popular and discounted products
   const toggleView = (showDiscount: boolean) => {
     setShowDiscounted(showDiscount);
-    setIsCategoriesModalOpen(false);
     
     // If switching to most popular view, refresh the most popular product
     if (!showDiscount) {
@@ -160,53 +159,17 @@ const Index = () => {
     }
   };
 
-  // Check for modal open state in URL or location state
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get('categories') === 'true') {
-      setIsCategoriesModalOpen(true);
-    } else if (window.history.state?.openCategoriesModal) {
-      setIsCategoriesModalOpen(true);
-    }
+  // Function to open categories from Navbar
+  const openCategories = () => {
+    // Find the categories button by its text content
+    const navButtons = Array.from(document.querySelectorAll('nav button'));
+    const categoriesButton = navButtons.find(button => 
+      button.textContent?.includes(t('nav.categories'))
+    ) as HTMLButtonElement | undefined;
     
-    // Listen for popstate events (back/forward navigation)
-    const handlePopState = (event: PopStateEvent) => {
-      if (event.state?.openCategoriesModal) {
-        setIsCategoriesModalOpen(true);
-      } else {
-        const searchParams = new URLSearchParams(window.location.search);
-        setIsCategoriesModalOpen(searchParams.get('categories') === 'true');
-      }
-    };
-    
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-  
-  // Handle modal open/close with URL updates
-  const openCategoriesModal = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    searchParams.set('categories', 'true');
-    window.history.pushState({ openCategoriesModal: true }, '', `?${searchParams.toString()}`);
-    setIsCategoriesModalOpen(true);
-  };
-  
-  const closeCategoriesModal = () => {
-    window.history.replaceState({}, '', window.location.pathname);
-    setIsCategoriesModalOpen(false);
-  };
-  
-  const toggleCategories = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isCategoriesModalOpen) {
-      closeCategoriesModal();
-    } else {
-      openCategoriesModal();
+    if (categoriesButton) {
+      categoriesButton.click();
     }
-  };
-
-  const closeModal = () => {
-    closeCategoriesModal();
   };
   
   const handleAddToCart = (productId: number) => {
@@ -337,7 +300,7 @@ const Index = () => {
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-900/80 via-red-800/60 to-red-900/80 rounded-xl blur opacity-75 group-hover:opacity-100 group-hover:duration-200 transition-all duration-700"></div>
                 <button
-                  onClick={toggleCategories}
+                  onClick={openCategories}
                   className="relative flex items-center justify-center bg-gradient-to-br from-gray-900 to-black text-white/90 hover:text-white font-bold px-14 py-6 text-lg rounded-xl border-2 border-red-900/60 hover:border-red-800/70 shadow-2xl hover:shadow-[0_0_25px_rgba(153,27,27,0.25)] transition-all duration-300 transform group-hover:scale-105 overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-3 tracking-wider">
@@ -381,7 +344,7 @@ const Index = () => {
                       className="relative z-10 px-4 py-3 text-[1.65rem] font-medium cursor-pointer uppercase tracking-wider flex items-center gap-2 font-medieval transition-all duration-500 transform hover:scale-105 border-0 outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 overflow-hidden rounded-lg"
                       style={{
                         background: 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.03) 50%, rgba(0,0,0,0) 100%)',
-                        boxShadow: `${!showDiscounted && !isCategoriesModalOpen ? '0 0 15px rgba(220, 38, 38, 0.3)' : 'none'}`
+                        boxShadow: !showDiscounted ? '0 0 15px rgba(220, 38, 38, 0.3)' : 'none'
                       }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-crimson/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" 
@@ -390,13 +353,13 @@ const Index = () => {
                              backgroundImage: 'linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.2) 50%, transparent)'
                            }}
                       ></div>
-                      <span className={`relative z-10 transition-all duration-300 ${!showDiscounted && !isCategoriesModalOpen ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
+                      <span className={`relative z-10 transition-all duration-300 ${!showDiscounted ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
                         {t('home.most_popular').split(' ')[0]}
                       </span>
-                      <span className={`relative z-10 transition-all duration-300 ${!showDiscounted && !isCategoriesModalOpen ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
+                      <span className={`relative z-10 transition-all duration-300 ${!showDiscounted ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
                         {t('home.most_popular').split(' ').slice(1).join(' ')}
                       </span>
-                      <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-crimson to-transparent ${!showDiscounted && !isCategoriesModalOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-70'} transition-opacity duration-500`}></div>
+                      <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-crimson to-transparent ${!showDiscounted ? 'opacity-100' : 'opacity-0 group-hover:opacity-70'} transition-opacity duration-500`}></div>
                     </button>
                   </div>
 
@@ -406,7 +369,7 @@ const Index = () => {
                       className="relative z-10 px-4 py-3 text-[1.65rem] font-medium cursor-pointer uppercase tracking-wider flex items-center gap-2 font-medieval transition-all duration-500 transform hover:scale-105 border-0 outline-none focus:outline-none focus:ring-0 focus:ring-offset-0 overflow-hidden rounded-lg"
                       style={{
                         background: 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.03) 50%, rgba(0,0,0,0) 100%)',
-                        boxShadow: `${showDiscounted && !isCategoriesModalOpen ? '0 0 15px rgba(220, 38, 38, 0.3)' : 'none'}`
+                        boxShadow: showDiscounted ? '0 0 15px rgba(220, 38, 38, 0.3)' : 'none'
                       }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-crimson/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" 
@@ -415,7 +378,7 @@ const Index = () => {
                              backgroundImage: 'linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.2) 50%, transparent)'
                            }}
                       ></div>
-                      <span className={`relative z-10 transition-all duration-500 ${showDiscounted && !isCategoriesModalOpen ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
+                      <span className={`relative z-10 transition-all duration-500 ${showDiscounted ? 'text-crimson font-bold' : 'text-foreground/80 group-hover:text-crimson'}`}>
                         {t('product.discounts')}
                       </span>
                       {discountedProducts.length > 0 && (
@@ -431,7 +394,7 @@ const Index = () => {
                           </span>
                         </span>
                       )}
-                      <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-crimson to-transparent ${showDiscounted && !isCategoriesModalOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-70'} transition-opacity duration-500`}></div>
+                      <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-crimson to-transparent ${showDiscounted ? 'opacity-100' : 'opacity-0 group-hover:opacity-70'} transition-opacity duration-500`}></div>
                     </button>
                   </div>
                 </div>
@@ -540,34 +503,34 @@ const Index = () => {
       </section>
 
       {/* Most Popular Products */}
-      <section className="py-12 px-4 bg-background relative z-20">
+      <section className="py-8 sm:py-12 px-3 sm:px-4 bg-background relative z-20">
         <div className="container mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <div className="space-y-2">
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tight relative z-10 font-medieval">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 px-2 sm:px-0">
+            <div className="space-y-1 sm:space-y-2 mb-3 sm:mb-0">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight relative z-10 font-medieval">
                 <span className="text-crimson">{t('home.popular_products').split(' ')[0]}</span>
                 {t('home.popular_products').split(' ').length > 1 && (
                   <span className="text-white"> {t('home.popular_products').split(' ').slice(1).join(' ')}</span>
                 )}
               </h2>
-              <div className="w-16 h-0.5 bg-crimson/60 mt-2" />
+              <div className="w-12 sm:w-16 h-0.5 bg-crimson/60 mt-1 sm:mt-2" />
             </div>
             <Link 
               to="/shop"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-medium bg-crimson/10 hover:bg-crimson/20 text-crimson border border-crimson/20 rounded-md transition-colors group"
+              className="inline-flex items-center justify-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium bg-crimson/10 hover:bg-crimson/20 text-crimson border border-crimson/20 rounded-md transition-colors group w-full sm:w-auto"
             >
               {t('home.view_all')}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="lucide lucide-arrow-right h-4 w-4 transition-transform group-hover:translate-x-1"
+                className="lucide lucide-arrow-right h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1"
               >
                 <path d="M5 12h14"></path>
                 <path d="m12 5 7 7-7 7"></path>
@@ -575,14 +538,17 @@ const Index = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                {...product}
-                onAddToCart={() => handleAddToCart(product.id)}
-              />
-            ))}
+          <div className="overflow-x-auto pb-4 -mx-2 sm:mx-0 sm:overflow-visible">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 min-w-max sm:min-w-0 px-2 sm:px-0">
+              {products.map((product) => (
+                <div key={product.id} className="w-[calc(50vw-24px)] sm:w-full">
+                  <ProductCard
+                    {...product}
+                    onAddToCart={() => handleAddToCart(product.id)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Recently Viewed Products - Placed right after New Products */}
@@ -600,171 +566,6 @@ const Index = () => {
       </div>
 
       <Footer />
-      
-      {/* Categories Modal */}
-      {isCategoriesModalOpen && (
-        <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300"
-          onClick={closeModal}
-        >
-          <div 
-            className="bg-black/70 backdrop-blur-sm rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-crimson/50 shadow-2xl shadow-crimson/10 transform transition-all duration-300 scale-95 hover:scale-100"
-            onClick={e => e.stopPropagation()}
-            style={{
-              animation: 'fadeInUp 0.4s ease-out forwards',
-              opacity: 0,
-              transform: 'translateY(20px)'
-            }}
-          >
-            <div className="relative p-8">
-              {/* Decorative elements */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson/90 via-crimson/70 to-crimson/90" />
-              
-              <div className="flex flex-col items-center mb-8">
-                <h3 className="text-3xl font-bold text-white font-medieval tracking-wider mb-2">
-                  {t('product.categories')}
-                </h3>
-                <div className="w-24 h-1 bg-crimson/70 rounded-full" />
-              </div>
-
-              <button 
-                onClick={closeModal}
-                className="absolute top-6 right-6 text-gray-300 hover:text-white transition-colors duration-200"
-                aria-label="Close"
-              >
-                <svg 
-                  className="w-8 h-8" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={1.5} 
-                    d="M6 18L18 6M6 6l12 12" 
-                    className="transition-transform duration-200 hover:scale-110"
-                  />
-                </svg>
-              </button>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                {categories.map((category, index) => {
-                  const categoryProducts = getProductsByCategory(category);
-                  const itemCount = categoryProducts.length;
-                  const featuredProduct = categoryProducts[0]; // Get first product in category
-                  
-                  return (
-                    <Link
-                      key={index}
-                      to={`/shop?category=${encodeURIComponent(category)}`}
-                      className="group relative overflow-hidden rounded-xl bg-black/50 backdrop-blur-sm border border-crimson/30 p-5 transition-all duration-300 hover:border-crimson/70 hover:shadow-lg hover:shadow-crimson/20 hover:scale-105 hover:z-10 h-48 flex flex-col justify-center"
-                      onClick={closeModal}
-                      style={{
-                        animation: `fadeIn 0.4s ease-out ${index * 0.05}s forwards`,
-                        opacity: 0,
-                        transform: 'translateY(10px)',
-                        ...(featuredProduct?.images?.[0] ? {
-                          backgroundImage: `url(${featuredProduct.images[0]})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          backgroundBlendMode: 'overlay',
-                          backgroundColor: 'rgba(0, 0, 0, 0.7)'
-                        } : {})
-                      }}
-                    >
-                      {/* Animated background */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-crimson/5 to-crimson/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
-                      <div className="relative z-10 flex flex-col items-center text-center">
-                        {featuredProduct?.images?.[0] ? (
-                          // If we have a product image, show it with a subtle overlay
-                          <div className="mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-sm border border-crimson/50 group-hover:border-crimson/70 transition-all duration-300 relative overflow-hidden">
-                            <img 
-                              src={featuredProduct.images[0]} 
-                              alt={featuredProduct.name[language as keyof typeof featuredProduct.name] || category}
-                              className="w-full h-full object-cover opacity-90"
-                            />
-                            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
-                            <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-crimson/30 transition-all duration-500 group-hover:animate-ping" />
-                          </div>
-                        ) : (
-                          // Fallback to icon if no product image
-                          <div className="mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 group-hover:border-crimson/50 transition-all duration-300 relative">
-                            <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-crimson/30 transition-all duration-500 group-hover:animate-ping" />
-                            <svg 
-                              className="w-7 h-7 text-gray-300 group-hover:text-crimson transition-all duration-300 group-hover:scale-110" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24" 
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={1.5} 
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" 
-                              />
-                            </svg>
-                          </div>
-                        )}
-                        
-                        {/* Category name */}
-                        <span className="text-base font-semibold text-white group-hover:text-crimson transition-colors duration-300 mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                          {t(`category.${category.toLowerCase()}`)}
-                        </span>
-                        
-                        {/* Item count */}
-                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-crimson/80 backdrop-blur-sm text-white group-hover:bg-crimson transition-colors duration-300">
-                          {itemCount} {
-                            itemCount === 1 ? t('products.one') :
-                            itemCount < 5 ? t('products.few') :
-                            t('products.many')
-                          }
-                        </span>
-                      </div>
-                      
-                      {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-                    </Link>
-                  );
-                })}
-              </div>
-              
-              {/* Decorative elements */}
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-crimson/90 via-crimson/70 to-crimson/90" />
-            </div>
-            
-            {/* Custom animations */}
-            <style dangerouslySetInnerHTML={{
-              __html: `
-                @keyframes fadeInUp {
-                  from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                  }
-                  to {
-                    opacity: 1;
-                    transform: translateY(0);
-                  }
-                }
-                
-                @keyframes fadeIn {
-                  from {
-                    opacity: 0;
-                    transform: translateY(10px);
-                  }
-                  to {
-                    opacity: 1;
-                    transform: translateY(0);
-                  }
-                }
-              `
-            }} />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

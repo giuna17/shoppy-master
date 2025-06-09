@@ -228,7 +228,13 @@ export const getProductsAwaitingReview = (userId: string): number[] => {
 };
 
 // Simple function to normalize strings for comparison
-const normalize = (str: string) => (str || '').toLowerCase().trim();
+const normalize = (str: string) => {
+  if (str === undefined || str === null) return '';
+  return str.toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[\u200B-\u200D\uFEFF]/g, ''); // Remove zero-width spaces and other invisible characters
+};
 
 /**
  * Applies filters to products array
@@ -254,12 +260,47 @@ export const applyFilters = (
       }
     }
 
-    // Category filter - simple exact match after normalization
+    // Enhanced category filter with detailed debugging
     if (filters.categories && filters.categories.length > 0) {
-      const productCategory = normalize(product.category);
-      const hasMatch = filters.categories.some(
-        cat => normalize(cat) === productCategory
-      );
+      const productCategory = (product.category || '').toString();
+      const normalizedProductCat = normalize(productCategory);
+      
+      // Debug info - log the bracelet specifically
+      const isTargetBracelet = product.id === 31 || 
+        (product.name?.en?.toLowerCase().includes('espresso rhythm'));
+      
+      if (isTargetBracelet) {
+        console.group('=== TARGET BRACELET DEBUG ===');
+        console.log('Product ID:', product.id);
+        console.log('Product name:', product.name?.en);
+        console.log('Raw category:', JSON.stringify(productCategory));
+        console.log('Normalized category:', JSON.stringify(normalizedProductCat));
+        console.log('Raw filter categories:', JSON.stringify(filters.categories));
+      }
+      
+      let hasMatch = false;
+      
+      // Check each filter category
+      for (const cat of filters.categories) {
+        const normalizedCat = normalize(cat || '');
+        const isMatch = normalizedCat && normalizedCat === normalizedProductCat;
+        
+        if (isMatch) {
+          hasMatch = true;
+        }
+        
+        if (isTargetBracelet) {
+          console.log(`Checking against filter category: '${cat}'`);
+          console.log(`Normalized: '${normalizedCat}'`);
+          console.log(`Matches: ${isMatch ? '✅' : '❌'}`);
+        }
+      }
+      
+      if (isTargetBracelet) {
+        console.log('Final match result:', hasMatch ? '✅ INCLUDED' : '❌ EXCLUDED');
+        console.groupEnd();
+      }
+      
       if (!hasMatch) {
         return false;
       }

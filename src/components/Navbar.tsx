@@ -46,6 +46,31 @@ const arrowPulse = keyframes`
     transform: translateX(4px);
   }
 `;
+
+const ProfileHoverText = styled.span`
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition: max-width 0.3s ease-out, opacity 0.2s ease-out 0.1s, margin-left 0.3s ease-out;
+  font-size: 14px; /* Adjust font size as needed */
+  line-height: 1; /* Helps align with icon if they are different sizes */
+  color: inherit; /* Inherits text color from parent button */
+  /* margin-left is applied by the parent on hover */
+`;
+
+const ProfileButtonWithHoverEffect = styled(Link)`
+  display: flex; /* Ensures icon and text are in a row */
+  align-items: center; /* Vertically aligns icon and text */
+  position: relative; /* Context for absolutely positioned children if ever needed */
+
+  /* When this button is hovered, style the ProfileHoverText child */
+  &:hover ${ProfileHoverText} {
+    max-width: 70px; /* Adjust to fit "Профиль" or make it dynamic */
+    opacity: 1;
+    margin-left: 8px; /* Creates space between the icon and the text */
+  }
+`;
 import { Badge } from '@/components/ui/badge';
 import CartItem from './CartItem';
 import {
@@ -168,6 +193,7 @@ const Navbar = () => {
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [activeCategoryType, setActiveCategoryType] = useState<'handmade' | 'other'>('handmade');
 
   const total = calculateTotal();
   const { amount: discount, percentage: discountPercentage } =
@@ -190,6 +216,19 @@ const Navbar = () => {
       ].filter(Boolean))
     ).sort();
   }, [allProducts]);
+
+  // Filter categories based on active type
+  const filteredCategories = React.useMemo(() => {
+    return categories.filter(category => {
+      const categoryProducts = getProductsByCategory(category);
+      if (activeCategoryType === 'handmade') {
+        return categoryProducts.length > 0;
+      } else {
+        // For 'other' type, we want to show all categories but they'll be empty
+        return true;
+      }
+    });
+  }, [categories, activeCategoryType]);
   
   const auth = useAuth();
   const { user } = auth;
@@ -392,11 +431,40 @@ const Navbar = () => {
                             </svg>
                           </button>
 
+                          {/* Category Type Toggle */}
+                          <div className="flex justify-center mb-8">
+                            <div className="inline-flex rounded-lg border border-crimson/50 bg-black/50 overflow-hidden">
+                              <button
+                                onClick={() => setActiveCategoryType('handmade')}
+                                className={`px-6 py-2 text-sm font-medium transition-colors duration-200 ${
+                                  activeCategoryType === 'handmade'
+                                    ? 'bg-crimson/80 text-white'
+                                    : 'text-gray-300 hover:bg-crimson/30 hover:text-white'
+                                }`}
+                              >
+                                {trans('categories.handmade', 'САМОДЕЛЬНЫЕ')}
+                              </button>
+                              <button
+                                onClick={() => setActiveCategoryType('other')}
+                                className={`px-6 py-2 text-sm font-medium transition-colors duration-200 ${
+                                  activeCategoryType === 'other'
+                                    ? 'bg-crimson/80 text-white'
+                                    : 'text-gray-300 hover:bg-crimson/30 hover:text-white'
+                                }`}
+                              >
+                                {trans('categories.other', 'ДРУГОЕ')}
+                              </button>
+                            </div>
+                          </div>
+
+                          
                           {/* Categories grid */}
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {categories.filter(Boolean).map((category, index) => {
-                              const categoryProducts = getProductsByCategory(category);
-                              const itemCount = categoryProducts.length;
+                            {filteredCategories.filter(Boolean).map((category, index) => {
+                              const categoryProducts = activeCategoryType === 'handmade' 
+                                ? getProductsByCategory(category).filter(p => p.type !== 'other')
+                                : [];
+                              const itemCount = activeCategoryType === 'handmade' ? categoryProducts.length : 0;
                               const featuredProduct = categoryProducts[0];
                               
                               return (
@@ -1195,11 +1263,11 @@ const Navbar = () => {
 
           {/* User Profile */}
           {auth.user ? (
-            <Link
+            <ProfileButtonWithHoverEffect
               to="/profile"
-              className="flex items-center gap-2 group p-1 pr-4 rounded-full transition-colors hover:bg-gray-800/50"
+              className="group p-1 rounded-full transition-colors hover:bg-gray-800/50"
             >
-              <div className="relative">
+              <div className="relative"> {/* This is the icon container */}
                 <div className="w-10 h-10 rounded-full bg-black border-2 border-crimson/50 overflow-hidden flex items-center justify-center group-hover:border-crimson transition-all duration-300 shadow-[0_0_10px_rgba(220,38,38,0.3)] hover:shadow-[0_0_15px_rgba(220,38,38,0.5)]">
                   {auth.user?.photoURL ? (
                     <>
@@ -1242,12 +1310,8 @@ const Navbar = () => {
                   )}
                 </div>
               </div>
-              <div className="hidden md:flex items-center">
-                <span className="text-sm font-medium text-white group-hover:text-crimson transition-colors tracking-wider">
-                  {t('nav.profile').toUpperCase()}
-                </span>
-              </div>
-            </Link>
+              <ProfileHoverText>Профиль</ProfileHoverText>
+            </ProfileButtonWithHoverEffect>
           ) : (
             <Dialog
               open={showLoginDialog}

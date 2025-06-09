@@ -148,7 +148,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
             
             <Button
-              className={`w-full relative ${
+              className={`w-full relative py-1.5 sm:py-2 text-sm sm:text-base ${
                 isOutOfStock
                   ? 'bg-muted text-muted-foreground cursor-not-allowed'
                   : 'bg-crimson hover:bg-crimson/90 text-black font-medium'
@@ -172,10 +172,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
               disabled={isOutOfStock}
             >
               <div className="absolute inset-0 flex items-center justify-center opacity-10 z-0">
-                <ShoppingCart className="w-8 h-8" />
+                <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
-              <span className="relative z-1 flex items-center">
-                <ShoppingCart className="mr-2 h-4 w-4" />
+              <span className="relative z-1 flex items-center justify-center">
+                <ShoppingCart className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 {isOutOfStock
                   ? t('product.out_of_stock')
                   : t('product.add_to_cart')}

@@ -15,6 +15,7 @@ export interface Product {
   currency: string;
   images: string[];
   category: string;
+  type?: 'handmade' | 'other'; // New field to categorize products
   featured?: boolean;
   stock: number;
   materials: string[];
@@ -176,7 +177,7 @@ const products: Product[] = [
     colors: ['Коричневый', 'Бежевый'],
   },
   {
-    id: 31,
+    id: 99, // Changed from 31 to 99 to avoid duplicate ID
     name: {
       ru: 'Браслет "Эспрессо Ритм"',
       en: 'Bracelet "Espresso Rhythm"',
@@ -708,6 +709,11 @@ export const getFeaturedProducts = (): Product[] => {
 
 export const getProductsByCategory = (category: string): Product[] => {
   try {
+    if (category === 'handmade') {
+      return products.filter((product) => product.type === 'handmade' || product.type === undefined);
+    } else if (category === 'other') {
+      return products.filter((product) => product.type === 'other');
+    }
     return products.filter((product) => product.category === category);
   } catch (error) {
     console.error(`[getProductsByCategory] Error getting products for category ${category}:`, error);

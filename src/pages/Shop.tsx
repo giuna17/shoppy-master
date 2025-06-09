@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -14,24 +14,52 @@ import { useCartContext } from '@/contexts/CartContext';
 import { applyFilters } from '@/services/reviewService';
 import { Search, Filter } from 'lucide-react';
 
+// Helper function to normalize strings for comparison
+const normalize = (str: string) => {
+  if (str === undefined || str === null) return '';
+  return str.toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[\u200B-\u200D\uFEFF]/g, ''); // Remove zero-width spaces and other invisible characters
+};
+
 const Shop = () => {
   const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get('category');
   const { addToCart } = useCartContext();
-  const [activeCategory, setActiveCategory] = useState<string | null>(
-    urlCategory,
-  );
+  const [activeCategory, setActiveCategory] = useState<string | null>(urlCategory);
   // Calculate default price range
   const defaultPriceRange: [number, number] = [0, 1000];
   
-  const [filters, setFilters] = useState<FilterValues>({
+  const [filters, setFilters] = useState<FilterValues>(() => ({
     priceRange: defaultPriceRange,
     categories: urlCategory ? [urlCategory] : [],
     inStock: false,
     outOfStock: false,
     onSale: false,
-  });
+  }));
+  
+  // Keep filters in sync with URL
+  const updateFilters = useCallback((newFilters: Partial<FilterValues>) => {
+    setFilters(prev => {
+      const updated = { ...prev, ...newFilters };
+      console.log('Updating filters:', { prev, newFilters, updated });
+      return updated;
+    });
+  }, []);
+  
+  // Reset filter state when activeCategory changes
+  const handleCategorySelect = useCallback((categoryId: string | null) => {
+    console.log('Category selected:', categoryId);
+    setActiveCategory(categoryId);
+    updateFilters({
+      categories: categoryId ? [categoryId] : [],
+      inStock: false,
+      outOfStock: false,
+      onSale: false
+    });
+  }, [updateFilters]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortByPriceDesc, setSortByPriceDesc] = useState(false);
 
@@ -77,28 +105,127 @@ const Shop = () => {
   console.log('Current filters:', filters);
   console.log('Active category:', activeCategory);
   
+  // Enhanced category preparation with strict normalization
+  const prepareCategories = (cats: (string | undefined)[] | undefined) => {
+    if (!cats || !cats.length) return [];
+    
+    const normalized = cats
+      .filter((cat): cat is string => Boolean(cat))
+      .map(cat => {
+        const trimmed = cat.trim();
+        return {
+          original: trimmed,
+          normalized: normalize(trimmed)
+        };
+      })
+      .filter(cat => cat.normalized);
+    
+    console.log('Prepared categories:', JSON.stringify(normalized, null, 2));
+    return normalized.map(cat => cat.original);
+  };
+
+  // Prepare categories for filtering
+  let categoriesToFilter: string[] = [];
+  if (activeCategory) {
+    console.log('Using active category:', activeCategory);
+    categoriesToFilter = [activeCategory];
+  } else if (filters.categories?.length) {
+    console.log('Using filter categories:', filters.categories);
+    categoriesToFilter = prepareCategories(filters.categories) || [];
+  } else {
+    console.log('No category filters applied');
+  }
+
+  // Debug log before filtering
+  console.log('=== FILTERING DEBUG ===');
+  console.log('Active category:', activeCategory);
+  console.log('Filter categories:', filters.categories);
+  console.log('Categories being used for filtering:', categoriesToFilter);
+  console.log('All unique categories in products:', [
+    ...new Set(allProducts.map(p => p.category).filter(Boolean))
+  ]);
+
+  // Log exact values being passed to applyFilters
+  console.log('=== APPLYING FILTERS ===');
+  console.log('Categories being filtered:', JSON.stringify(categoriesToFilter));
+  console.log('All filter values:', {
+    priceRange: filters.priceRange,
+    categories: categoriesToFilter,
+    inStock: filters.inStock,
+    outOfStock: filters.outOfStock,
+    onSale: filters.onSale,
+  });
+
   // Apply all filters
   const filteredProducts = applyFilters(allProducts, {
     priceRange: filters.priceRange,
-    categories: activeCategory ? [activeCategory] : (filters.categories?.length ? filters.categories : undefined),
+    categories: categoriesToFilter,
     inStock: filters.inStock,
     outOfStock: filters.outOfStock,
     onSale: filters.onSale,
   });
   
-  console.log('Filtered products count:', filteredProducts.length);
-  console.log('All products categories:', [...new Set(allProducts.map(p => p.category))]);
+  // Log the Espresso Rhythm bracelet specifically
+  const espressoBracelet = allProducts.find(p => 
+    p.id === 31 || p.name.en.toLowerCase().includes('espresso rhythm')
+  );
   
-  // Debug: Log filtered products
-  console.log('Filtered products count:', filteredProducts.length);
-  if (filters.categories.length > 0) {
-    console.log('Products in selected categories:', filteredProducts.map(p => ({
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      price: p.price
-    })));
+  if (espressoBracelet) {
+    console.log('=== ESPRESSO RHYTHM BRACELET DEBUG ===');
+    console.log('Product data:', {
+      id: espressoBracelet.id,
+      name: espressoBracelet.name.en,
+      category: espressoBracelet.category,
+      normalizedCategory: normalize(espressoBracelet.category || '')
+    });
+    console.log('Is in filtered results:', filteredProducts.some(p => p.id === espressoBracelet.id));
   }
+
+  // Debug log after filtering
+  console.log('Filtered products count:', filteredProducts.length);
+  console.log('Filtered product categories:', [
+    ...new Set(filteredProducts.map(p => p.category).filter(Boolean))
+  ]);
+  console.log('=== END FILTERING DEBUG ===');
+  
+  // Enhanced debug logs for category filtering
+  console.group('=== CATEGORY FILTERING DEBUG ===');
+  
+  // Log all products with their categories
+  console.log('All products with categories:');
+  allProducts.forEach(p => {
+    console.log(`- ID: ${p.id}, Name: ${p.name.en}, Category: '${p.category}'`);
+  });
+  
+  // Log active filtering state
+  console.log('\nActive filtering state:');
+  console.log('- Active category:', activeCategory);
+  console.log('- Filter categories:', filters.categories);
+  
+  // Log which categories are being used for filtering
+  const activeCategories = activeCategory ? [activeCategory] : (filters.categories || []);
+  console.log('\nCategories being used for filtering:', activeCategories);
+  
+  // Log filtered products with details
+  console.log('\nFiltered products:', filteredProducts.length);
+  filteredProducts.forEach(p => {
+    console.log(`- ID: ${p.id}, Name: ${p.name.en}, Category: '${p.category}'`);
+  });
+  
+  // Check for products that might be in wrong categories
+  const problematicProducts = allProducts.filter(p => 
+    p.name.en.toLowerCase().includes('bracelet') && 
+    ['necklaces', 'keychains'].includes(p.category.toLowerCase())
+  );
+  
+  if (problematicProducts.length > 0) {
+    console.warn('\nWARNING: Found potentially mis-categorized products:');
+    problematicProducts.forEach(p => {
+      console.warn(`- ID: ${p.id}, Name: ${p.name.en}, Category: '${p.category}'`);
+    });
+  }
+  
+  console.groupEnd();
 
   // Apply search filter if there's a search query
   const searchedProducts = searchQuery.trim()
@@ -152,43 +279,31 @@ const Shop = () => {
 
   // Effect to handle URL category changes
   useEffect(() => {
+    console.log('URL category changed:', urlCategory);
     if (urlCategory) {
       setActiveCategory(urlCategory);
-      // Update filters to match URL category
-      setFilters(prev => ({
-        ...prev,
+      updateFilters({
         categories: [urlCategory],
-        // Reset other filters when URL changes
         inStock: false,
         outOfStock: false,
         onSale: false
-      }));
+      });
     } else {
       setActiveCategory(null);
-      // Clear categories when no URL category
-      setFilters(prev => ({
-        ...prev,
-        categories: []
-      }));
+      updateFilters({
+        categories: [],
+        inStock: false,
+        outOfStock: false,
+        onSale: false
+      });
     }
-  }, [urlCategory]);
+  }, [urlCategory, updateFilters]);
 
   // Function to handle category click
   const handleCategoryClick = (categoryId: string) => {
+    console.log('Category clicked:', categoryId);
     const newActiveCategory = categoryId === activeCategory ? null : categoryId;
-    setActiveCategory(newActiveCategory);
-    
-    // Update filters to match the active category
-    const newFilters = {
-      ...filters,
-      categories: newActiveCategory ? [newActiveCategory] : [],
-      // Reset other filters when changing categories
-      inStock: false,
-      outOfStock: false,
-      onSale: false
-    };
-    
-    setFilters(newFilters);
+    handleCategorySelect(newActiveCategory);
   };
 
   const getCategoryName = (category: string) => {

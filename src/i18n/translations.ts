@@ -1966,6 +1966,16 @@ const translations: Translations = {
     en: 'Fill in',
     ge: 'შეავსეთ',
   },
+  'categories.handmade': {
+    ru: 'САМОДЕЛЬНЫЕ',
+    en: 'HANDMADE',
+    ge: 'ხელნაკეთი',
+  },
+  'categories.other': {
+    ru: 'ДРУГОЕ',
+    en: 'OTHER',
+    ge: 'სხვა',
+  },
 
   'cart.decrease_quantity': {
     ru: 'Уменьшить количество',

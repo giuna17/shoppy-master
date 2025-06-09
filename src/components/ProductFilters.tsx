@@ -34,6 +34,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const minProductPrice = Math.min(...prices);
   const maxProductPrice = Math.max(...prices);
 
+  const [activeCategoryType, setActiveCategoryType] = useState<'handmade' | 'other'>('handmade');
   const [filters, setFilters] = useState<FilterValues>(
     initialFilters || {
       priceRange: [minProductPrice, maxProductPrice],
@@ -171,6 +172,15 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
       : translation;
   };
 
+  // Filter categories based on active type
+  const filteredCategories = categories.filter(category => {
+    if (activeCategoryType === 'handmade') {
+      return !['candles'].includes(category.id.toLowerCase());
+    } else {
+      return ['candles'].includes(category.id.toLowerCase());
+    }
+  });
+
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-lg p-4">
@@ -221,41 +231,75 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             </div>
           </div>
 
+          {/* Category Type Toggle */}
+          <div className="flex justify-center mb-4">
+            <div className="inline-flex rounded-lg border border-crimson/50 bg-card overflow-hidden">
+              <button
+                onClick={() => setActiveCategoryType('handmade')}
+                className={`px-4 py-1.5 text-sm font-medium transition-colors duration-200 ${
+                  activeCategoryType === 'handmade'
+                    ? 'bg-crimson/80 text-white'
+                    : 'text-foreground hover:bg-crimson/30 hover:text-white'
+                }`}
+              >
+                САМОДЕЛЬНЫЕ
+              </button>
+              <button
+                onClick={() => setActiveCategoryType('other')}
+                className={`px-4 py-1.5 text-sm font-medium transition-colors duration-200 ${
+                  activeCategoryType === 'other'
+                    ? 'bg-crimson/80 text-white'
+                    : 'text-foreground hover:bg-crimson/30 hover:text-white'
+                }`}
+              >
+                ДРУГОЕ
+              </button>
+            </div>
+          </div>
+
           {/* Categories */}
           <div>
             <h4 className="text-sm font-medium mb-3">
               {t('filters.categories')}
             </h4>
             <div className="space-y-2">
-              {categories.map((category) => {
-                const isActive = activeCategory ? 
-                  normalize(category.id) === normalize(activeCategory) :
-                  filters.categories.some(cat => normalize(cat) === normalize(category.id));
-                
-                // Get the display name, using translation if available
-                const displayName = t(`category.${category.id.toLowerCase()}`).startsWith('category.') 
-                  ? category.name 
-                  : t(`category.${category.id.toLowerCase()}`);
+              {filteredCategories.length > 0 ? (
+                filteredCategories.map((category) => {
+                  const isActive = activeCategory ? 
+                    normalize(category.id) === normalize(activeCategory) :
+                    filters.categories.some(cat => normalize(cat) === normalize(category.id));
+                  
+                  // Get the display name, using translation if available
+                  const displayName = t(`category.${category.id.toLowerCase()}`).startsWith('category.') 
+                    ? category.name 
+                    : t(`category.${category.id.toLowerCase()}`);
 
-                return (
-                  <div key={category.id} className="flex items-center">
-                    <Checkbox
-                      id={`category-${category.id}`}
-                      checked={isActive}
-                      onCheckedChange={() => handleCategoryToggle(category.id)}
-                      className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
-                    />
-                    <Label
-                      htmlFor={`category-${category.id}`}
-                      className={`ml-2 text-sm font-normal cursor-pointer ${
-                        isActive ? 'text-crimson font-medium' : ''
-                      }`}
-                    >
-                      {displayName}
-                    </Label>
-                  </div>
-                );
-              })}
+                  return (
+                    <div key={category.id} className="flex items-center">
+                      <Checkbox
+                        id={`category-${category.id}`}
+                        checked={isActive}
+                        onCheckedChange={() => handleCategoryToggle(category.id)}
+                        className="data-[state=checked]:bg-crimson data-[state=checked]:border-crimson"
+                      />
+                      <Label
+                        htmlFor={`category-${category.id}`}
+                        className={`ml-2 text-sm font-normal cursor-pointer ${
+                          isActive ? 'text-crimson font-medium' : ''
+                        }`}
+                      >
+                        {displayName}
+                      </Label>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-2">
+                  {activeCategoryType === 'handmade' 
+                    ? 'Нет доступных категорий для ручной работы' 
+                    : 'Нет доступных категорий'}
+                </p>
+              )}
             </div>
           </div>
 
