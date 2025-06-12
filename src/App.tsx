@@ -34,64 +34,59 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate data loading
+    // Set loading to false after 1.5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
 
-
   return (
-    <>
-      {isLoading ? (
-        <Preloader isLoading={isLoading} />
-      ) : (
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <LanguageProvider>
-              <AuthProvider>
-                <CartProvider>
-                  <FavoritesProvider>
-                    <Toaster />
-                    <Sonner />
-                    <HelmetProvider>
-                      <BrowserRouter>
-                        <ScrollToTop />
-                        <Layout>
-                          <div id="main" className="min-h-screen flex flex-col">
-                            <Routes>
-                              <Route path="/" element={<Index />} />
-                              <Route path="/shop" element={<Shop />} />
-                              <Route path="/about" element={<About />} />
-                              <Route path="/contact" element={<Contact />} />
-                              <Route path="/product/:id" element={<ProductDetail />} />
-                              <Route
-                                path="/category/:categoryName"
-                                element={<CategoryPage />}
-                              />
-                              <Route path="/reviews" element={<ReviewsPage />} />
-                              <Route path="/profile" element={<Profile />} />
-                              <Route path="/faq" element={<FAQ />} />
-                              <Route path="/checkout" element={<Checkout />} />
-                              <Route path="/terms" element={<TermsAndConditions />} />
-                              <Route path="/privacy" element={<PrivacyPolicy />} />
-                              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                              <Route path="*" element={<NotFound />} />
-                            </Routes>
-                          </div>
-                        </Layout>
-                      </BrowserRouter>
-                    </HelmetProvider>
-                  </FavoritesProvider>
-                </CartProvider>
-              </AuthProvider>
-            </LanguageProvider>
-          </TooltipProvider>
-        </QueryClientProvider>
-      )}
-    </>
+    <Preloader isLoading={isLoading}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <CartProvider>
+                <FavoritesProvider>
+                  <Toaster />
+                  <Sonner />
+                  <HelmetProvider>
+                    <BrowserRouter>
+                      <ScrollToTop />
+                      <Layout>
+                        <div id="main" className="min-h-screen flex flex-col">
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/shop" element={<Shop />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/contact" element={<Contact />} />
+                            <Route path="/product/:id" element={<ProductDetail />} />
+                            <Route
+                              path="/category/:categoryName"
+                              element={<CategoryPage />}
+                            />
+                            <Route path="/reviews" element={<ReviewsPage />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/faq" element={<FAQ />} />
+                            <Route path="/checkout" element={<Checkout />} />
+                            <Route path="/terms" element={<TermsAndConditions />} />
+                            <Route path="/privacy" element={<PrivacyPolicy />} />
+                            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </div>
+                      </Layout>
+                    </BrowserRouter>
+                  </HelmetProvider>
+                </FavoritesProvider>
+              </CartProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </Preloader>
   );
 };
 
