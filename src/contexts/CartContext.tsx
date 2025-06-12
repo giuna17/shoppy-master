@@ -106,10 +106,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return { amount: 0, percentage: 0 };
   };
 
+  const getDeliveryFee = () => {
+    return calculateTotal() >= 100 ? 0 : 5; // Free delivery for orders over 100 GEL
+  };
+
   const calculateTotalWithDiscount = () => {
     const subtotal = calculateTotal();
     const { amount: discount } = calculateDiscount();
-    return Math.max(0, subtotal - discount);
+    const deliveryFee = getDeliveryFee();
+    return Math.max(0, subtotal - discount + deliveryFee);
   };
 
   const isFreeDelivery = () => {
@@ -127,6 +132,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         calculateTotal,
         calculateDiscount,
         calculateTotalWithDiscount,
+        getDeliveryFee,
         isFreeDelivery,
       }}
     >

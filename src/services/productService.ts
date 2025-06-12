@@ -650,8 +650,23 @@ const products: Product[] = [
   },
 ];
 
-export const getProducts = () => {
-  return products;
+export const getProducts = (): Product[] => {
+  // Ensure all products have the 'handmade' type by default and add 'Самодельный' tag
+  return products.map(product => {
+    // Add 'Самодельный' to the beginning of the name in all languages
+    const updatedName = {
+      ...product.name,
+      ru: `Самодельный ${product.name.ru}`,
+      en: `Handmade ${product.name.en}`,
+      ge: `ხელნაკეთი ${product.name.ge}`
+    };
+
+    return {
+      ...product,
+      name: updatedName,
+      type: 'handmade' as const
+    };
+  });
 };
 
 export const getProductById = (id: number): Product | undefined => {
@@ -709,12 +724,27 @@ export const getFeaturedProducts = (): Product[] => {
 
 export const getProductsByCategory = (category: string): Product[] => {
   try {
+    const allProducts = getProducts();
+    
     if (category === 'handmade') {
-      return products.filter((product) => product.type === 'handmade' || product.type === undefined);
+      // Show only products that are marked as handmade
+      return allProducts.filter((product) => product.type === 'handmade');
     } else if (category === 'other') {
-      return products.filter((product) => product.type === 'other');
+      // Show only non-handmade products in the 'other' section
+      return allProducts.filter((product) => product.type !== 'handmade');
+    } else if (['candles', 'keychains'].includes(category)) {
+      // For categories in 'other' section, only show non-handmade products
+      return allProducts.filter(
+        (product) => product.category === category && product.type !== 'handmade'
+      );
     }
-    return products.filter((product) => product.category === category);
+    
+    // For specific categories in handmade section
+    return allProducts.filter(
+      (product) => 
+        product.category === category && 
+        product.type === 'handmade'
+    );
   } catch (error) {
     console.error(`[getProductsByCategory] Error getting products for category ${category}:`, error);
     return [];

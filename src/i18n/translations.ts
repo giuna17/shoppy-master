@@ -188,6 +188,16 @@ const translations: Translations = {
     en: 'Handmade, not templated. With soul, not instructions.\nIf you want something flashy — look elsewhere. Here we make things with character🪓',
     ge: 'ხელით, არა შაბლონით. სულით, არა ინსტრუქციით.\nთუ ბრჭვიალს ეძებ — ეს ადგილი არ არის შენთვის. აქ ხასიათიან ნივთებს ვქმნით🪓',
   },
+  'footer.handmade_products': {
+    ru: 'Ручная работа',
+    en: 'Handmade',
+    ge: 'ხელნაკეთი',
+  },
+  'footer.other_products': {
+    ru: 'Другое',
+    en: 'Other',
+    ge: 'სხვა',
+  },
   'common.close': {
     ru: 'Закрыть',
     en: 'Close',
@@ -548,6 +558,16 @@ const translations: Translations = {
     ru: 'Применить',
     en: 'Apply',
     ge: 'გამოყენება',
+  },
+  'filters.handmade': {
+    ru: 'Самодельные',
+    en: 'Handmade',
+    ge: 'ხელნაკეთი',
+  },
+  'filters.other': {
+    ru: 'Другое',
+    en: 'Other',
+    ge: 'სხვა',
   },
   'common.apply': {
     ru: 'Применить',
@@ -1173,6 +1193,21 @@ const translations: Translations = {
     ru: 'В магазин',
     en: 'Continue Shopping',
     ge: 'მაღაზიაში',
+  },
+  'cart.add_more_for_free_delivery': {
+    ru: 'Добавьте товаров на {{amount}} GEL для бесплатной доставки',
+    en: 'Add {{amount}} GEL more for free delivery',
+    ge: 'დაამატეთ {{amount}} ლარის ღირებულების ნივთი უფასო მიტანისთვის',
+  },
+  'cart.empty_cart_title': {
+    ru: 'Ваша корзина пуста',
+    en: 'Your cart is empty',
+    ge: 'თქვენი კალათა ცარიელია',
+  },
+  'cart.empty_cart_message': {
+    ru: 'Похоже, вы еще ничего не добавили в корзину',
+    en: 'Looks like you haven\'t added anything to your cart yet',
+    ge: 'როგორც ჩანს, თქვენ ჯერ არაფერი გაქვთ დამატებული კალათაში',
   },
   'cart.remove': {
     ru: 'Удалить',
@@ -1833,20 +1868,192 @@ const translations: Translations = {
     en: 'Please fill in your address and phone number in your profile.',
     ge: 'გთხოვთ შეავსოთ თქვენი მისამართი და ტელეფონის ნომერი პროფილში.',
   },
-  'profile.important': {
-    ru: 'ВАЖНО!',
-    en: 'IMPORTANT!',
-    ge: 'მნიშვნელოვანი!',
+  'checkout.optional': {
+    ru: 'Необязательно',
+    en: 'Optional',
+    ge: 'არასავალდებულო',
+  },
+  'checkout.comment': {
+    ru: 'Комментарий к заказу',
+    en: 'Order Comment',
+    ge: 'შეკვეთის კომენტარი',
+  },
+  'checkout.comment_placeholder': {
+    ru: 'Дополнительная информация для доставки',
+    en: 'Additional delivery information',
+    ge: 'დამატებითი ინფორმაცია მიტანისთვის',
   },
   'checkout.title': {
     ru: 'Оформление заказа',
     en: 'Checkout',
     ge: 'შეკვეთის გაფორმება',
   },
+  'checkout.subtitle': {
+    ru: 'Пожалуйста, заполните форму ниже, чтобы завершить заказ',
+    en: 'Please fill out the form below to complete your order',
+    ge: 'გთხოვთ შეავსოთ ფორმა შეკვეთის დასასრულებლად',
+  },
   'checkout.delivery_info': {
     ru: 'Информация о доставке',
     en: 'Delivery Information',
     ge: 'მიტანის ინფორმაცია',
+  },
+  'checkout.name': {
+    ru: 'Имя',
+    en: 'Name',
+    ge: 'სახელი',
+  },
+  'checkout.name_placeholder': {
+    ru: 'Введите ваше имя',
+    en: 'Enter your name',
+    ge: 'შეიყვანეთ თქვენი სახელი',
+  },
+  'checkout.email': {
+    ru: 'Email',
+    en: 'Email',
+    ge: 'იმეილი',
+  },
+  'checkout.email_placeholder': {
+    ru: 'example@email.com',
+    en: 'example@email.com',
+    ge: 'example@email.com',
+  },
+  'checkout.phone': {
+    ru: 'Телефон',
+    en: 'Phone',
+    ge: 'ტელეფონი',
+  },
+  'checkout.phone_placeholder': {
+    ru: 'Введите номер телефона',
+    en: 'Enter phone number',
+    ge: 'შეიყვანეთ ტელეფონის ნომერი',
+  },
+  'checkout.city': {
+    ru: 'Город',
+    en: 'City',
+    ge: 'ქალაქი',
+  },
+  'checkout.district': {
+    ru: 'Район',
+    en: 'District',
+    ge: 'უბანი',
+  },
+  'checkout.district_placeholder': {
+    ru: 'Выберите район',
+    en: 'Select district',
+    ge: 'აირჩიეთ უბანი',
+  },
+  'checkout.building': {
+    ru: 'Дом',
+    en: 'Building',
+    ge: 'სახლი',
+  },
+  'checkout.building_placeholder': {
+    ru: 'Номер дома',
+    en: 'Building number',
+    ge: 'სახლის ნომერი',
+  },
+  'checkout.floor': {
+    ru: 'Этаж',
+    en: 'Floor',
+    ge: 'სართული',
+  },
+  'checkout.floor_placeholder': {
+    ru: 'Номер этажа',
+    en: 'Floor number',
+    ge: 'სართულის ნომერი',
+  },
+  'checkout.apartment': {
+    ru: 'Квартира',
+    en: 'Apartment',
+    ge: 'ბინა',
+  },
+  'checkout.apartment_placeholder': {
+    ru: 'Номер квартиры',
+    en: 'Apartment number',
+    ge: 'ბინის ნომერი',
+  },
+  'checkout.address': {
+    ru: 'Адрес',
+    en: 'Address',
+    ge: 'მისამართი',
+  },
+  'checkout.address_placeholder': {
+    ru: 'Улица и номер дома',
+    en: 'Street and building number',
+    ge: 'ქუჩა და სახლის ნომერი',
+  },
+  'checkout.comment': {
+    ru: 'Комментарий',
+    en: 'Comment',
+    ge: 'კომენტარი',
+  },
+  'checkout.optional': {
+    ru: 'необязательно',
+    en: 'optional',
+    ge: 'არასავალდებულო',
+  },
+  'checkout.processing': {
+    ru: 'Обработка...',
+    en: 'Processing...',
+    ge: 'მუშავდება...',
+  },
+
+  'common.close': {
+    ru: 'Закрыть',
+    en: 'Close',
+    ge: 'დახურვა',
+  },
+  'auth.sign_in_with_google': {
+    ru: 'Войти с Google',
+    en: 'Sign in with Google',
+    ge: 'შესვლა Google-ით',
+  },
+  'common.back_to_home': {
+    ru: 'Вернуться на главную',
+    en: 'Back to Home',
+    ge: 'მთავარზე დაბრუნება',
+  },
+  'checkout.city': {
+    ru: 'Город',
+    en: 'City',
+    ge: 'ქალაქი',
+  },
+  'checkout.only_tbilisi': {
+    ru: 'В настоящее время доставка доступна только по Тбилиси',
+    en: 'Currently, delivery is only available in Tbilisi',
+    ge: 'ამჟამად მიტანა ხელმისაწვდომია მხოლოდ თბილისში',
+  },
+
+  'checkout.district': {
+    ru: 'Район',
+    en: 'District',
+    ge: 'უბანი',
+  },
+  'checkout.building': {
+    ru: 'Здание',
+    en: 'Building',
+    ge: 'შენობა',
+  },
+  'checkout.floor': {
+    ru: 'Этаж',
+    en: 'Floor',
+    ge: 'სართული',
+  },
+  'checkout.apartment': {
+    ru: 'Квартира',
+    en: 'Apartment',
+    ge: 'ბინა',
+  },
+  'checkout.required_field': {
+    ru: 'Обязательное поле',
+    en: 'Required field',
+    ge: 'სავალდებულო ველი',
+  },
+  'checkout.select_city': {
+    ru: 'Выберите город',
+    en: 'Select city',
+    ge: 'აირჩიეთ ქალაქი',
   },
   'purchase_messages': [
     '🎯 Quest completed: [Purchase successful].',
@@ -1966,6 +2173,11 @@ const translations: Translations = {
     en: 'Fill in',
     ge: 'შეავსეთ',
   },
+  'footer.terms': {
+    ru: 'Условия и положения',
+    en: 'Terms and Conditions',
+    ge: 'წესები და პირობები',
+  },
   'categories.handmade': {
     ru: 'САМОДЕЛЬНЫЕ',
     en: 'HANDMADE',
@@ -1983,26 +2195,15 @@ const translations: Translations = {
     ge: 'რაოდენობის შემცირება',
   },
   'cart.increase_quantity': {
+    ru: 'Увеличить количество',
+    en: 'Increase quantity',
+    ge: 'რაოდენობის გაზრდა',
   },
-  'cart.discount': {
-    ru: 'Скидка',
-    en: 'Discount',
-    ge: 'ფასდაკლება',
-  },
-  'cart.get_discount': {
-    ru: 'Получить скидку',
-    en: 'Get discount',
-    ge: 'მიიღეთ ფასდაკლება',
-  },
+
   'cart.delivery': {
-    ru: 'доставка:',
-    en: 'delivery:',
-    ge: 'მიწოდება:',
-  },
-  'home.discounts': {
-    ru: 'Скидки',
-    en: 'Discounts',
-    ge: 'ფასდაკლებები',
+    ru: 'Доставка',
+    en: 'Delivery',
+    ge: 'მიტანა',
   },
   'cart.success': {
     ru: 'Заказ оформлен успешно!',

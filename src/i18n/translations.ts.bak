@@ -1,33 +1,17 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+// Define types for translations
+type TranslationValue = 
+  | { ru: string; en: string; ge: string }
+  | string[]
+  | string;
 
-// Определяем типы для текстов на разных языках
-export type TranslationValue = {
-  ru: string;
-  en: string;
-  ge: string;
-} | {
-  [key: string]: TranslationValue | {
-    ru: string;
-    en: string;
-    ge: string;
-  };
-};
+interface NestedTranslations {
+  [key: string]: TranslationValue | NestedTranslations;
+}
 
-type NestedTranslations = {
-  [key: string]: {
-    ru: string;
-    en: string;
-    ge: string;
-  };
-};
+export type Translations = NestedTranslations;
 
-export type Translations = {
-  [key: string]: TranslationValue;
-};
-
-// Добавляем все переводы здесь
-export const translations: Translations = {
+// All translations go here
+const translations: Translations = {
   'favorites.login_required': {
     ru: 'Войдите, чтобы сохранять избранное',
     en: 'Please login to save favorites',
@@ -50,8 +34,23 @@ export const translations: Translations = {
   },
   'nav.contact': {
     ru: 'Контакты',
-    en: 'Contact us',
+    en: 'Contact',
     ge: 'კონტაქტი',
+  },
+  'nav.promo_code': {
+    ru: 'Промокод',
+    en: 'Promo Code',
+    ge: 'პრომო კოდი',
+  },
+  'promo.discount': {
+    ru: 'скидка',
+    en: 'sale',
+    ge: 'ფასდაკლება',
+  },
+  'nav.enter_promo': {
+    ru: 'Ввести промокод',
+    en: 'Enter Promo Code',
+    ge: 'შეიყვანეთ პრომო კოდი',
   },
   'nav.faq': {
     ru: 'ЧЗВ',
@@ -103,7 +102,7 @@ export const translations: Translations = {
   'home.our_story': {
     ru: 'Наша история',
     en: 'Our Story',
-    ge: 'ჩვენი ისტორია',
+    ge: 'ისტორია',
   },
   'home.subtitle': {
     ru: 'Дикая эстетика для тех, кто кует свой стиль сам — из цепей, клёпок и свободы. Готика, панк, хендмейд — всё, что бунтует вместе с тобой',
@@ -189,6 +188,16 @@ export const translations: Translations = {
     en: 'Handmade, not templated. With soul, not instructions.\nIf you want something flashy — look elsewhere. Here we make things with character🪓',
     ge: 'ხელით, არა შაბლონით. სულით, არა ინსტრუქციით.\nთუ ბრჭვიალს ეძებ — ეს ადგილი არ არის შენთვის. აქ ხასიათიან ნივთებს ვქმნით🪓',
   },
+  'footer.handmade_products': {
+    ru: 'Ручная работа',
+    en: 'Handmade',
+    ge: 'ხელნაკეთი',
+  },
+  'footer.other_products': {
+    ru: 'Другое',
+    en: 'Other',
+    ge: 'სხვა',
+  },
   'common.close': {
     ru: 'Закрыть',
     en: 'Close',
@@ -227,14 +236,19 @@ export const translations: Translations = {
     ge: '100 ლარიდან მიწოდება უფასოა! 500 ლარიდან - 10% ფასდაკლება!',
   },
   'cart.discount_10': {
-    ru: 'Вам предоставляется 10%-ая скидка!',
-    en: 'You get a 10% discount!',
-    ge: 'თქვენ იღებთ 10%-იან ფასდაკლებას!',
+    ru: 'скидка: 10%',
+    en: 'discount: 10%',
+    ge: 'ფასდაკლება: 10%',
   },
   'cart.discount_5': {
-    ru: 'Вам предоставляется 5%-ая скидка за хороший отзыв!',
-    en: 'You get a 5% discount for a good review!',
-    ge: 'კარგი მიმოხილვისთვის იღებთ 5%-იან ფასდაკლებას!',
+    ru: 'скидка: 5%',
+    en: 'discount: 5%',
+    ge: 'ფასდაკლება: 5%',
+  },
+  'cart.discount_5_review': {
+    ru: 'скидка: 5%',
+    en: 'discount: 5%',
+    ge: 'ფასდაკლება: 5%',
   },
   'cart.free_delivery_info': {
     ru: 'При заказе от 100 лар — бесплатная доставка!',
@@ -243,6 +257,31 @@ export const translations: Translations = {
   },
 
   // Товары
+  'product.categories': {
+    ru: 'Категории',
+    en: 'Categories',
+    ge: 'კატეგორიები',
+  },
+  'products.zero': {
+    ru: 'товаров',
+    en: 'products',
+    ge: 'ნაწარმი',
+  },
+  'products.one': {
+    ru: 'товар',
+    en: 'product',
+    ge: 'ნივთი',
+  },
+  'products.few': {
+    ru: 'товара',
+    en: 'products',
+    ge: 'ნივთი',
+  },
+  'products.many': {
+    ru: 'товаров',
+    en: 'products',
+    ge: 'ნაწარმი',
+  },
   'product.add_to_cart': {
     ru: 'В корзину',
     en: 'Add to cart',
@@ -314,9 +353,19 @@ export const translations: Translations = {
     ge: 'ვიღაც უყურებს ამ ნივთს 👀',
   },
   'product.in_stock': {
-    ru: 'В наличии:',
-    en: 'In stock:',
-    ge: 'მარაგში:',
+    ru: 'В наличии',
+    en: 'In stock',
+    ge: 'მარაგში',
+  },
+  'product.discounted_products': {
+    ru: 'Товары со скидкой',
+    en: 'Discounted Products',
+    ge: 'ფასდაკლებული ნივთები',
+  },
+  'product.no_discounted_products': {
+    ru: 'Нет товаров со скидкой',
+    en: 'No discounted products available',
+    ge: 'ფასდაკლებული პროვიზია არ არის ხელმისაწვდომი',
   },
   'recently_viewed': {
     label: {
@@ -447,11 +496,6 @@ export const translations: Translations = {
     ge: 'ყველაზე ნანახი',
   },
   'product.discounts': {
-    ru: 'СКИДКИ',
-    en: 'DISCOUNTS',
-    ge: 'ფასდაკლებები',
-  },
-  'product.discounted_products': {
     ru: 'Товары со скидкой',
     en: 'Discounted Products',
     ge: 'ფასდაკლებული პროდუქცია',
@@ -498,12 +542,12 @@ export const translations: Translations = {
   'filters.in_stock': {
     ru: 'В наличии',
     en: 'In stock',
-    ge: 'Საწყობშია',
+    ge: 'მარაგში',
   },
   'filters.out_of_stock': {
     ru: 'Нет в наличии',
     en: 'Out of stock',
-    ge: 'Არ არის საწყობში',
+    ge: 'არ არის მარაგში',
   },
   'filters.on_sale': {
     ru: 'Со скидкой',
@@ -513,7 +557,87 @@ export const translations: Translations = {
   'filters.apply': {
     ru: 'Применить',
     en: 'Apply',
-    ge: 'Დამატება',
+    ge: 'გამოყენება',
+  },
+  'filters.handmade': {
+    ru: 'Самодельные',
+    en: 'Handmade',
+    ge: 'ხელნაკეთი',
+  },
+  'filters.other': {
+    ru: 'Другое',
+    en: 'Other',
+    ge: 'სხვა',
+  },
+  'common.apply': {
+    ru: 'Применить',
+    en: 'Apply',
+    ge: 'გამოყენება',
+  },
+  'promo.have_code': {
+    ru: 'Есть промокод?',
+    en: 'Have a code?',
+    ge: 'გაქვთ კოდი?',
+  },
+  'promo.want_discount': {
+    ru: 'Хотите скидку?',
+    en: 'Want a discount?',
+    ge: 'გსურთ ფასდაკლება?',
+  },
+  'promo.how_to_get': {
+    ru: 'Вот как её получить:',
+    en: 'Here\'s how to get it:',
+    ge: 'აი, როგორ მიიღოთ ის:',
+  },
+  'promo.social_codes': {
+    ru: 'Промокоды, которые мы публикуем в соцсетях!',
+    en: 'Promo codes that we post on our social media!',
+    ge: 'პრომო კოდები, რომლებსაც სოციალურ ქსელებში ვაქვეყნებთ!',
+  },
+  'promo.over_500': {
+    ru: 'Для заказов от 500 лари — скидка 10%!',
+    en: 'For orders over 500 lari — get 10% off!',
+    ge: '500 ლარის ზემოთ შეკვეთებზე — 10%-იანი ფასდაკლება!',
+  },
+  'promo.over_200': {
+    ru: 'Для заказов от 200 лари — скидка 5%!',
+    en: 'For orders over 200 lari — get 5% off!',
+    ge: '200 ლარის ზემოთ შეკვეთებზე — 5%-იანი ფასდაკლება!',
+  },
+  'promo.over_100': {
+    ru: 'Для заказов от 100 лари — бесплатная доставка!',
+    en: 'For orders over 100 lari — free delivery!',
+    ge: '100 ლარის ზემოთ შეკვეთებზე — უფასო მიწოდება!',
+  },
+  'promo.facebook': {
+    ru: 'Facebook',
+    en: 'Facebook',
+    ge: 'Facebook',
+  },
+  'promo.instagram': {
+    ru: 'Instagram',
+    en: 'Instagram',
+    ge: 'Instagram',
+  },
+  'promo.discount_info_title': {
+    ru: 'Скидки на заказы',
+    en: 'Order Discounts',
+    ge: 'ფასდაკლებები შეკვეთებზე',
+  },
+  'promo.follow_us_for_discounts': {
+    ru: 'Подпишитесь на наши соцсети, чтобы не пропустить акции и скидки!',
+    en: 'Follow us on social media to get exclusive promo codes and discounts!',
+    ge: 'გამოგვყევით სოციალურ ქსელებში, რათა არ გამოგრჩეთ აქციები და ფასდაკლებები!',
+  },
+  'sort.by_price_low_high': {
+    ru: 'Цена: по возрастанию',
+    en: 'Price: Low to High',
+    ge: 'ფასი: ზრდადი',
+  },
+  'sort.by_price_high_low': {
+    ru: 'Цена: по убыванию',
+    en: 'Price: High to Low',
+    ge: 'ფასი: კლებადი',
   },
   'filters.reset': {
     ru: 'Сбросить',
@@ -591,6 +715,11 @@ export const translations: Translations = {
     ru: 'Браслет',
     en: 'Bracelet',
     ge: 'სამაჯური',
+  },
+  'category.keychains': {
+    ru: 'Брелки',
+    en: 'Keychains',
+    ge: 'გასაღების დამჭერები',
   },
   'category.ring': {
     ru: 'Кольцо',
@@ -1050,15 +1179,40 @@ export const translations: Translations = {
     en: 'Checkout',
     ge: 'შეკვეთის დასრულება',
   },
+  'cart.empty_title': {
+    ru: 'Ваша корзина пуста',
+    en: 'Your cart is empty',
+    ge: 'თქვენი კალათა ცარიელია',
+  },
+  'cart.empty_description': {
+    ru: 'Добавляйте товары в корзину, и они появятся здесь',
+    en: 'Add items to your cart and they will appear here',
+    ge: 'დაამატეთ ნივთები კალათაში და ისინი აქ გამოჩნდება',
+  },
+  'cart.continue_shopping': {
+    ru: 'В магазин',
+    en: 'Continue Shopping',
+    ge: 'მაღაზიაში',
+  },
+  'cart.add_more_for_free_delivery': {
+    ru: 'Добавьте товаров на {{amount}} GEL для бесплатной доставки',
+    en: 'Add {{amount}} GEL more for free delivery',
+    ge: 'დაამატეთ {{amount}} ლარის ღირებულების ნივთი უფასო მიტანისთვის',
+  },
+  'cart.empty_cart_title': {
+    ru: 'Ваша корзина пуста',
+    en: 'Your cart is empty',
+    ge: 'თქვენი კალათა ცარიელია',
+  },
+  'cart.empty_cart_message': {
+    ru: 'Похоже, вы еще ничего не добавили в корзину',
+    en: 'Looks like you haven\'t added anything to your cart yet',
+    ge: 'როგორც ჩანს, თქვენ ჯერ არაფერი გაქვთ დამატებული კალათაში',
+  },
   'cart.remove': {
     ru: 'Удалить',
     en: 'Remove',
     ge: 'წაშლა',
-  },
-  'product.back_to_shop': {
-    ru: 'Назад в магазин',
-    en: 'Back to Shop',
-    ge: 'უკან მაღაზიაში',
   },
   'similar.products': {
     ru: 'Похожие товары',
@@ -1205,6 +1359,12 @@ export const translations: Translations = {
     ru: 'Ошибка входа. Проверьте email и пароль.',
     en: 'Login failed. Please check your email and password.',
     ge: 'ავტორიზაცია ვერ მოხერხდა. გთხოვთ შეამოწმოთ ელ. ფოსტა და პაროლი.',
+  },
+
+  'checkout.login_with_google': {
+    ru: 'Войти с Google',
+    en: 'Sign in with Google',
+    ge: 'შესვლა Google-ით',
   },
   'auth.signup_failed': {
     ru: 'Ошибка регистрации',
@@ -1698,26 +1858,245 @@ export const translations: Translations = {
     en: 'Testimonials',
     ge: 'მიმოხილვები',
   },
+  'most_popular': {
+    ru: 'САМЫЙ ПОПУЛЯРНЫЙ',
+    en: 'MOST POPULAR',
+    ge: 'ყველაზე პოპულარული',
+  },
   'profile.fill_address_warning': {
     ru: 'Пожалуйста, заполните адрес проживания и номер телефона в профиле.',
     en: 'Please fill in your address and phone number in your profile.',
     ge: 'გთხოვთ შეავსოთ თქვენი მისამართი და ტელეფონის ნომერი პროფილში.',
   },
-  'profile.important': {
-    ru: 'ВАЖНО!',
-    en: 'IMPORTANT!',
-    ge: 'მნიშვნელოვანი!',
+  'checkout.optional': {
+    ru: 'Необязательно',
+    en: 'Optional',
+    ge: 'არასავალდებულო',
+  },
+  'checkout.comment': {
+    ru: 'Комментарий к заказу',
+    en: 'Order Comment',
+    ge: 'შეკვეთის კომენტარი',
+  },
+  'checkout.comment_placeholder': {
+    ru: 'Дополнительная информация для доставки',
+    en: 'Additional delivery information',
+    ge: 'დამატებითი ინფორმაცია მიტანისთვის',
   },
   'checkout.title': {
     ru: 'Оформление заказа',
     en: 'Checkout',
     ge: 'შეკვეთის გაფორმება',
   },
+  'checkout.subtitle': {
+    ru: 'Пожалуйста, заполните форму ниже, чтобы завершить заказ',
+    en: 'Please fill out the form below to complete your order',
+    ge: 'გთხოვთ შეავსოთ ფორმა შეკვეთის დასასრულებლად',
+  },
   'checkout.delivery_info': {
     ru: 'Информация о доставке',
     en: 'Delivery Information',
     ge: 'მიტანის ინფორმაცია',
   },
+  'checkout.name': {
+    ru: 'Имя',
+    en: 'Name',
+    ge: 'სახელი',
+  },
+  'checkout.name_placeholder': {
+    ru: 'Введите ваше имя',
+    en: 'Enter your name',
+    ge: 'შეიყვანეთ თქვენი სახელი',
+  },
+  'checkout.email': {
+    ru: 'Email',
+    en: 'Email',
+    ge: 'იმეილი',
+  },
+  'checkout.email_placeholder': {
+    ru: 'example@email.com',
+    en: 'example@email.com',
+    ge: 'example@email.com',
+  },
+  'checkout.phone': {
+    ru: 'Телефон',
+    en: 'Phone',
+    ge: 'ტელეფონი',
+  },
+  'checkout.phone_placeholder': {
+    ru: 'Введите номер телефона',
+    en: 'Enter phone number',
+    ge: 'შეიყვანეთ ტელეფონის ნომერი',
+  },
+  'checkout.city': {
+    ru: 'Город',
+    en: 'City',
+    ge: 'ქალაქი',
+  },
+  'checkout.district': {
+    ru: 'Район',
+    en: 'District',
+    ge: 'უბანი',
+  },
+  'checkout.district_placeholder': {
+    ru: 'Выберите район',
+    en: 'Select district',
+    ge: 'აირჩიეთ უბანი',
+  },
+  'checkout.building': {
+    ru: 'Дом',
+    en: 'Building',
+    ge: 'სახლი',
+  },
+  'checkout.building_placeholder': {
+    ru: 'Номер дома',
+    en: 'Building number',
+    ge: 'სახლის ნომერი',
+  },
+  'checkout.floor': {
+    ru: 'Этаж',
+    en: 'Floor',
+    ge: 'სართული',
+  },
+  'checkout.floor_placeholder': {
+    ru: 'Номер этажа',
+    en: 'Floor number',
+    ge: 'სართულის ნომერი',
+  },
+  'checkout.apartment': {
+    ru: 'Квартира',
+    en: 'Apartment',
+    ge: 'ბინა',
+  },
+  'checkout.apartment_placeholder': {
+    ru: 'Номер квартиры',
+    en: 'Apartment number',
+    ge: 'ბინის ნომერი',
+  },
+  'checkout.address': {
+    ru: 'Адрес',
+    en: 'Address',
+    ge: 'მისამართი',
+  },
+  'checkout.address_placeholder': {
+    ru: 'Улица и номер дома',
+    en: 'Street and building number',
+    ge: 'ქუჩა და სახლის ნომერი',
+  },
+  'checkout.comment': {
+    ru: 'Комментарий',
+    en: 'Comment',
+    ge: 'კომენტარი',
+  },
+  'checkout.optional': {
+    ru: 'необязательно',
+    en: 'optional',
+    ge: 'არასავალდებულო',
+  },
+  'checkout.processing': {
+    ru: 'Обработка...',
+    en: 'Processing...',
+    ge: 'მუშავდება...',
+  },
+
+  'common.close': {
+    ru: 'Закрыть',
+    en: 'Close',
+    ge: 'დახურვა',
+  },
+  'auth.sign_in_with_google': {
+    ru: 'Войти с Google',
+    en: 'Sign in with Google',
+    ge: 'შესვლა Google-ით',
+  },
+  'common.back_to_home': {
+    ru: 'Вернуться на главную',
+    en: 'Back to Home',
+    ge: 'მთავარზე დაბრუნება',
+  },
+  'checkout.city': {
+    ru: 'Город',
+    en: 'City',
+    ge: 'ქალაქი',
+  },
+  'checkout.only_tbilisi': {
+    ru: 'В настоящее время доставка доступна только по Тбилиси',
+    en: 'Currently, delivery is only available in Tbilisi',
+    ge: 'ამჟამად მიტანა ხელმისაწვდომია მხოლოდ თბილისში',
+  },
+
+  'checkout.district': {
+    ru: 'Район',
+    en: 'District',
+    ge: 'უბანი',
+  },
+  'checkout.building': {
+    ru: 'Здание',
+    en: 'Building',
+    ge: 'შენობა',
+  },
+  'checkout.floor': {
+    ru: 'Этаж',
+    en: 'Floor',
+    ge: 'სართული',
+  },
+  'checkout.apartment': {
+    ru: 'Квартира',
+    en: 'Apartment',
+    ge: 'ბინა',
+  },
+  'checkout.required_field': {
+    ru: 'Обязательное поле',
+    en: 'Required field',
+    ge: 'სავალდებულო ველი',
+  },
+  'checkout.select_city': {
+    ru: 'Выберите город',
+    en: 'Select city',
+    ge: 'აირჩიეთ ქალაქი',
+  },
+  'purchase_messages': [
+    '🎯 Quest completed: [Purchase successful].',
+    '🔓 Unlocked: New equipment item.',
+    '🗃️ Added to inventory. Use wisely.',
+    '🧩 You found hidden loot. Not everyone gets this far.',
+    '🎲 The odds were in your favor. Epic drop!',
+    '👣 You chose the path. This item is now part of your story.',
+    '⚗️ Crafted something worthy. Let\'s test it in battle.',
+    '🛠️ Your build is looking serious now.',
+    '👁️ You saw potential where others passed by.',
+    '🕹️ Equipment slot filled. Time to take the next step.',
+    '💾 Progress saved. No turning back now.',
+    '💣 This is not just an item — it\'s your advantage.',
+    '👑 Purchase confirmed. Prestige +1.',
+    '📡 Signal received. Artifact en route to your world.',
+    '⚔️ Combat rating increased. You\'re ready for the next wave.',
+    '🎮 Item received. Rarity: Unique.',
+    '📦 You unlocked a new ally.',
+    '⚙️ You activated an artifact. Now to figure out what it does.',
+    '🛡️ This is not just gear. It\'s a buff to your style.',
+    '🔥 Inventory updated. Someone just got stronger.',
+    '🕶️ Stylish. Dangerous. Yours.',
+    '💬 NPCs are jealous. You\'re the main character now.',
+    '🌌 You pulled an artifact from another reality. Must-have.',
+    '🧠 +10 to charisma. The rest will follow.',
+    '🚀 You didn\'t just choose a product. You chose an upgrade.',
+    '🔮 Item bound to owner. No returns.',
+    '🎮 Loot secured. Mission accomplished.',
+    '📖 A new chapter begins with this purchase.',
+    '⚡ You received ⚡ buff: Confidence +25%',
+    '🛰️ Your signal received. Delivery launched from the stratosphere.',
+    '🧤 The power is in the details. And you\'ve got it all.',
+    '🪙 You spent coins. Got a legend.',
+    '🚫 You\'re no longer the one who watched. You\'re the one who chose.',
+    '🗡️ Something ominously good in your inventory.',
+    '🎯 You never miss. And this choice is no exception.',
+    '📡 Interdimensional delivery activated. Prepare your slot.',
+    '🎖️ Achievement unlocked: Good taste.',
+    '🕳️ You looked into the black box... and took the best.',
+    '🎁 You didn\'t just order. You summoned this.',
+    '👤 They\'ll be asking: where did you get that?'
+  ],
   'checkout.name': {
     ru: 'Имя',
     en: 'Name',
@@ -1763,15 +2142,51 @@ export const translations: Translations = {
     en: 'Add items to your cart to continue',
     ge: 'გააგრძელეთ შესაძენად',
   },
+
   'checkout.continue_shopping': {
     ru: 'Продолжить покупки',
     en: 'Continue Shopping',
     ge: 'შენახვის გაგრძელება',
   },
+  'checkout.login_required': {
+    ru: 'Вход обязателен',
+    en: 'Login Required',
+    ge: 'ავტორიზაცია აუცილებელია',
+  },
+  'checkout.login_prompt': {
+    ru: 'Пожалуйста, войдите, чтобы продолжить оформление заказа',
+    en: 'Please log in to continue with your order',
+    ge: 'გთხოვთ შეხვიდეთ ანგარიშზე შეკვეთის გასაგრძელებლად',
+  },
+  'auth.sign_in_with_google': {
+    ru: 'Войти с Google',
+    en: 'Sign in with Google',
+    ge: 'შესვლა Google-ით',
+  },
+  'common.back_to_home': {
+    ru: 'Вернуться на главную',
+    en: 'Back to Home',
+    ge: 'მთავარზე დაბრუნება',
+  },
   'profile.go_to_address': {
     ru: 'Заполнить',
     en: 'Fill in',
     ge: 'შეავსეთ',
+  },
+  'footer.terms': {
+    ru: 'Условия и положения',
+    en: 'Terms and Conditions',
+    ge: 'წესები და პირობები',
+  },
+  'categories.handmade': {
+    ru: 'САМОДЕЛЬНЫЕ',
+    en: 'HANDMADE',
+    ge: 'ხელნაკეთი',
+  },
+  'categories.other': {
+    ru: 'ДРУГОЕ',
+    en: 'OTHER',
+    ge: 'სხვა',
   },
 
   'cart.decrease_quantity': {
@@ -1784,40 +2199,11 @@ export const translations: Translations = {
     en: 'Increase quantity',
     ge: 'რაოდენობის გაზრდა',
   },
-  'cart.add_to_cart': {
-    ru: 'В корзину',
-    en: 'Add to Cart',
-    ge: 'კალათში დამატება',
-  },
-  'cart.discount': {
-    ru: 'Скидка',
-    en: 'Discount',
-    ge: 'ფასდაკლება',
-  },
-  'cart.discount_5': {
-    ru: 'Скидка 5%',
-    en: 'Discount 5%',
-    ge: 'ფასდაკლება 5%',
-  },
-  'cart.discount_10': {
-    ru: 'Скидка 10%',
-    en: 'Discount 10%',
-    ge: 'ფასდაკლება 10%',
-  },
-  'cart.get_discount': {
-    ru: 'Получить скидку',
-    en: 'Get discount',
-    ge: 'მიიღეთ ფასდაკლება',
-  },
+
   'cart.delivery': {
-    ru: 'доставка:',
-    en: 'delivery:',
-    ge: 'მიწოდება:',
-  },
-  'home.discounts': {
-    ru: 'Скидки',
-    en: 'Discounts',
-    ge: 'ფასდაკლებები',
+    ru: 'Доставка',
+    en: 'Delivery',
+    ge: 'მიტანა',
   },
   'cart.success': {
     ru: 'Заказ оформлен успешно!',
@@ -1830,9 +2216,9 @@ export const translations: Translations = {
     ge: 'ც',
   },
   'product.our_story': {
-    ru: 'Наша история',
-    en: 'Our story',
-    ge: 'ჩვენი ისტორია',
+    ru: 'История',
+    en: 'Story',
+    ge: 'ისტორია',
   },
   'product.no_reviews': {
     ru: 'Нет отзывов. Будьте первым, кто оставит отзыв!',
@@ -1844,27 +2230,8 @@ export const translations: Translations = {
     en: 'Image not available',
     ge: 'სურათი ხელმიუწვდომელია',
   },
+
 };
 
-const resources = {
-  ru: {
-    translation: translations,
-  },
-  en: {
-    translation: translations,
-  },
-  ge: {
-    translation: translations,
-  },
-};
-
-i18n.use(initReactI18next).init({
-  resources,
-  lng: 'ru', // русский как язык по умолчанию
-  fallbackLng: 'ru',
-  interpolation: {
-    escapeValue: false,
-  },
-});
-
-export default i18n;
+// Export the translations
+export default translations;

@@ -1,38 +1,55 @@
 import { useEffect, useState } from 'react';
 
-const Preloader = () => {
+interface PreloaderProps {
+  isLoading: boolean;
+  children?: React.ReactNode;
+}
+
+const Preloader = ({ isLoading, children }: PreloaderProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
 
   useEffect(() => {
-    // Анимация прогресс-бара
+    // Start the loading animation immediately
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
+          // Only mark as complete when we reach 100%
+          if (!isLoadingComplete) {
+            setIsLoadingComplete(true);
+          }
           return 100;
         }
         return prev + Math.floor(Math.random() * 10) + 5;
       });
     }, 100);
 
-    // Автоматическое скрытие прелоадера
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      document.body.style.overflow = 'auto';
-    }, 3000);
-
-    // Блокировка скролла при загрузке
+    // Prevent scrolling during loading
     document.body.style.overflow = 'hidden';
 
+    // Cleanup function
     return () => {
       clearInterval(interval);
-      clearTimeout(timer);
       document.body.style.overflow = 'auto';
     };
-  }, []);
+  }, [isLoadingComplete]);
 
-  if (!isVisible) return null;
+  // Handle the loading state change
+  useEffect(() => {
+    if (isLoadingComplete && !isLoading) {
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        document.body.style.overflow = 'auto';
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isLoadingComplete]);
+
+  if (!isLoading || !isVisible) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
