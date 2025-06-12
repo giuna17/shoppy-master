@@ -1999,13 +1999,6 @@ const translations: Translations = {
     ge: 'მუშავდება...',
   },
 
-  'checkout.order_summary': {
-    ru: 'Детали заказа',
-    en: 'Order Summary',
-    ge: 'შეკვეთის დეტალები',
-  },
-
-
   'common.close': {
     ru: 'Закрыть',
     en: 'Close',
