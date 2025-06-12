@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,8 @@ interface ProductFiltersProps {
   categories: Category[];
   initialFilters?: FilterValues;
   activeCategory?: string;
+  activeCategoryType?: 'handmade' | 'other';
+  onCategoryTypeChange?: (type: 'handmade' | 'other') => void;
 }
 
 const ProductFilters: React.FC<ProductFiltersProps> = ({
@@ -25,6 +27,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   categories,
   initialFilters,
   activeCategory,
+  activeCategoryType: propActiveCategoryType = 'handmade',
+  onCategoryTypeChange,
 }) => {
   const { t } = useLanguage();
   const products = getProducts();
@@ -34,7 +38,36 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const minProductPrice = Math.min(...prices);
   const maxProductPrice = Math.max(...prices);
 
-  const [activeCategoryType, setActiveCategoryType] = useState<'handmade' | 'other'>('handmade');
+  const [activeCategoryType, setActiveCategoryType] = useState<'handmade' | 'other'>(propActiveCategoryType);
+  
+  // Update local state when prop changes
+  useEffect(() => {
+    setActiveCategoryType(propActiveCategoryType);
+  }, [propActiveCategoryType]);
+  
+  // Handle category type change
+  const handleCategoryTypeChange = (type: 'handmade' | 'other') => {
+    setActiveCategoryType(type);
+    
+    // Update the filters with the new type and clear categories
+    const updatedFilters = {
+      ...filters,
+      type,
+      categories: []
+    };
+    
+    // Update local filters
+    setFilters(updatedFilters);
+    
+    // Notify parent component
+    onFilterChange(updatedFilters);
+    
+    // Call the onCategoryTypeChange callback if provided
+    if (onCategoryTypeChange) {
+      onCategoryTypeChange(type);
+    }
+  };
+
   const [filters, setFilters] = useState<FilterValues>(
     initialFilters || {
       priceRange: [minProductPrice, maxProductPrice],
@@ -66,16 +99,24 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const isBraceletsCategory = filters.categories.includes('bracelets') || activeCategory === 'bracelets';
   console.log('Active category:', activeCategory); // Debugging line
 
+  // Centralized filter update handler
+  const handleFilterChange = (updates: Partial<FilterValues>) => {
+    setFilters(prev => {
+      const updated = {
+        ...prev,
+        ...updates,
+        type: activeCategoryType // Always include the active category type
+      };
+      onFilterChange(updated);
+      return updated;
+    });
+  };
+
   const handlePriceChange = (value: number[]) => {
     // Ensure we have exactly two values for the price range
     if (value.length >= 2) {
-      setFilters((prev) => {
-        const updated = {
-          ...prev,
-          priceRange: [value[0], value[1]] as [number, number],
-        };
-        onFilterChange(updated);
-        return updated;
+      handleFilterChange({
+        priceRange: [value[0], value[1]] as [number, number]
       });
     }
   };
@@ -84,83 +125,52 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const normalize = (str: string) => str.toLowerCase().trim();
 
   const handleCategoryToggle = (categoryId: string) => {
-    setFilters((prev) => {
-      // If clicking the active category, clear the filter
-      if (prev.categories.includes(categoryId)) {
-        const updated = {
-          ...prev,
-          categories: [],
-        };
-        onFilterChange(updated);
-        return updated;
-      }
-      
+    // If clicking the active category, clear the filter
+    if (filters.categories.includes(categoryId)) {
+      handleFilterChange({
+        categories: []
+      });
+    } else {
       // Otherwise, set the selected category
-      const updated = {
-        ...prev,
-        categories: [categoryId], // Only allow one category at a time
-      };
-      onFilterChange(updated);
-      return updated;
-    });
+      handleFilterChange({
+        categories: [categoryId] // Only allow one category at a time
+      });
+    }
   };
 
   const handleStockToggle = () => {
-    setFilters((prev) => {
-      const updated = {
-        ...prev,
-        inStock: !prev.inStock,
-        // If enabling inStock, make sure outOfStock is disabled
-        ...(prev.outOfStock && { outOfStock: false }),
-      };
-      onFilterChange(updated);
-      return updated;
+    handleFilterChange({
+      inStock: !filters.inStock,
+      // If enabling inStock, make sure outOfStock is disabled
+      ...(filters.outOfStock && { outOfStock: false })
     });
   };
 
   const handleOutOfStockToggle = () => {
-    setFilters((prev) => {
-      const updated = {
-        ...prev,
-        outOfStock: !prev.outOfStock,
-        // If enabling outOfStock, make sure inStock is disabled
-        ...(prev.inStock && { inStock: false }),
-      };
-      onFilterChange(updated);
-      return updated;
+    handleFilterChange({
+      outOfStock: !filters.outOfStock,
+      // If enabling outOfStock, make sure inStock is disabled
+      ...(filters.inStock && { inStock: false })
     });
   };
 
   const handleOnSaleToggle = () => {
-    setFilters((prev) => {
-      const updated = {
-        ...prev,
-        onSale: !prev.onSale,
-      };
-      onFilterChange(updated);
-      return updated;
+    handleFilterChange({
+      onSale: !filters.onSale
     });
   };
 
   const handleResetFilters = () => {
-    const resetFilters = {
-      priceRange: [0, 1000] as [number, number], // Always reset to default range
+    handleFilterChange({
+      priceRange: [minProductPrice, maxProductPrice] as [number, number],
       categories: [],
       inStock: false,
       outOfStock: false,
-      onSale: false,
-    };
-
-    // Reset active category in parent component
-    onFilterChange({
-      ...resetFilters,
-      // Force categories to be an empty array to trigger the reset
-      categories: []
+      onSale: false
     });
-
-    // Also update local state
-    setFilters(resetFilters);
   };
+
+  const handleClearFilters = handleResetFilters; // Alias for backward compatibility
 
   // Function to get localized category name
   const getCategoryName = (category: string) => {
@@ -172,12 +182,49 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
       : translation;
   };
 
-  // Filter categories based on active type
-  const filteredCategories = categories.filter(category => {
+  // Filter categories based on active category type
+  const filteredCategories = useMemo(() => {
     if (activeCategoryType === 'handmade') {
-      return !['candles'].includes(category.id.toLowerCase());
+      return categories.filter(category => 
+        !['candles', 'keychains'].includes(category.id.toLowerCase())
+      );
     } else {
-      return ['candles'].includes(category.id.toLowerCase());
+      return categories.filter(category => 
+        ['candles', 'keychains'].includes(category.id.toLowerCase())
+      );
+    }
+  }, [categories, activeCategoryType]);
+
+  // Update active category type when filters.type changes
+  useEffect(() => {
+    if (filters.type && filters.type !== activeCategoryType) {
+      setActiveCategoryType(filters.type);
+    }
+  }, [filters.type, activeCategoryType]);
+
+  // Add default categories if they don't exist
+  const allCategories = [
+    { id: 'chokers', name: 'Чокеры' },
+    { id: 'earrings', name: 'Серьги' },
+    { id: 'bracelets', name: 'Браслеты' },
+    { id: 'rings', name: 'Кольца' },
+    { id: 'hairpins', name: 'Заколки' },
+    { id: 'necklaces', name: 'Ожерелья' },
+    { id: 'keychains', name: 'Брелки' },
+    { id: 'candles', name: 'Свечи' }
+  ];
+  
+  // Merge with existing categories, avoiding duplicates
+  const mergedCategories = [
+    ...allCategories.filter(cat => !categories.some(c => c.id === cat.id)),
+    ...categories
+  ].filter(category => {
+    if (activeCategoryType === 'handmade') {
+      // In handmade section, exclude 'other' categories
+      return !['candles', 'keychains'].includes(category.id.toLowerCase());
+    } else {
+      // In 'other' section, show all categories
+      return true;
     }
   });
 
@@ -235,24 +282,24 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           <div className="flex justify-center mb-4">
             <div className="inline-flex rounded-lg border border-crimson/50 bg-card overflow-hidden">
               <button
-                onClick={() => setActiveCategoryType('handmade')}
+                onClick={() => handleCategoryTypeChange('handmade')}
                 className={`px-4 py-1.5 text-sm font-medium transition-colors duration-200 ${
                   activeCategoryType === 'handmade'
                     ? 'bg-crimson/80 text-white'
                     : 'text-foreground hover:bg-crimson/30 hover:text-white'
                 }`}
               >
-                САМОДЕЛЬНЫЕ
+                {t('filters.handmade')}
               </button>
               <button
-                onClick={() => setActiveCategoryType('other')}
+                onClick={() => handleCategoryTypeChange('other')}
                 className={`px-4 py-1.5 text-sm font-medium transition-colors duration-200 ${
                   activeCategoryType === 'other'
                     ? 'bg-crimson/80 text-white'
-                    : 'text-foreground hover:bg-crimson/30 hover:text-white'
+                    : 'text-foreground/70 hover:bg-foreground/5'
                 }`}
               >
-                ДРУГОЕ
+                {t('filters.other')}
               </button>
             </div>
           </div>
@@ -263,8 +310,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               {t('filters.categories')}
             </h4>
             <div className="space-y-2">
-              {filteredCategories.length > 0 ? (
-                filteredCategories.map((category) => {
+              {mergedCategories.length > 0 ? (
+                mergedCategories.map((category) => {
                   const isActive = activeCategory ? 
                     normalize(category.id) === normalize(activeCategory) :
                     filters.categories.some(cat => normalize(cat) === normalize(category.id));

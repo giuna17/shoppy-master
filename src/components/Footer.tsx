@@ -42,34 +42,18 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/category/bracelets"
+                  to="/shop?category=handmade"
                   className="text-foreground/80 hover:text-crimson transition"
                 >
-                  {t('footer.bracelets')}
+                  {t('footer.handmade_products')}
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/category/necklaces"
+                  to="/shop?category=other"
                   className="text-foreground/80 hover:text-crimson transition"
                 >
-                  {t('footer.necklaces')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/category/rings"
-                  className="text-foreground/80 hover:text-crimson transition"
-                >
-                  {t('footer.rings')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/category/candles"
-                  className="text-foreground/80 hover:text-crimson transition"
-                >
-                  {t('footer.candles')}
+                  {t('footer.other_products')} <span className="text-xs">სხვა</span>
                 </Link>
               </li>
             </ul>
@@ -103,7 +87,17 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-<button 
+                <a
+                  href="https://nekoshop.online/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground/80 hover:text-crimson transition"
+                >
+                  {t('footer.terms')}
+                </a>
+              </li>
+              <li>
+                <button 
                   type="button" 
                   onClick={() => setIsDeliveryModalOpen(true)}
                   className="text-foreground/80 hover:text-crimson transition w-full text-left"
@@ -123,13 +117,40 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-border mt-8 pt-6 text-center text-sm text-foreground/60">
-          <p>© {new Date().getFullYear()} NEKO.shop. All rights reserved.</p>
+          <p> </p>
         </div>
       </div>
       <DeliveryModal 
         isOpen={isDeliveryModalOpen} 
         onClose={() => setIsDeliveryModalOpen(false)} 
       />
+      
+      {/* Bottom section with legal links */}
+      <div className="border-t border-border mt-8 pt-6 pb-8">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+          <div className="text-sm text-foreground/60 mb-4 md:mb-0">
+            {new Date().getFullYear()} NEKO.shop. All rights reserved.
+          </div>
+          <div className="flex space-x-6">
+            <a 
+              href="https://nekoshop.online/privacy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-foreground/80 hover:text-crimson transition"
+            >
+              Privacy Policy
+            </a>
+            <a 
+              href="https://nekoshop.online/terms" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-foreground/80 hover:text-crimson transition"
+            >
+              Terms and Conditions
+            </a>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };

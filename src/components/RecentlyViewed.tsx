@@ -460,7 +460,7 @@ export const RecentlyViewed: React.FC<RecentlyViewedProps> = ({
                     to={`/product/${product.id}`}
                     className="relative block h-full"
                   >
-                    <div className="relative overflow-hidden rounded-xl bg-gray-900/60 border border-gray-800 shadow-xl transition-all duration-500 group-hover:shadow-2xl group-hover:border-crimson/40 h-full flex flex-col">
+                    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-black to-red-950/90 border border-gray-800 shadow-xl transition-all duration-500 group-hover:shadow-2xl group-hover:border-crimson/40 h-full flex flex-col">
                       <div className="aspect-square overflow-hidden bg-gray-900 relative">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
                         <img

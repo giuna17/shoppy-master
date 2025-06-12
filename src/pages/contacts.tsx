@@ -51,10 +51,10 @@ const ContactsPage = () => {
               <div>
                 <h3 className="font-semibold text-white">Email</h3>
                 <a
-                  href="mailto:contact@nekoshop.com"
+                  href="mailto:grge339@gmail.com"
                   className="text-sm text-gray-400 hover:text-crimson"
                 >
-                  contact@nekoshop.com
+                  grge339@gmail.com
                 </a>
               </div>
             </div>
