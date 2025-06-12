@@ -2,41 +2,48 @@ import { useEffect, useState } from 'react';
 
 interface PreloaderProps {
   isLoading: boolean;
+  progress?: number;
+  isAssetsLoaded?: boolean;
   children?: React.ReactNode;
 }
 
-const Preloader = ({ isLoading, children }: PreloaderProps) => {
+const Preloader = ({ 
+  isLoading, 
+  progress: externalProgress = 0, 
+  isAssetsLoaded = false, 
+  children 
+}: PreloaderProps) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const [internalProgress, setInternalProgress] = useState(0);
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
+  const progress = externalProgress || internalProgress;
 
+  // Handle internal progress if external progress is not provided
   useEffect(() => {
-    // Start the loading animation immediately
+    if (externalProgress > 0) return;
+    
     const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
+      setInternalProgress(prev => {
+        const newProgress = prev + Math.floor(Math.random() * 10) + 5;
+        if (newProgress >= 100) {
           clearInterval(interval);
-          // Only mark as complete when we reach 100%
-          if (!isLoadingComplete) {
-            setIsLoadingComplete(true);
-          }
           return 100;
         }
-        return prev + Math.floor(Math.random() * 10) + 5;
+        return newProgress;
       });
     }, 100);
 
-    // Prevent scrolling during loading
-    document.body.style.overflow = 'hidden';
+    return () => clearInterval(interval);
+  }, [externalProgress]);
 
-    // Cleanup function
-    return () => {
-      clearInterval(interval);
-      document.body.style.overflow = 'auto';
-    };
-  }, [isLoadingComplete]);
+  // Handle loading states
+  useEffect(() => {
+    if (externalProgress > 0 && externalProgress >= 100) {
+      setIsLoadingComplete(true);
+    }
+  }, [externalProgress]);
 
-  // Handle the loading state change
+  // Handle completion and cleanup
   useEffect(() => {
     if (isLoadingComplete && !isLoading) {
       const timer = setTimeout(() => {
@@ -45,6 +52,13 @@ const Preloader = ({ isLoading, children }: PreloaderProps) => {
       }, 500);
       return () => clearTimeout(timer);
     }
+    
+    // Prevent scrolling during loading
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
   }, [isLoading, isLoadingComplete]);
 
   if (!isLoading || !isVisible) {

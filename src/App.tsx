@@ -32,18 +32,36 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isAssetsLoaded, setIsAssetsLoaded] = useState(false);
 
   useEffect(() => {
-    // Set loading to false after 1.5 seconds
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    // Simulate loading of critical assets
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 5 + Math.random() * 15; // Random progress increment
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setIsAssetsLoaded(true);
+        // Wait for React to be fully hydrated
+        const timer = setTimeout(() => {
+          setIsLoading(false);
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+      setLoadingProgress(Math.min(progress, 100));
+    }, 100);
 
-    return () => clearTimeout(timer);
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <Preloader isLoading={isLoading}>
+    <Preloader 
+      isLoading={isLoading}
+      progress={loadingProgress}
+      isAssetsLoaded={isAssetsLoaded}
+    >
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <LanguageProvider>
