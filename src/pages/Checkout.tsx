@@ -251,9 +251,9 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground bg-gradient-to-br from-background to-[#0a0404]">
+    <div className="min-h-screen bg-background text-foreground bg-gradient-to-br from-background to-[#0a0404] relative">
       <div className="container mx-auto px-4 py-12 relative max-w-6xl">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none z-0"></div>
         <button 
           onClick={handleClose}
           className="absolute right-6 top-6 text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-110"
@@ -332,7 +332,7 @@ const Checkout = () => {
       </div>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-1 mt-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-border/30 hover:border-primary/30 transition-all duration-300 hover:shadow-primary/10 hover:shadow-lg">
               <div className="flex items-center gap-3 mb-6">
