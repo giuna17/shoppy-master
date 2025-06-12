@@ -250,6 +250,7 @@ export const applyFilters = (
     inStock?: boolean;
     outOfStock?: boolean;
     onSale?: boolean;
+    type?: 'handmade' | 'other';
   },
 ): Product[] => {
   return products.filter((product) => {
@@ -314,6 +315,16 @@ export const applyFilters = (
     // On Sale filter
     if (filters.onSale && !product.onSale) {
       return false;
+    }
+
+    // Type filter
+    if (filters.type) {
+      if (filters.type === 'handmade' && product.type !== 'handmade') {
+        return false;
+      }
+      if (filters.type === 'other' && product.type === 'handmade') {
+        return false;
+      }
     }
 
     return true;

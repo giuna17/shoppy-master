@@ -4,6 +4,7 @@ export interface FilterValues {
   inStock: boolean;
   outOfStock: boolean;
   onSale: boolean;
+  type?: 'handmade' | 'other';
 }
 
 export const materialOptions = [

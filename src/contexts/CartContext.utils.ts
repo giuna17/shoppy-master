@@ -20,6 +20,7 @@ export interface CartContextType {
   calculateTotal: () => number;
   calculateDiscount: () => DiscountInfo;
   calculateTotalWithDiscount: () => number;
+  getDeliveryFee: () => number;
   isFreeDelivery: () => boolean;
 }
 

@@ -27,10 +27,24 @@ const Shop = () => {
   const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get('category');
+  const urlType = searchParams.get('type') as 'handmade' | 'other' | null;
   const { addToCart } = useCartContext();
   const [activeCategory, setActiveCategory] = useState<string | null>(urlCategory);
+  const [activeCategoryType, setActiveCategoryType] = useState<'handmade' | 'other'>(urlType || 'handmade');
+  
   // Calculate default price range
   const defaultPriceRange: [number, number] = [0, 1000];
+  
+  // Keep filters in sync with URL
+  const updateFilters = useCallback((newFilters: Partial<FilterValues> | ((prev: FilterValues) => FilterValues)) => {
+    setFilters(prev => {
+      const updated = typeof newFilters === 'function' 
+        ? newFilters(prev) 
+        : { ...prev, ...newFilters };
+      console.log('Updating filters:', { prev, newFilters, updated });
+      return updated;
+    });
+  }, []);
   
   const [filters, setFilters] = useState<FilterValues>(() => ({
     priceRange: defaultPriceRange,
@@ -38,16 +52,69 @@ const Shop = () => {
     inStock: false,
     outOfStock: false,
     onSale: false,
+    type: urlType || 'handmade'
   }));
   
-  // Keep filters in sync with URL
-  const updateFilters = useCallback((newFilters: Partial<FilterValues>) => {
-    setFilters(prev => {
-      const updated = { ...prev, ...newFilters };
-      console.log('Updating filters:', { prev, newFilters, updated });
-      return updated;
-    });
-  }, []);
+  // Update URL and active category type when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    // Update URL parameters based on filters
+    if (filters.categories?.length) {
+      params.set('category', filters.categories[0]);
+    } else if (searchParams.has('category')) {
+      // Clear category from URL if no category is selected
+      searchParams.delete('category');
+    }
+    
+    // Only include type in URL if it's not the default 'handmade' value
+    if (filters.type && filters.type !== 'handmade') {
+      params.set('type', filters.type);
+    } else if (searchParams.has('type')) {
+      // Clear type from URL if it's the default 'handmade' value
+      searchParams.delete('type');
+    }
+    
+    // Update the URL without causing a page reload
+    const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    window.history.replaceState({}, '', newUrl);
+    
+    // Update active category type state when filters.type changes
+    if (filters.type && filters.type !== activeCategoryType) {
+      setActiveCategoryType(filters.type);
+    }
+  }, [filters, activeCategoryType, searchParams]);
+  
+  // Initialize filters from URL on component mount or when URL changes
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlType = params.get('type') as 'handmade' | 'other' | null;
+    const urlCategory = params.get('category');
+    let shouldUpdateFilters = false;
+    const updates: Partial<FilterValues> = {};
+    
+    // Check if we need to update the active category type
+    if (urlType && urlType !== activeCategoryType) {
+      setActiveCategoryType(urlType);
+      updates.type = urlType;
+      shouldUpdateFilters = true;
+    }
+    
+    // Check if we need to update the active category
+    if (urlCategory && urlCategory !== activeCategory) {
+      setActiveCategory(urlCategory);
+      updates.categories = [urlCategory];
+      shouldUpdateFilters = true;
+    }
+    
+    // Only update filters if we have changes
+    if (shouldUpdateFilters) {
+      updateFilters(prev => ({
+        ...prev,
+        ...updates
+      }));
+    }
+  }, [searchParams, activeCategory, activeCategoryType, updateFilters]);
   
   // Reset filter state when activeCategory changes
   const handleCategorySelect = useCallback((categoryId: string | null) => {
@@ -163,6 +230,7 @@ const Shop = () => {
     inStock: filters.inStock,
     outOfStock: filters.outOfStock,
     onSale: filters.onSale,
+    type: activeCategoryType,
   });
   
   // Log the Espresso Rhythm bracelet specifically
@@ -303,7 +371,18 @@ const Shop = () => {
   const handleCategoryClick = (categoryId: string) => {
     console.log('Category clicked:', categoryId);
     const newActiveCategory = categoryId === activeCategory ? null : categoryId;
-    handleCategorySelect(newActiveCategory);
+    
+    // Update the active category and reset other filters
+    updateFilters(prev => ({
+      ...prev,
+      categories: newActiveCategory ? [newActiveCategory] : [],
+      inStock: false,
+      outOfStock: false,
+      onSale: false,
+      type: activeCategoryType
+    }));
+    
+    setActiveCategory(newActiveCategory);
   };
 
   const getCategoryName = (category: string) => {
@@ -365,10 +444,22 @@ const Shop = () => {
 
               {/* Product Filters */}
               <ProductFilters
-                onFilterChange={handleFilterChange}
-                categories={translatedCategories}
+                onFilterChange={updateFilters}
+                categories={categories.map(category => ({
+                  id: category,
+                  name: t(`categories.${category}`) || category
+                }))}
                 initialFilters={filters}
-                activeCategory={activeCategory}
+                activeCategory={activeCategory || undefined}
+                activeCategoryType={activeCategoryType}
+                onCategoryTypeChange={(type) => {
+                  setActiveCategoryType(type);
+                  updateFilters({
+                    ...filters,
+                    type,
+                    categories: []
+                  });
+                }}
               />
             </div>
 
