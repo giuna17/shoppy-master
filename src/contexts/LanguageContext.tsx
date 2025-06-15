@@ -14,12 +14,12 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  language: 'ru',
-  currentLanguage: 'ru',
+  language: 'ge',
+  currentLanguage: 'ge',
   setLanguage: () => {},
   t: (key: string) => key,
   i18n: {
-    language: 'ru',
+    language: 'ge',
     changeLanguage: async () => {}
   }
 });
@@ -27,13 +27,13 @@ const LanguageContext = createContext<LanguageContextType>({
 // Key for localStorage
 const LANGUAGE_STORAGE_KEY = 'shoppy_language';
 
-// Get initial language from localStorage or use 'ru' as default
+// Get initial language from localStorage or use 'ge' as default
 const getInitialLanguage = (): string => {
   if (typeof window !== 'undefined') {
     const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    return savedLanguage || 'ru';
+    return savedLanguage || 'ge';
   }
-  return 'ru';
+  return 'ge';
 };
 
 export const LanguageProvider = ({
